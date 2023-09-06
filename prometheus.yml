@@ -1,0 +1,12 @@
+global:
+  scrape_interval: 5s
+scrape_configs:
+  - job_name: 'order-processing-service'
+    static_configs:
+      - targets: ['order-processing-service:5001']
+  - job_name: 'home-page-service'
+    static_configs:
+      - targets: ['home-page-service:5002']
+  - job_name: 'user-management-service'
+    static_configs:
+      - targets: ['home-page-service:5003']
