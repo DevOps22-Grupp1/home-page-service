@@ -9,4 +9,4 @@ scrape_configs:
       - targets: ['home-page-service:5002']
   - job_name: 'user-management-service'
     static_configs:
-      - targets: ['user-management-service:5003']
+      - targets: ['produkt-catalog-service:5004']

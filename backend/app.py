@@ -15,7 +15,7 @@ metrics.info("app_info", "home-page-service", version="1.0.0")
 @app.route("/")
 def hello_world():
     r1 = requests.get("http://order-processing-service:5001")
-    r2 = requests.get("http://user-management-service:5003")
+    r2 = requests.get("http://produkt-catalog-service:5004")
     return f"Hello from home-page-service. order-processing-service says: {r1.text}! - user-managament-service says {r2.text}"
 
 
