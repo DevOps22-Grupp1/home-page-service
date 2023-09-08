@@ -20,6 +20,7 @@ services:
     depends_on:
       mongo-home-page-service:
         condition: service_healthy
+
   prometheus-home-page-service:
     image: prom/prometheus:latest
     ports:
