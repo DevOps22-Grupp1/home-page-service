@@ -1,5 +1,5 @@
-from flask import Flask
-import requests
+from flask import Flask, render_template
+#import requests
 from prometheus_flask_exporter import PrometheusMetrics
 
 app = Flask(__name__)
@@ -13,10 +13,14 @@ metrics.info("app_info", "home-page-service", version="1.0.0")
     "Number of invocations by HTTP method",
 )
 @app.route("/")
-def hello_world():
-    r1 = requests.get("http://order-processing-service:5001")
-    r2 = requests.get("http://produkt-catalog-service:5004")
-    return f"Hello from home-page-service. order-processing-service says: {r1.text}! - user-managament-service says {r2.text}"
+def hello():
+    return render_template("index.html")
+
+
+#def hello_world():
+   # r1 = requests.get("http://order-processing-service:5001")
+    # r2 = requests.get("http://produkt-catalog-service:5004")
+    # return f"Hello from home-page-service. order-processing-service says: {r1.text}! - user-managament-service says {r2.text}"
 
 
 # Very important to disable debug mode
