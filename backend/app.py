@@ -16,9 +16,10 @@ metrics.info("app_info", "home-page-service", version="1.0.0")
 def hello():
     return render_template("index.html")
 
+# Make requests to the other services and return the result ok or not ok
 
 #def hello_world():
-   # r1 = requests.get("http://order-processing-service:5001")
+    # r1 = requests.get("http://order-processing-service:5001")
     # r2 = requests.get("http://produkt-catalog-service:5004")
     # return f"Hello from home-page-service. order-processing-service says: {r1.text}! - user-managament-service says {r2.text}"
 
