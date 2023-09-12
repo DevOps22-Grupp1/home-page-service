@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} Monitoring Server Status {% endblock %}</h1>
+    <h3>{{ utc_dt }}</h3>
+    <hr>
+    <h2> SERVER STATUS </h2>
+    <div style="width: 50%; margin: auto">
+        {% for res in status %}
+                {% if res == "ok" %}
+                    {% set bg_color = 'green' %}
+                {% else %}
+                    {% set bg_color = 'red' %}
+                {% endif %}                
+        {% for service in services %}
+        
+            <div style="padding: 10px; background-color: {{ bg_color }}; margin: 20px">
+                <p>#{{ loop.index }}</p>
+                <p style="font-size: 24px">  {{ service }} ------------- {{ res }}</p>
+            </div>
+        {% endfor %}
+        {% endfor %}
+    </div>
+{% endblock %}

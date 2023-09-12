@@ -1,11 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>FlaskApp</title>
-</head>
-<body>
-    <h1>Hello World!</h1>
-    <h2>Welcome to FlaskApp!</h2>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} Home // Index {% endblock %}</h1>
+    <h1>Hello noobs of the World!</h1>
+    <h2>Welcome to Scamazon!</h2>
+    <h3>{{ utc_dt }}</h3>
+    <hr>
+    <h1>Here is a picture of our amazing scammer team:</h1>
+    <div style="margin: auto;">
+        <img src="https://gadgetguy-assets.s3.ap-southeast-2.amazonaws.com/wordpress/wp-content/uploads/2020/01/02182039/Scamazon.jpg" alt="picture">
+    </div>
+{% endblock %}
