@@ -25,7 +25,7 @@ def about():
 def products():
 
     # These arrays / lists are just for the purpose of the demo. In the future we will use the database to get the data. #
-    products = [
+    products = [        
                 "This is the first product.", 
                 "This is the second product.", 
                 "This is the third product." , 
