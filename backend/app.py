@@ -1,6 +1,6 @@
 from flask import Flask, render_template
 import datetime
-#import requests
+import requests
 from prometheus_flask_exporter import PrometheusMetrics
 
 app = Flask(__name__)
@@ -24,43 +24,36 @@ def about():
 @app.route("/products/")
 def products():
 
-    # These arrays / lists are just for the purpose of the demo. In the future we will use the database to get the data. #
-    products = [        
-                "This is the first product.", 
-                "This is the second product.", 
-                "This is the third product." , 
-                "This is the fourth product."
-                ]
-    images = [
-            "https://scamskate.com/cdn/shop/products/Scamazonshirts_1024x1024.png?v=1634931964",
-            "https://scamskate.com/cdn/shop/products/Penny-Calypso_480x.jpg?v=1645207295",
-            "https://scamskate.com/cdn/shop/products/20221119_165311-PhotoRoom_480x.png?v=1668901190",
-            "https://scamskate.com/cdn/shop/products/fallenthegoatorangeblack-01_480x.png?v=1628790088"
-            ]
-    prices = [
-            "€ 20,00",
-            "€ 14,99",	
-            "€ 29,99",
-            "€ 139,00"
-            ]   
+    # AT THIS MOMENT NOT WORKING - RESEARCH HOW TO GET THE DATA FROM THE OTHER SERVICE #
+    products = requests.get('http://scamazon-product-catalog-service-1:4005/api/products')
+    products = products.json()
+    
 
-    return render_template("products.html", products=products, images=images, prices=prices)
+    return render_template("products.html")
 
 @app.route("/server/")
 def server():
+
+    r1 = requests.get("http://scamazon-product-catalog-service-1:4005")
+    r2 = requests.get("http://scamazon-user-management-service-1:4006")
+    r3 = requests.get("http://scamazon-order-processing-service-1:4007")
+
+    status = [r1, r2, r3]
+    services = ["product-catalog-service", "user-managament-service" ,"order-processing-service" ]
+    return f"{r1.text}! - {r2.text}! - {r3.text}!"
+    
+    
     # look in products.html how to use the forloop(array) correct and not making it go double. At this moment it goes double for visual purpose #
     # status is just a demo list how it could look like on the page #
-    status = ["ok", "not ok"]
-    services = ["order-processing-service", "user-managament-service", "product-catalog-service"]
-    return render_template("server.html", utc_dt=datetime.datetime.utcnow(), status=status, services=services)
+    # 
+    # 
+    # return render_template("server.html", utc_dt=datetime.datetime.utcnow(), status=status, services=services)
 
 ### Make requests to the other services and return the result ok or not ok ###
 
 #def check_server_status():
-    # r1 = requests.get("http://order-processing-service:5001")
-    # r2 = requests.get("http://produkt-catalog-service:5004")
-    # return f"order-processing-service says: {r1.text}! - user-managament-service says {r2.text} - product-catalog-service says {r3.text}" 
+      
 
 
 # Very important to disable debug mode
-app.run(host="0.0.0.0", port=5002, debug=False)
+app.run(host="0.0.0.0", port=4004, debug=False)
