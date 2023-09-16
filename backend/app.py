@@ -1,6 +1,7 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify
 import datetime
-#import requests
+import json
+import requests
 from prometheus_flask_exporter import PrometheusMetrics
 
 app = Flask(__name__)
@@ -23,28 +24,15 @@ def about():
 
 @app.route("/products/")
 def products():
+    response = requests.get('http://scamazon-product-catalog-service-1:4005/api/products') 
 
-    # These arrays / lists are just for the purpose of the demo. In the future we will use the database to get the data. #
-    products = [        
-                "This is the first product.", 
-                "This is the second product.", 
-                "This is the third product." , 
-                "This is the fourth product."
-                ]
-    images = [
-            "https://scamskate.com/cdn/shop/products/Scamazonshirts_1024x1024.png?v=1634931964",
-            "https://scamskate.com/cdn/shop/products/Penny-Calypso_480x.jpg?v=1645207295",
-            "https://scamskate.com/cdn/shop/products/20221119_165311-PhotoRoom_480x.png?v=1668901190",
-            "https://scamskate.com/cdn/shop/products/fallenthegoatorangeblack-01_480x.png?v=1628790088"
-            ]
-    prices = [
-            "€ 20,00",
-            "€ 14,99",	
-            "€ 29,99",
-            "€ 139,00"
-            ]   
-
-    return render_template("products.html", products=products, images=images, prices=prices)
+    if response.status_code == 200:
+        products = json.loads(response.text)
+    else:
+        return jsonify({'error': 'Failed to fetch data'})
+  
+    return render_template("products.html", products=products)
+#  images=images, prices=prices
 
 @app.route("/server/")
 def server():
@@ -58,7 +46,7 @@ def server():
 
 #def check_server_status():
     # r1 = requests.get("http://order-processing-service:5001")
-    # r2 = requests.get("http://produkt-catalog-service:5004")
+    # r2 = requests.get("http://scamazon-product-catalog-service-1:4005/")
     # return f"order-processing-service says: {r1.text}! - user-managament-service says {r2.text} - product-catalog-service says {r3.text}" 
 
 
