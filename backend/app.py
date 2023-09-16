@@ -25,11 +25,11 @@ def about():
 def products():
 
     # AT THIS MOMENT NOT WORKING - RESEARCH HOW TO GET THE DATA FROM THE OTHER SERVICE #
-    products = requests.get('http://scamazon-product-catalog-service-1:4005/api/products')
-    products = products.json()
+    products = requests.get('http://scamazon-product-catalog-service-1:4005/api/products').json()
+    products = products.sringify()
     
 
-    return render_template("products.html")
+    return render_template("products.html", products=products, utc_dt=datetime.datetime.utcnow())
 
 @app.route("/server/")
 def server():
@@ -38,9 +38,10 @@ def server():
     r2 = requests.get("http://scamazon-user-management-service-1:4006")
     r3 = requests.get("http://scamazon-order-processing-service-1:4007")
 
-    status = [r1, r2, r3]
+    status = [r1.text, r2.text, r3.text]
     services = ["product-catalog-service", "user-managament-service" ,"order-processing-service" ]
-    return f"{r1.text}! - {r2.text}! - {r3.text}!"
+    return render_template("server.html", utc_dt=datetime.datetime.utcnow(), status=status, services=services)
+    # return f"{r1.text}! - {r2.text}! - {r3.text}!"
     
     
     # look in products.html how to use the forloop(array) correct and not making it go double. At this moment it goes double for visual purpose #
