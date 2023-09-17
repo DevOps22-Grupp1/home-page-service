@@ -38,8 +38,8 @@ def products():
 def server():
     # look in products.html how to use the forloop(array) correct and not making it go double. At this moment it goes double for visual purpose #
     # status is just a demo list how it could look like on the page #
-    r1 = requests.get("http://order-processing-service:4007")
-    r2 = requests.get("http://user-managament-service:4006/")
+    r1 = requests.get("http://scamazon-order-processing-service-1:4007")
+    r2 = requests.get("http://scamazon-user-managament-service-1:4006/")
     r3 = requests.get("http://scamazon-product-catalog-service-1:4005/")
     
     
@@ -56,4 +56,4 @@ def server():
 
 
 # Very important to disable debug mode
-app.run(host="0.0.0.0", port=4004, debug=False)
+app.run(host="0.0.0.0", port=4004, debug=True)
