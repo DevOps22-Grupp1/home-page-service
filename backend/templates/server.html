@@ -6,7 +6,6 @@
     <hr>
     <h2> SERVER STATUS </h2>
     <div style="width: 50%; margin: auto">
-        <!-- Fix the double looping somehow xD -->
         {% for obj in status %}
                 {% if obj.status == "Success" %}
                     {% set bg_color = 'green' %}
@@ -16,7 +15,7 @@
         
             <div style="padding: 10px; background-color: {{ bg_color }}; margin: 20px">
                 <p>#{{ loop.index }}</p>
-                <p style="font-size: 24px"> {{ obj.name }} </p>
+                <p style="font-size: 24px"> {{ obj.name }} --------------- {{ obj.status}} </p>
             </div>
         {% endfor %}
     </div>
