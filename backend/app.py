@@ -77,29 +77,26 @@ def delete_p():
 
 
 
-@app.route("/update/", methods=["GET"])
+@app.route("/update/", methods=["POST"])
 def update_p():
-    id = request.args.get('id')
-    order = request.args.get("name")
-    # delete_url = 'http://scamazon-product-catalog-service-1:4005/api/product/{}'.format(id)
-    # response = requests.delete(delete_url)
-    # if response.status_code == 204:
-    #     # The DELETE request was successful, and there's no response content.
-    #     return redirect(url_for('handle_products'))
-    # elif response.status_code == 404:
-    #     return jsonify({'error': 'Product not found'})
-    # else:
-    #     return jsonify({'error': 'Failed to delete product'})
-    return f"{order}"
-
-    # <a href="{{ url_for('update_p', id= product.id, name=product.order ) }}">Update</a>
-
-    # if response.status_code == 200:
-    #     products = json.loads(response.text)
-    #     # return render_template("admin-product-html", products=products)
-    #     return f"{products}"
-    # else:
-    #     return jsonify({'error': 'Failed to fetch data'})
+    # return request.form['id']
+    id =  request.form['id']
+    order = request.form['updateOrder']
+    price = request.form['updatePrice']
+    
+    json_data = json.dumps({
+        'order': order,
+        'price': price
+    })
+    d_url = 'http://scamazon-product-catalog-service-1:4005/api/product/{}'.format(id)
+    headers = {'Content-Type': 'application/json'}
+    response = requests.put(d_url, data=json_data, headers=headers)
+    if response.status_code == 200:
+        # The POST request was successful
+        return redirect(url_for('handle_products'))
+    else:
+        return f"POST request returned a status code: {response.status_code}"
+        # You can handle different status codes as needed
 
 
 @app.route("/add_products/", methods=["POST"])
@@ -107,12 +104,11 @@ def post_product():
     order = request.form['name']
     price = request.form['price']
     add_url = 'http://scamazon-product-catalog-service-1:4005/api/product'
-    
-    data = {
+     
+    json_data = json.dumps({
         'order': order,
         'price': price
-    }
-    json_data = json.dumps(data)
+    })
     headers = {'Content-Type': 'application/json'}
     response = requests.post(add_url, data=json_data, headers=headers)
     if response.status_code == 201:
@@ -121,9 +117,6 @@ def post_product():
     else:
         return f"POST request returned a status code: {response.status_code}"
         # You can handle different status codes as needed
-
-    
-    return f"{order} {price}" 
     
 
 @app.route("/login/", methods=["POST"])
