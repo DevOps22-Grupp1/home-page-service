@@ -30,12 +30,10 @@ services:
     image: grafana/grafana
     restart: always
     ports:
-      - 3000:3000
+      - 3005:3000
     networks:
       - my_network
-    depends_on:
-      prometheus:
-        condition: service_healthy
+    
 
     
 
