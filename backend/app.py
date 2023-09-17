@@ -34,19 +34,20 @@ def products():
     return render_template("products.html", products=products)
 #  images=images, prices=prices
 
-@app.route("/server/")
-def server():
     # look in products.html how to use the forloop(array) correct and not making it go double. At this moment it goes double for visual purpose #
     # status is just a demo list how it could look like on the page #
-    r1 = requests.get("http://scamazon-order-processing-service-1:4007")
-    r2 = requests.get("http://scamazon-user-managament-service-1:4006/")
-    r3 = requests.get("http://scamazon-product-catalog-service-1:4005/")
-    
-    
-    status = [r1.text, r2.text, r3.text]
-    services = ["order-processing-service", "user-managament-service", "product-catalog-service"]
-    return render_template("server.html", utc_dt=datetime.datetime.utcnow(), status=status, services=services)
+@app.route("/server/")
+def server():
 
+    r1 = requests.get("http://scamazon-product-catalog-service-1:4005")
+    r2 = requests.get("http://scamazon-user-management-service-1:4006")
+    r3 = requests.get("http://scamazon-order-processing-service-1:4007")
+
+    
+    status = [{"name": "product-catalog-service", "status": r1.text}, {"name": "user-managament-service", "status": r2.text}, {"name": "order-processing-service", "status": r3.text}]
+
+
+    return render_template("server.html", utc_dt=datetime.datetime.utcnow(), status=status)
 ### Make requests to the other services and return the result ok or not ok ###
 
 #def check_server_status():
