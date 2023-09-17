@@ -25,4 +25,17 @@ services:
       - my_network
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yaml
+  
+  grafana:
+    image: grafana/grafana
+    restart: always
+    ports:
+      - 3000:3000
+    networks:
+      - my_network
+    depends_on:
+      prometheus:
+        condition: service_healthy
+
+    
 
