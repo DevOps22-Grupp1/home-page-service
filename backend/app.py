@@ -38,9 +38,11 @@ def server():
     r2 = requests.get("http://scamazon-user-management-service-1:4006")
     r3 = requests.get("http://scamazon-order-processing-service-1:4007")
 
-    status = [r1.text, r2.text, r3.text]
-    services = ["product-catalog-service", "user-managament-service" ,"order-processing-service" ]
-    return render_template("server.html", utc_dt=datetime.datetime.utcnow(), status=status, services=services)
+    
+    status = [{"name": "product-catalog-service", "status": r1.text}, {"name": "user-managament-service", "status": r2.text}, {"name": "order-processing-service", "status": r3.text}]
+
+
+    return render_template("server.html", utc_dt=datetime.datetime.utcnow(), status=status)
     # return f"{r1.text}! - {r2.text}! - {r3.text}!"
     
     
