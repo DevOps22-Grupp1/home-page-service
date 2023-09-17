@@ -4,20 +4,22 @@
 {% if products == "Failed to fetch data" %}
 <h3>{{ products }}</h3>
     {% else %}
-        <div style="width: 50%; margin: auto">
+        <div style="width: 85%; margin: auto">
         {% for product in products %}
         <div
             style="
             padding: 10px;
             background-color: #e6f9ff;
             margin: 20px;
-            border-radius: 10px;
+            border-radius: 15px;
             display: inline-block;
+            justify-content: center;
+            align-items: center;
             "
         >
             <p>#{{ loop.index }}</p>
             <p style="font-size: 24px">{{ product.order }}</p>
-            <img style="width: 100%" src="{{ product.image }}" alt="pic">
+            <img style="height: 400px" src="{{ product.image }}" alt="pic">
             <p style="font-size: 24px">{{ product.price }}€</p>
         </div>
         {% endfor %}
