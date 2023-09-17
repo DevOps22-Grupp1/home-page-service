@@ -1,0 +1,38 @@
+{% extends 'base.html' %} {% block content %}
+<h1>{% block title %} Products {% endblock %}</h1>
+<div>
+  <a href="{{ url_for('get_login') }}">admin Products</a>
+</div>
+
+<div style="width: 30%; margin: auto">
+    <form action="/add_products" method="post" enctype="multipart/form-data">
+  <label for="name">Name of the product:</label>
+  <input type="text" name="name" required /><br /><br />
+  <label for="price">Price:</label>
+  <input type="text" name="price" required /><br /><br />
+ <label for="images">Images(only working on distans handling at the moment):</label>
+  <input type="text" name="images" /><br /><br />
+  
+  <input type="submit" value="add product" />
+</form>
+</div>
+<div style="width: 50%; margin: auto">
+  {% for product in products %}
+  <div
+    style="
+      padding: 10px;
+      background-color: #e6f9ff;
+      margin: 20px;
+      border-radius: 10px;
+      display: inline-block;
+    "
+  >
+    <p>id:{{ product.id }}</p>
+    <input type="text" value={{product.order}} name="name"  /><br />
+    <p style="font-size: 24px">{{ product.order }}</p>
+    <p style="font-size: 24px">{{ product.price }}</p>
+    <a href="{{ url_for('delete_p', id= product.id ) }}">delete</a>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
