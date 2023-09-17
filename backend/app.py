@@ -42,12 +42,20 @@ def server():
     res1 = requests.get("http://scamazon-product-catalog-service-1:4005")
     if res1.status_code == 200:
         r1 = "Success"
+    else:
+        r1 = jsonify({'error': 'Failed to fetch data'})
+    
     res2 = requests.get("http://scamazon-user-management-service-1:4006")
     if res2.status_code == 200:
         r2 = "Success"
+    else:
+        r2 = jsonify({'error': 'Failed to fetch data'})
+    
     res3 = requests.get("http://scamazon-order-processing-service-1:4007")
     if res3.status_code == 200:
         r3 = "Success"
+    else:
+        r3 = jsonify({'error': 'Failed to fetch data'})
 
     
     status = [{"name": "product-catalog-service", "status": r1.text}, {"name": "user-managament-service", "status": r2.text}, {"name": "order-processing-service", "status": r3.text}]
