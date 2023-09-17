@@ -39,9 +39,15 @@ def products():
 @app.route("/server/")
 def server():
 
-    r1 = requests.get("http://scamazon-product-catalog-service-1:4005")
-    r2 = requests.get("http://scamazon-user-management-service-1:4006")
-    r3 = requests.get("http://scamazon-order-processing-service-1:4007")
+    res1 = requests.get("http://scamazon-product-catalog-service-1:4005")
+    if res1.status_code == 200:
+        r1 = "Success"
+    res2 = requests.get("http://scamazon-user-management-service-1:4006")
+    if res2.status_code == 200:
+        r2 = "Success"
+    res3 = requests.get("http://scamazon-order-processing-service-1:4007")
+    if res3.status_code == 200:
+        r3 = "Success"
 
     
     status = [{"name": "product-catalog-service", "status": r1.text}, {"name": "user-managament-service", "status": r2.text}, {"name": "order-processing-service", "status": r3.text}]
