@@ -1,6 +1,6 @@
 {% extends 'base.html' %} {% block content %}
 <h1>{% block title %} Products {% endblock %}</h1>
-<div style="width: 65%; margin: auto >
+<div style="width: 65%; margin: auto;">
   <a href="{{ url_for('get_login') }}">admin Products</a>
 </div>
 <h2>{% block subtitle %} New Products {% endblock %}</h2>
