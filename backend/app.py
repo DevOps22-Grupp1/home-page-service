@@ -133,6 +133,10 @@ def post_login():
 def about():
     return render_template("about.html")
 
+@app.route("/orders/")
+def orders():
+    return render_template("orders.html")
+
 @app.route("/products/")
 def products():
     try:
