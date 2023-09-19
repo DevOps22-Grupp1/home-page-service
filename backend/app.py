@@ -135,7 +135,6 @@ def about():
 
 @app.route("/products/")
 def products():
-
     try:
         response = requests.get('http://scamazon-product-catalog-service-1:4005/api/products') 
         if response.status_code == 200:
@@ -183,4 +182,4 @@ def server():
 
 
 # Very important to disable debug mode
-app.run(host="0.0.0.0", port=4004, debug=True)
+app.run(host="0.0.0.0", port=4004, debug=False)
