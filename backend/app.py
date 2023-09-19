@@ -121,13 +121,17 @@ def post_product():
 
 @app.route("/login/", methods=["POST"])
 def post_login():
+    path = request.args.get('path')
     username = request.form['username']
     password = request.form['password']
     
     if username in users and users[username]['password'] == password:
         user = User(username)
         login_user(user)
-        return redirect(url_for('handle_products'))
+        if path == 'orders':
+            return redirect(url_for('about'))
+        elif path == 'products':
+            return redirect(url_for('handle_products'))
 
 @app.route("/about/")
 def about():
@@ -135,7 +139,14 @@ def about():
 
 @app.route("/orders/")
 def orders():
-    return render_template("orders.html")
+    try:
+        response = requests.get('http://scamazon-order-processing-service-1:4008/api/products')
+        if response.status_code == 200:
+            orders = json.loads(response.text)
+    except requests.exceptions.RequestException as e:
+        orders = 'Failed to fetch data'
+
+    return render_template("orders.html", orders=orders)
 
 @app.route("/products/")
 def products():
