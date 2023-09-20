@@ -182,4 +182,4 @@ def server():
 
 
 # Very important to disable debug mode
-app.run(host="0.0.0.0", port=4004, debug=False)
+app.run(host="0.0.0.0", port=4004, debug=True)
