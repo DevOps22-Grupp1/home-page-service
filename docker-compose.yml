@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 name: "scamazon"
 
 networks:
@@ -8,18 +8,20 @@ networks:
 volumes:
   mongo-data:
 
-
 services:
-
   home-page-service:
     build: ./backend
     networks:
       - my_network
     ports:
-      - "5002:5002"
+      - "4004:4004"
     depends_on:
       mongo-home-page-service:
         condition: service_healthy
+    environment:
+      - DB_PORT=4004
+      - DB_USERNAME=root
+      - DB_PASSWORD=example
 
   prometheus-home-page-service:
     image: prom/prometheus:latest
@@ -61,3 +63,11 @@ services:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: example
       ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo-home-page-service:27017/
+
+  grafana:
+    image: grafana/grafana
+    restart: always
+    ports:
+      - 3005:3000
+    networks:
+      - my_network

@@ -1,0 +1,33 @@
+{% extends 'base.html' %} 
+{% block content %}
+<h1>{% block title %} Products {% endblock %}</h1>
+<hr>
+<h3>Admin Login</h3>
+<div>
+  <a href="{{ url_for('get_login') }}">Login</a>
+</div>
+{% if products == "Failed to fetch data" %}
+<h3>{{ products }}</h3>
+    {% else %}
+        <div style="width: 85%; margin: auto">
+        {% for product in products %}
+        <div
+            style="
+            padding: 10px;
+            background-color: #e6f9ff;
+            margin: 20px;
+            border-radius: 15px;
+            display: inline-block;
+            justify-content: center;
+            align-items: center;
+            "
+        >
+            <p>#{{ loop.index }}</p>
+            <p style="font-size: 24px">{{ product.order }}</p>
+            <img style="height: 400px" src="{{ product.image }}" alt="pic">
+            <p style="font-size: 24px">{{ product.price }}€</p>
+        </div>
+        {% endfor %}
+        </div>
+{% endif %}
+{% endblock %}
