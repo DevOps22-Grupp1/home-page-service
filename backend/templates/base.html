@@ -1,130 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>{% block title %} Home / Index {% endblock %} - Scamazon</title>
     <style>
-        nav a {
-            color: #d64161;
-            font-size: 3em;
-            margin-left: 50px;
-            text-decoration: none;
-        }
+      nav a {
+        color: #d64161;
+        font-size: 3em;
+        margin-left: 50px;
+        text-decoration: none;
+      }
+      footer {
+        background-color: #f0f0f0;
+        padding: 20px 0;
+        text-align: center;
+      }
+
+      .footer-column {
+        display: inline-block;
+        width: 30%; /* Adjust as needed */
+        margin: 10px;
+        vertical-align: top;
+      }
+
+      .footer-column h3 {
+        font-size: 1.5em;
+      }
+
+      .footer-column ul {
+        list-style: none;
+        padding: 0;
+      }
+
+      .footer-column ul li {
+        margin: 5px 0;
+      }
+
+      .footer-column form {
+        margin-top: 10px;
+      }
+
+      .footer-column form input[type="email"] {
+        width: 100%;
+        padding: 5px;
+      }
+
+      .footer-column form button {
+        background-color: #d64161;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+      }
+
+      .social-media-icons {
+        list-style: none;
+        padding: 0;
+      }
+
+      .social-media-icons li {
+        display: inline-block;
+        margin-right: 10px;
+      }
+
+      .facebook-icon {
+        color: #1877f2;
+      }
+
+      .twitter-icon {
+        color: #1da1f2;
+      }
+
+      .instagram-icon {
+        color: #c13584;
+      }
     </style>
-    <!-- <style>
-        nav a {
-            color: #d64161;
-            font-size: 3em;
-            margin-left: 50px;
-            text-decoration: none;
-        }
-        footer {
-            background-color: #f0f0f0;
-            padding: 20px 0;
-            text-align: center;
-        }
-
-        .footer-column {
-            display: inline-block;
-            width: 30%; /* Adjust as needed */
-            margin: 10px;
-            vertical-align: top;
-        }
-
-        .footer-column h3 {
-            font-size: 1.5em;
-        }
-
-        .footer-column ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        .footer-column ul li {
-            margin: 5px 0;
-        }
-
-        .footer-column form {
-            margin-top: 10px;
-        }
-
-        .footer-column form input[type="email"] {
-            width: 100%;
-            padding: 5px;
-        }
-
-        .footer-column form button {
-            background-color: #d64161;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            cursor: pointer;
-        }
-
-        .social-media-icons {
-            list-style: none;
-            padding: 0;
-        }
-
-        .social-media-icons li {
-            display: inline-block;
-            margin-right: 10px;
-        }
-
-        .facebook-icon {
-            color: #1877f2;
-        }
-
-        .twitter-icon {
-            color: #1da1f2;
-        }
-
-        .instagram-icon {
-            color: #c13584;
-        } 
-        </style>-->
-
-</head>
-<body>
+  </head>
+  <body>
     <nav>
-        <a href="{{ url_for('hello') }}">Scamazon</a>
-        <a href="{{ url_for('products') }}">Products</a>
-        <a href="{{ url_for('about') }}">About</a>
-        <a href="{{ url_for('server') }}">Server</a>
+      <a href="{{ url_for('hello') }}">Scamazon</a>
+      <a href="{{ url_for('products') }}">Products</a>
+      <a href="{{ url_for('about') }}">About</a>
+      <a href="{{ url_for('server') }}">Server</a>
     </nav>
-    <hr>
-    <div class="content">
-        {% block content %} {% endblock %}
-    </div>
-    <!--footer>
-        <div class="footer-column">
-            <h3>Useful Links</h3>
-            <ul>
-                <li><a href="{{ url_for('hello') }}">Scamazon</a></li>
-                <li><a href="{{ url_for('orders') }}">Orders</a></li>
-                <li><a href="{{ url_for('products') }}">Products</a></li>
-                <li><a href="{{ url_for('about') }}">About</a></li>
-            </ul>
-        </div>
-        
-        <div class="footer-column">
-            <h3>Newsletter Subscription</h3>
-            <form action="/subscribe" method="post">
-                <input type="email" name="email" placeholder="Enter your email">
-                <button type="submit">Subscribe</button>
-            </form>
-        </div>
+    <hr />
+    <div class="content">{% block content %} {% endblock %}</div>
+    <footer>
+      <div class="footer-column">
+        <h3>Useful Links</h3>
+        <ul>
+          <a href="{{ url_for('hello') }}">Scamazon</a>
+          <a href="{{ url_for('products') }}">Products</a>
+          <a href="{{ url_for('about') }}">About</a>
+          <a href="{{ url_for('server') }}">Server</a>
+        </ul>
+      </div>
+      <div class="footer-column">
+        <h3>Newsletter Subscription</h3>
+        <form action="/subscribe" method="post">
+          <input type="email" name="email" placeholder="Enter your email" />
+          <button type="submit">Subscribe</button>
+        </form>
+      </div>
 
-        
-<div class="footer-column">
-            <h3>Social Media</h3>
-            <ul class="social-media-icons">
-                <li><a href="#" class="facebook-icon">Facebook</a></li>
-                <li><a href="#" class="twitter-icon">Twitter</a></li>
-                <li><a href="#" class="instagram-icon">Instagram</a></li>
-            </ul>
-        </div>
-
-    </footer-->
-</body>
+      <div class="footer-column">
+        <h3>Social Media</h3>
+        <ul class="social-media-icons">
+          <li><a href="#" class="facebook-icon">Facebook</a></li>
+          <li><a href="#" class="twitter-icon">Twitter</a></li>
+          <li><a href="#" class="instagram-icon">Instagram</a></li>
+        </ul>
+      </div>
+    </footer>
+  </body>
 </html>
