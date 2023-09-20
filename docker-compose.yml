@@ -50,7 +50,7 @@ services:
     networks:
       - my_network
     depends_on:
-      mongo:
+      mongo-home-page-service:
         condition: service_healthy
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
