@@ -15,6 +15,13 @@ services:
       - my_network
     ports:
       - "4004:4004"
+    depends_on:
+      mongo-home-page-service:
+        condition: service_healthy
+    environment:
+      - DB_PORT=4004
+      - DB_USERNAME=root
+      - DB_PASSWORD=example
 
   prometheus-home-page-service:
     image: prom/prometheus:latest
