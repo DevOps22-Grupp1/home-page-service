@@ -3,6 +3,7 @@
 <form method="POST" action="/login">
   <label for="username">Username:</label>
   <input type="text" name="username" required /><br /><br />
+  <input type="text" hidden name="path" value="{{path}}" />
   <label for="password">Password:</label>
   <input type="password" name="password" required /><br /><br />
   <input type="submit" value="Login" />

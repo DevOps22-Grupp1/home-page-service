@@ -59,7 +59,8 @@ def handle_products():
 
 @app.route("/login/", methods=["GET"])
 def get_login():
-    return render_template('login.html')
+    path = request.args.get('path')
+    return render_template('login.html', path=path)
 
 
 @app.route("/delete/", methods=["GET"])
@@ -79,7 +80,6 @@ def delete_p():
 
 @app.route("/update/", methods=["POST"])
 def update_p():
-    # return request.form['id']
     id =  request.form['id']
     order = request.form['updateOrder']
     price = request.form['updatePrice']
@@ -121,10 +121,9 @@ def post_product():
 
 @app.route("/login/", methods=["POST"])
 def post_login():
-    path = request.args.get('path')
     username = request.form['username']
     password = request.form['password']
-    
+    path = request.form['path']
     if username in users and users[username]['password'] == password:
         user = User(username)
         login_user(user)
@@ -132,6 +131,8 @@ def post_login():
             return redirect(url_for('about'))
         elif path == 'products':
             return redirect(url_for('handle_products'))
+        else:
+            return redirect(url_for('hello'))
 
 @app.route("/about/")
 def about():
