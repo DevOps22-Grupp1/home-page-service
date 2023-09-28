@@ -4,7 +4,7 @@ import json
 import requests
 from prometheus_flask_exporter import PrometheusMetrics
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-
+import os
 db_port = os.environ.get("DB_PORT")
 
 
