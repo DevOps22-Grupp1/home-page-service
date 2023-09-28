@@ -43,8 +43,8 @@ services:
       test: echo 'mongo-home-page-service.runCommand("ping").ok' | mongosh mongo-home-page-service:27017 --quiet
       interval: 5s
       timeout: 5s
-      retries: 10
-      start_period: 40s
+      retries: 20
+      start_period: 200s
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example

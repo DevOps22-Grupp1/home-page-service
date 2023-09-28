@@ -5,6 +5,7 @@ import requests
 from prometheus_flask_exporter import PrometheusMetrics
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
+db_port = os.environ.get("DB_PORT")
 
 
 # Initialize Flask-Login
@@ -186,4 +187,4 @@ def server():
 
  
 # Very important to disable debug mode
-app.run(host="0.0.0.0", port=4004, debug=False)
+app.run(host="0.0.0.0", port=db_port, debug=False)
