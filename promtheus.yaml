@@ -1,12 +1,12 @@
 global:
   scrape_interval: 5s
 scrape_configs:
-  - job_name: 'order-processing-service'
+  - job_name: 'order-service'
     static_configs:
-      - targets: ['order-processing-service:5001']
+      - targets: ['order-service:4007']
   - job_name: 'home-page-service'
     static_configs:
-      - targets: ['home-page-service:5002']
+      - targets: ['home-page-service:4004']
   - job_name: 'user-management-service'
     static_configs:
-      - targets: ['produkt-catalog-service:5004']
+      - targets: ['product-service:4005']

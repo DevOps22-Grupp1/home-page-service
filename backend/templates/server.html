@@ -1,23 +1,19 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} {% block content %}
+<h1>{% block title %} Monitoring Server Status {% endblock %}</h1>
+<h3>{{ utc_dt }}</h3>
+<hr />
+<h2>SERVER STATUS</h2>
+<div style="width: 50%; margin: auto">
+  {% for obj in status %} {% if obj.status == "Success" %} {% set bg_color =
+  'green' %} {% else %} {% set bg_color = 'red' %} {% endif %}
 
-{% block content %}
-    <h1>{% block title %} Monitoring Server Status {% endblock %}</h1>
-    <h3>{{ utc_dt }}</h3>
-    <hr>
-    <h2> SERVER STATUS </h2>
-    <div style="width: 50%; margin: auto">
-        <!-- Fix the double looping somehow xD -->
-        {% for obj in status %}
-                {% if obj.status == "Success" %}
-                    {% set bg_color = 'green' %}
-                {% else %}
-                    {% set bg_color = 'red' %}
-                {% endif %}                
-        
-            <div style="padding: 10px; background-color: {{ bg_color }}; margin: 20px">
-                <p>#{{ loop.index }}</p>
-                <p style="font-size: 24px"> {{ obj.name }} </p>
-            </div>
-        {% endfor %}
-    </div>
+  <div style="padding: 10px; background-color: {{ bg_color }}; margin: 20px">
+    <p>#{{ loop.index }}</p>
+    <p style="font-size: 24px">
+      {{ obj.name }} --------------- {{ obj.status}}
+    </p>
+  </div>
+  <hr />
+  {% endfor %}
+</div>
 {% endblock %}
