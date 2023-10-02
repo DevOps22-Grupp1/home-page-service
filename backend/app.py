@@ -47,15 +47,15 @@ def hello():
 @app.route('/admin-product/')
 @login_required
 def handle_products():
-
-    response = requests.get(
-        'http://scamazon-product-catalog-service-1:4005/api/products')
-
-    if response.status_code == 200:
-        products = json.loads(response.text)
-        return render_template("admin-product-html", products=products)
-    else:
-        return jsonify({'error': 'Failed to fetch data'})
+    try:
+        response = requests.get(
+            'http://scamazon-product-catalog-service-1:4005/api/products')
+        if response.status_code == 200:
+            products = json.loads(response.text)
+    except requests.exceptions.RequestException as e:
+        products = 'Failed to fetch data'
+  
+    return render_template("admin-product.html", products=products)
 
 
 @app.route("/login/", methods=["GET"])
@@ -137,7 +137,8 @@ def about():
 @app.route("/products/")
 def products():
     try:
-        response = requests.get('http://scamazon-product-catalog-service-1:4005/api/products') 
+        response = requests.get(
+            'http://scamazon-product-catalog-service-1:4005/api/products')
         if response.status_code == 200:
             products = json.loads(response.text)
     except requests.exceptions.RequestException as e:
