@@ -22,8 +22,8 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build -t passwordnotsafe/home-page-service ./backend
+          docker build -t passwordnotsafe/home-page-service:1.0.0 ./backend
 
       - name: Push Docker Image
         run: |
-          docker push passwordnotsafe/home-page-service
+          docker push passwordnotsafe/home-page-service:1.0.0
