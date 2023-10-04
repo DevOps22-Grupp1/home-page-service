@@ -5,8 +5,10 @@ import requests
 from prometheus_flask_exporter import PrometheusMetrics
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 import os
-db_port = os.environ.get("DB_PORT")
-
+server_port = os.environ.get("DB_PORT")
+user_management = os.environ.get("USER_URL")
+product_catalog = os.environ.get("PRODUCT_URL")
+order_processing= os.environ.get("ORDER_URL")
 
 # Initialize Flask-Login
 login_manager = LoginManager()
@@ -41,7 +43,8 @@ def load_user(user_id):
 )
 @app.route("/")
 def hello():
-    return render_template("index.html", utc_dt=datetime.datetime.utcnow())
+    return f"{user_management}{order_processing}{product_catalog}"
+    # return render_template("index.html", utc_dt=datetime.datetime.utcnow())
 
 
 @app.route('/admin-product/')
@@ -188,4 +191,4 @@ def server():
 
  
 # Very important to disable debug mode
-app.run(host="0.0.0.0", port=db_port, debug=False)
+app.run(host="0.0.0.0", port=server_port, debug=False)
