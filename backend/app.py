@@ -7,8 +7,11 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 import os
 server_port = os.environ.get("DB_PORT")
 user_management = os.environ.get("USER_URL")
+user_port = os.environ.get("USER_PORT")
 product_catalog = os.environ.get("PRODUCT_URL")
+product_port = os.environ.get("PRODUCT_PORT")
 order_processing= os.environ.get("ORDER_URL")
+order_port = os.environ.get("ORDER_PORT")
 
 # Initialize Flask-Login
 login_manager = LoginManager()
@@ -43,8 +46,7 @@ def load_user(user_id):
 )
 @app.route("/")
 def hello():
-    return f"{user_management}{order_processing}{product_catalog}"
-    # return render_template("index.html", utc_dt=datetime.datetime.utcnow())
+    return render_template("index.html", utc_dt=datetime.datetime.utcnow())
 
 
 @app.route('/admin-product/')
@@ -52,7 +54,7 @@ def hello():
 def handle_products():
     try:
         response = requests.get(
-            'http://scamazon-product-catalog-service-1:4005/api/products')
+            f'http://format(id)/api/products')
         if response.status_code == 200:
             products = json.loads(response.text)
     except requests.exceptions.RequestException as e:
@@ -69,7 +71,7 @@ def get_login():
 @app.route("/delete/", methods=["GET"])
 def delete_p():
     id = request.args.get('id')
-    delete_url = 'http://scamazon-product-catalog-service-1:4005/api/product/{}'.format(id)
+    delete_url = f'http://format(id)/api/product/{id}'
     response = requests.delete(delete_url)
     if response.status_code == 204:
         # The DELETE request was successful, and there's no response content.
@@ -92,7 +94,7 @@ def update_p():
         'order': order,
         'price': price
     })
-    d_url = 'http://scamazon-product-catalog-service-1:4005/api/product/{}'.format(id)
+    d_url = f'http://{product_catalog}:{product_port}/api/product/{id}'
     headers = {'Content-Type': 'application/json'}
     response = requests.put(d_url, data=json_data, headers=headers)
     if response.status_code == 200:
@@ -107,7 +109,7 @@ def update_p():
 def post_product():
     order = request.form['name']
     price = request.form['price']
-    add_url = 'http://scamazon-product-catalog-service-1:4005/api/product'
+    add_url = f'http://{product_catalog}:{product_port}/api/product'
      
     json_data = json.dumps({
         'order': order,
@@ -141,7 +143,7 @@ def about():
 def products():
     try:
         response = requests.get(
-            'http://scamazon-product-catalog-service-1:4005/api/products')
+            f'http://{product_catalog}:{product_port}/api/products')
         if response.status_code == 200:
             products = json.loads(response.text)
     except requests.exceptions.RequestException as e:
@@ -160,7 +162,7 @@ def products():
 @app.route("/server/")
 def server():
     try:
-        res1 = requests.get("http://scamazon-product-catalog-service-1:4005")
+        res1 = requests.get(f"http://{product_catalog}:{product_port}")
         if res1.status_code == 200:
             r1 = res1.text
     except requests.exceptions.RequestException as e:
@@ -168,7 +170,7 @@ def server():
     
     
     try:
-        res2 = requests.get("http://scamazon-user-management-service-1:4006")
+        res2 = requests.get(f"http://{user_management}:{user_port}")
         if res2.status_code == 200:
             r2 = res2.text
     except requests.exceptions.RequestException as e:
@@ -176,7 +178,7 @@ def server():
     
     
     try:
-        res3 = requests.get("http://scamazon-order-processing-service-1:4007")
+        res3 = requests.get(f"http://{order_processing}:{order_port}")
         if res3.status_code == 200:
             r3 = res3.text
     except requests.exceptions.RequestException as e:
