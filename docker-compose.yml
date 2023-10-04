@@ -20,8 +20,12 @@ services:
         condition: service_healthy
     environment:
       - DB_PORT=4004
-      - DB_USERNAME=root
-      - DB_PASSWORD=example
+      - USER_URL=user-managament-service
+      - USER_PORT=4006
+      - PRODUCT_URL=product-catalog-service
+      - PRODUCT_PORT=4005
+      - ORDER_URL=order-processing-service
+      - ORDER_PORT=4007
 
   prometheus-home-page-service:
     image: prom/prometheus:latest
