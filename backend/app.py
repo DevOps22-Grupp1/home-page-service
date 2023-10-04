@@ -54,7 +54,7 @@ def hello():
 def handle_products():
     try:
         response = requests.get(
-            f'http://format(id)/api/products')
+            f'http://{product_catalog}:{product_port}/api/products')
         if response.status_code == 200:
             products = json.loads(response.text)
     except requests.exceptions.RequestException as e:
@@ -71,7 +71,7 @@ def get_login():
 @app.route("/delete/", methods=["GET"])
 def delete_p():
     id = request.args.get('id')
-    delete_url = f'http://format(id)/api/product/{id}'
+    delete_url = f'http://{product_catalog}:{product_port}/api/product/{id}'
     response = requests.delete(delete_url)
     if response.status_code == 204:
         # The DELETE request was successful, and there's no response content.
@@ -89,10 +89,12 @@ def update_p():
     id =  request.form['id']
     order = request.form['updateOrder']
     price = request.form['updatePrice']
+    img = request.form["updateImg"]
     
     json_data = json.dumps({
         'order': order,
-        'price': price
+        'price': price, 
+        "image": img
     })
     d_url = f'http://{product_catalog}:{product_port}/api/product/{id}'
     headers = {'Content-Type': 'application/json'}
@@ -109,11 +111,13 @@ def update_p():
 def post_product():
     order = request.form['name']
     price = request.form['price']
+    img = request.form["updateImg"]
     add_url = f'http://{product_catalog}:{product_port}/api/product'
      
     json_data = json.dumps({
         'order': order,
-        'price': price
+        'price': price,
+         "image": img
     })
     headers = {'Content-Type': 'application/json'}
     response = requests.post(add_url, data=json_data, headers=headers)
