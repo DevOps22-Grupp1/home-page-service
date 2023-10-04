@@ -111,7 +111,7 @@ def update_p():
 def post_product():
     order = request.form['name']
     price = request.form['price']
-    img = request.form["updateImg"]
+    img = request.form["images"]
     add_url = f'http://{product_catalog}:{product_port}/api/product'
      
     json_data = json.dumps({
