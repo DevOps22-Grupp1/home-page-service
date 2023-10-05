@@ -7,11 +7,11 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 import os
 server_port = os.environ.get("DB_PORT")
 user_management = os.environ.get("USER_URL")
-user_port = os.environ.get("USER_PORT")
+user_port = int(os.environ.get("USER_PORT"))
 product_catalog = os.environ.get("PRODUCT_URL")
-product_port = os.environ.get("PRODUCT_PORT")
+product_port = int(os.environ.get("PRODUCT_PORT"))
 order_processing= os.environ.get("ORDER_URL")
-order_port = os.environ.get("ORDER_PORT")
+order_port = int(os.environ.get("ORDER_PORT"))
 
 # Initialize Flask-Login
 login_manager = LoginManager()
