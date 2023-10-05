@@ -7,11 +7,26 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 import os
 server_port = os.environ.get("DB_PORT")
 user_management = os.environ.get("USER_URL")
-user_port = int(os.environ.get("USER_PORT"))
+user_port = os.environ.get("USER_PORT")
+try:
+    user_port = int(user_port)
+except ValueError:
+    # Om konverteringen till int misslyckas
+    user_port = user_port
 product_catalog = os.environ.get("PRODUCT_URL")
-product_port = int(os.environ.get("PRODUCT_PORT"))
+product_port = os.environ.get("PRODUCT_PORT")
+try:
+    product_port = int(product_port)
+except ValueError:
+    # Om konverteringen till int misslyckas
+    product_port = product_port
 order_processing= os.environ.get("ORDER_URL")
-order_port = int(os.environ.get("ORDER_PORT"))
+order_port = os.environ.get("ORDER_PORT")
+try:
+    order_port = int(order_port)
+except ValueError:
+    # Om konverteringen till int misslyckas
+    order_port = order_port
 
 # Initialize Flask-Login
 login_manager = LoginManager()
