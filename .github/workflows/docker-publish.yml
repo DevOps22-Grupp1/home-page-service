@@ -31,8 +31,8 @@ jobs:
       # build and push the second image also
       - name: Build Docker Image
         run: |
-          docker build -t passwordnotsafe/seed-data:test ./script
+          docker build -t passwordnotsafe/seed-data ./script
 
       - name: Push Docker Image for script
         run: |
-          docker push passwordnotsafe/seed-data:test
+          docker push passwordnotsafe/seed-data

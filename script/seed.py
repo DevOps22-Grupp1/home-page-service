@@ -22,7 +22,7 @@ def insert_data(database,collection,inserts):
         print(f"Inserted document with ID: {_id}")
 
 
-insert_data('allUsers1', 'users', 
+insert_data('allUsers', 'users', [
 {
     "id": 1,
     "name": "Max Svensson",
@@ -52,11 +52,11 @@ insert_data('allUsers1', 'users',
     "id": 6,
     "name": "Zoreh Svensson",
     "email": "zs@gmail.com",
-}
+}]
     )
  
-insert_data('allOrders1', 'orders', 
-            {
+insert_data('allOrders', 'orders', 
+            [{
                 "id": 1,
                 "userid": 1,
                 "productid": 1
@@ -86,11 +86,11 @@ insert_data('allOrders1', 'orders',
                 "id": 6,
                 "userid": 6,
                 "productid": 4
-            }
+            }]
             )   
    
-insert_data('allProducts1', 'products', 
-            {
+insert_data('allProducts', 'products', 
+            [{
                 "id": 1,
                 "order": "Samsung Galaxy S10",
                 "price": 999.99,
@@ -204,7 +204,7 @@ insert_data('allProducts1', 'products',
                 "price": 3190.99,
                 "image":
                 "https://www.hembiobutiken.se/images/prod/358940-devialet-dione-opera-de-paris-847.jpg_2.jpg",
-            }
+            }]
             )
 
 
