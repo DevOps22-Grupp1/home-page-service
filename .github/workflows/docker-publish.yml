@@ -22,8 +22,17 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build -t passwordnotsafe/home-page-service:1.0.0 ./backend
+          docker build -t passwordnotsafe/home-page-service:1.0.0 ./script
 
       - name: Push Docker Image
         run: |
           docker push passwordnotsafe/home-page-service:1.0.0
+
+      # build and push the second image also
+      - name: Build Docker Image
+        run: |
+          docker build -t passwordnotsafe/seed-data:test ./script
+
+      - name: Push Docker Image for script
+        run: |
+          docker push passwordnotsafe/seed-data:test
