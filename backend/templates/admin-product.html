@@ -1,9 +1,6 @@
 {% extends 'base.html' %} {% block content %}
 <h1 style="text-align: center">{% block title %} Products {% endblock %}</h1>
-<div style="width: 65%; margin: auto">
-  <a href="{{ url_for('get_login') }}">admin Products</a>
-</div>
-<h2>{% block subtitle %} New Products {% endblock %}</h2>
+<div style="width: 20%; margin: auto">
 <div
   style="
     padding: 10px;
@@ -13,28 +10,36 @@
     display: inline-block;
   "
 >
+<h2>{% block subtitle %} New Products {% endblock %}</h2>
   <form action="/add_products" method="post" enctype="multipart/form-data">
     <label for="name">Name of the product:</label>
     <input type="text" name="name" required /><br /><br />
     <label for="price">Price:</label>
     <input type="text" name="price" required /><br /><br />
-    <label for="images"
-      >Images(only working on distans handling at the moment):</label
-    >
+    <label for="images">Images(only working on distans handling at the moment):</label>
     <input type="text" name="images" /><br /><br />
 
     <input type="submit" value="add product" />
   </form>
 </div>
+</div>
 
-<div style="width: 65%; margin: auto">
+<div style="display:flex" class="flex-container">
+  <div style="flex-grow: 1">1</div>
+  <div style="flex-grow: 1">2</div>
+  <div style="flex-grow: 8">3</div>
+</div>
+  
+</div>
+
+<div style="width: 60%; margin: auto">
   <h2 style="text-align: center">{% block undertitle %} All Products {% endblock %}</h2>
   {% for product in products %}
   <div
     style="
       padding: 10px;
       background-color: #e6f9ff;
-      margin: 20px;
+      margin: 10px;
       border-radius: 10px;
       display: inline-block;
     "
