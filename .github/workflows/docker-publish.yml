@@ -36,3 +36,12 @@ jobs:
       - name: Push Docker Image for script
         run: |
           docker push passwordnotsafe/seed-data
+
+      # build and push the third image also ## we could use a better way
+      - name: Build Docker Image
+        run: |
+          docker build -t passwordnotsafe/mongo-backup ./script/backup
+
+      - name: Push Docker Image for script
+        run: |
+          docker push passwordnotsafe/mongo-backup
