@@ -5,6 +5,7 @@ echo Starting-BACKUP
 echo ******************************************************
 # NOW="$(date +"%F")-$(date +"%T")"
 NOW=$(date + %H)
+echo $DB_NAME-$now $DB_NAME
 FILE="$DB_NAME-$now"
 
 # mongodump --uri=mongodb://$MONGODB_URI:$MONGOD_USER@$MONGOD_HOST:$MONGOD_PORT/$DB_NAME  --out=/mongodump/db/$FILE
