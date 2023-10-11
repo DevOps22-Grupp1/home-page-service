@@ -6,7 +6,7 @@ RUN pip install pymongo
 WORKDIR /app
 
 # Kopiera seedningsskriptet och kravfilen (om det finns) till arbetskatalogen
-COPY seed.py .
+COPY seed.py ./seed.py
 # Om du har ett kravfil (requirements.txt), kopiera det och installera beroenden
 # COPY requirements.txt .
 # RUN pip install -r requirements.txt
