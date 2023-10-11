@@ -22,11 +22,11 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build -t passwordnotsafe/home-page-service:1.0.0 ./script
+          docker build -t passwordnotsafe/home-page-service ./script
 
       - name: Push Docker Image
         run: |
-          docker push passwordnotsafe/home-page-service:1.0.0
+          docker push passwordnotsafe/home-page-service
 
       # build and push the second image also
       - name: Build Docker Image
