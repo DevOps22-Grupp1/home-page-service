@@ -61,7 +61,6 @@ def load_user(user_id):
 )
 @app.route("/")
 def hello():
-    return f"{type(user_port)}"
     return render_template("index.html", utc_dt=datetime.datetime.utcnow())
 
 
