@@ -12,11 +12,11 @@
 >
 <h2>{% block subtitle %} New Products {% endblock %}</h2>
   <form action="/add_products" method="post" enctype="multipart/form-data">
-    <label for="name">Name of the product:</label>
+    <label for="name">Name of the product:</label><br />
     <input type="text" name="name" required /><br /><br />
-    <label for="price">Price:</label>
+    <label for="price">Price:</label><br />
     <input type="text" name="price" required /><br /><br />
-    <label for="images">Images(only working on distans handling at the moment):</label>
+    <label for="images">Images(only working on with urls):</label><br />
     <input type="text" name="images" /><br /><br />
 
     <input type="submit" value="add product" />
@@ -24,12 +24,6 @@
 </div>
 </div>
 
-<div style="display:flex" class="flex-container">
-  <div style="flex-grow: 1">1</div>
-  <div style="flex-grow: 1">2</div>
-  <div style="flex-grow: 8">3</div>
-</div>
-  
 </div>
 
 <div style="width: 60%; margin: auto">

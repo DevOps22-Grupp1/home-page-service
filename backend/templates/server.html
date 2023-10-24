@@ -10,7 +10,11 @@
   <div style="padding: 10px; background-color: {{ bg_color }}; margin: 20px">
     <p>#{{ loop.index }}</p>
     <p style="font-size: 24px">
-      {{ obj.name }} --------------- {{ obj.status}}
+      {{ obj.name }} {% if obj.status == "Success" %}
+      <i class="fa-solid fa-check"></i>
+      {{ obj.status}} {% endif %} {% if obj.status != "Success" %}
+      <i class="fa-solid fa-xmark"></i>
+      {{obj.status}} {% endif %}
     </p>
   </div>
   <hr />
