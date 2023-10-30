@@ -1,11 +1,11 @@
 {% extends 'base.html' %} {% block content %}
-<div>
-  <h1>{% block title %} Products {% endblock %}</h1>
+<div class="content">
   <div>
-    <h3>Admin Login</h3>
+    <h3>Admin Page</h3>
     <div>
       <a href="{{ url_for('get_login') }}">Login</a>
     </div>
+    <h1>{% block title %} Products {% endblock %}</h1>
   </div>
   <hr />
 </div>
@@ -33,7 +33,7 @@
         src="{{ product.image }}"
         alt="pic of {{ product.order }}"
       />
-      <p style="font-size: 24px">{{ product.price }}€</p>
+      <p style="font-size: 24px">{{ product.price }} €</p>
     </div>
     {% endfor %}
   </div>
