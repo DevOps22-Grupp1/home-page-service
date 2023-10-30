@@ -82,14 +82,33 @@
         color: #1da1f2;
       }
 
+      .content {
+        margin-left: 20px;*
+      }
       .instagram-icon {
         color: #c13584;
+      }
+
+      .main-nav {
+        display: -webkit-flex;
+        display: flex;
+        -webkit-justify-content: center;
+        justify-content: center;
+      }
+      .main-nav a {
+        margin: 10px;
+        border-radius: 5px;
+        display: block;
+        padding: 15px;
+        text-decoration: none;
+      }
+      .main-nav .logo {
       }
     </style>
   </head>
   <body>
-    <nav>
-      <a href="{{ url_for('hello') }}">Scamazon</a>
+    <nav class="main-nav">
+      <a class="logo" href="{{ url_for('hello') }}">Scamazon</a>
       <a href="{{ url_for('products') }}">Products</a>
       <a href="{{ url_for('about') }}">About</a>
       <a href="{{ url_for('server') }}">Server</a>
