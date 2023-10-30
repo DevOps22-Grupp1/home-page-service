@@ -19,7 +19,7 @@
       style="
         padding: 10px;
         background-color: #e6f9ff;
-        margin: 20px;
+        margin: 10px;
         border-radius: 15px;
         display: inline-block;
         justify-content: center;
@@ -27,9 +27,9 @@
       "
     >
       <p>#{{ loop.index }}</p>
-      <p style="font-size: 24px">{{ product.order }}</p>
+      <p style="text-align: center; font-size: 24px">{{ product.order }}</p>
       <img
-        style="height: 400px"
+        style="object-fit: cover; height: 400px"
         src="{{ product.image }}"
         alt="pic of {{ product.order }}"
       />
