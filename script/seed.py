@@ -95,27 +95,27 @@ insert_data('allProducts', 'products',
                 "order": "Samsung Galaxy S10",
                 "price": 999.99,
                 "image":
-                "https://cdn.alloallo.media/catalog/product/samsung/galaxy-s/galaxy-s10/galaxy-s10-prism-green.jpg",
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdS9tCPJnc-iiw3fMUCpq8eufGEP5rnOyE1A&usqp=CAU",
             },
             {
                 "id": 2,
                 "order": "LG G8 ThinQ",
                "price": 1499.99,
-                "image": "https://www.notebookcheck.se/uploads/tx_nbc2/LGG8ThinQ__2_.JPG",
+                "image": "https://dealy.com/se/472604-large_default/visa-skydd-lg-g8-thinq-mirror-och-konstlader.jpg",
             },
             {
                 "id": 3,
                 "order": "MSI GS65 Stealth Thin",
                 "price": 499.99,
                 "image":
-                "https://m.media-amazon.com/images/I/51RkDgBwBWL._AC_UF894,1000_QL80_.jpg",
+                "https://www.pcworld.com/wp-content/uploads/2023/04/dsc04169_final-100796414-orig.jpg?quality=50&strip=all",
             },
             {
                 "id": 4,
                 "order": "Bowers & Wilkins PX7",
                 "price": 799.99,
                 "image":
-                "https://soundium.se/media/catalog/product/cache/8617f2469151d4da41dffdff872d6f94/1/6/1656585629_img_1783046_1.jpeg",
+                "https://5.imimg.com/data5/ECOM/Default/2022/9/AU/PY/VI/149548967/px7s2-blue-001-500x500.png",
             },
             {
                 "id": 5,
@@ -189,21 +189,31 @@ insert_data('allProducts', 'products',
                 "id": 15,
                 "order": "Epson EH-TW9400",
                 "price": 2699.99,
-                "image": "https://www.hembiobutiken.se/images/prod/286610_2.jpg",
+                "image": "https://actsessory.files.wordpress.com/2021/12/file3lysgbl6-copy.jpg?w=670&h=413",
             },
             {
                 "id": 16,
                 "order": "Triangle Antal 40th Anniversary",
                 "price": 3599.99,
                 "image":
-                "https://www.hembiobutiken.se/images/prod/325100-triangle-antal-40th-anniversary-902_2.jpg",
+                "https://www.hificine.com/wp-content/uploads/2022/10/triangle-antal-40th.jpg",
             },
             {
                 "id": 17,
                 "order": "Devialet Dione Opéra de Paris",
                 "price": 3190.99,
                 "image":
-                "https://www.hembiobutiken.se/images/prod/358940-devialet-dione-opera-de-paris-847.jpg_2.jpg",
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQree3S76keglE8JsDkBWDJZHEiZG7Uq6ULyg&usqp=CAU",
+            },{
+                "id": 18,
+                "order": "OnePlus Open",
+                "price": 1499.99,
+                "image": "https://image01.oneplus.net/ebp/202310/09/1-m00-47-77-ckvlh2ujwe2atshtaale9r-nxtm963.png?x-amz-process=image/format"
+            }, {
+                "id":19,
+                "order": "Wacom Intuos M",
+                "price": 178,
+                "image": "https://cdn.inet.se/product/688x386/6611408_7.png"
             }]
             )
 
