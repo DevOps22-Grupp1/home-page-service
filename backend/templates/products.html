@@ -3,7 +3,11 @@
   <div>
     <h3>Admin Page</h3>
     <div>
+      {% if user == "false" %}
       <a href="{{ url_for('get_login') }}">Login</a>
+      {% else %}
+      <a href="{{ url_for('get_login') }}">admin-product page</a>
+      {% endif %}
     </div>
     <h1>{% block title %} Products {% endblock %}</h1>
   </div>
