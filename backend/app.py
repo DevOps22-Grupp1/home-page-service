@@ -69,6 +69,14 @@ def load_user(user_id):
     "invocation_by_method",
     "Number of invocations by HTTP method",
 )
+def check_user_auth():
+    if current_user.is_authenticated:
+        user = users["user"]
+    else:
+        user = "false"
+    return user
+
+
 @app.route("/")
 def hello():
     return render_template("index.html", utc_dt=datetime.datetime.utcnow())
@@ -117,12 +125,18 @@ def delete_p():
 
 @app.route("/update/", methods=["POST"])
 def update_p():
+    newCat = []
     id = request.form["id"]
     order = request.form["updateOrder"]
     price = request.form["updatePrice"]
     img = request.form["updateImg"]
-
-    json_data = json.dumps({"order": order, "price": price, "image": img})
+    catArray = request.form["updateCat"]
+    # for x in catArray:
+    #     newCat.append(x)
+    # return [catArray]  # , newCat
+    json_data = json.dumps(
+        {"order": order, "price": price, "image": img}  # , "category": catArray
+    )
     d_url = f"http://{product_catalog}:{product_port}/api/product/{id}"
     headers = {"Content-Type": "application/json"}
     response = requests.put(d_url, data=json_data, headers=headers)
@@ -170,26 +184,55 @@ def about():
     return render_template("about.html")
 
 
-@app.route("/products/")
+@app.route("/products/", methods=["GET"])
 def products():
-    category = []
-    if current_user.is_authenticated:
-        user = users["user"]
-    else:
-        user = "false"
+    category = ["all"]
     try:
         response = requests.get(f"http://{product_catalog}:{product_port}/api/products")
         if response.status_code == 200:
             products = json.loads(response.text)
     except requests.exceptions.RequestException as e:
         products = "Failed to fetch data"
-    # for x in products:
-    #     category.append([x[1].category])
 
-    # return [category, products]
+    if products != "Failed to fetch data":
+        for x in products:
+            for a in x["category"]:
+                category.append(a)
+
     return render_template(
-        "products.html", products=products, category=category, user=user
+        "products.html",
+        products=products,
+        category=list(dict.fromkeys(category)),
+        user=check_user_auth(),
     )
+
+
+@app.route("/products", methods=["POST"])
+def handle_category_product():
+    categoryName = request.form["category"]
+    if categoryName == "all":
+        return redirect(url_for("products"))
+    category = ["all"]
+    try:
+        res = requests.get(
+            f"http://{product_catalog}:{product_port}/api/product_category/{categoryName}"
+        )
+        res_all = requests.get(f"http://{product_catalog}:{product_port}/api/products")
+        if res.status_code == 200 and res_all.status_code == 200:
+            products_category = json.loads(res.text)
+            products_all = json.loads(res_all.text)
+
+            for x in products_all:
+                for a in x["category"]:
+                    category.append(a)
+            return render_template(
+                "products.html",
+                products=products_category,
+                category=list(dict.fromkeys(category)),
+                user=check_user_auth(),
+            )
+    except requests.exceptions.RequestException as e:
+        return redirect(url_for("products"))
 
 
 @app.route("/server/")

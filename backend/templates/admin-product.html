@@ -54,6 +54,9 @@
           <input type="text" name="updatePrice" value="{{ product.price }}" />
         </p>
         <p>
+          <input type="text" name="updateCat" value="{% for cat in product.category %} {{ cat}} {% endfor %}" />
+        </p>
+        <p>
           <input type="text" name="updateImg" value="{{ product.image }}" />
         </p>
         <p>

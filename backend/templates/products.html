@@ -17,6 +17,17 @@
   {% if products == "Failed to fetch data" %}
   <h3>{{ products }}</h3>
   {% else %}
+   <form action="/products" method="post" enctype="multipart/form-data">
+  <label for="playerselect">Choose a category:</label>
+
+<select onchange="this.form.submit()" id="playerselect" name="category" class="player-dropdown">
+   <option value="">--Please choose an option--</option>
+  {% for option in category %}
+    <option value="{{ option}}">{{ option}}</option>
+{% endfor %}
+
+</select>
+</form>
   <div style="width: 85%; margin: auto">
     {% for product in products %}
     <div
@@ -38,6 +49,9 @@
         alt="pic of {{ product.order }}"
       />
       <p style="font-size: 24px">{{ product.price }} €</p>
+      
+      <p style="font-size: 24px">category:{% for cat in product.category %} {{ cat}} {% endfor %}</p>
+      
     </div>
     {% endfor %}
   </div>
