@@ -17,17 +17,45 @@
   {% if products == "Failed to fetch data" %}
   <h3>{{ products }}</h3>
   {% else %}
-   <form action="/products" method="post" enctype="multipart/form-data">
-  <label for="playerselect">Choose a category:</label>
+  <form action="/products" method="post" enctype="multipart/form-data">
+    <label for="playerselect">Choose a category:</label>
 
-<select onchange="this.form.submit()" id="playerselect" name="category" class="player-dropdown">
-   <option value="">--Please choose an option--</option>
-  {% for option in category %}
-    <option value="{{ option}}">{{ option}}</option>
-{% endfor %}
+    <select
+      onchange="this.form.submit()"
+      id="playerselect"
+      name="category"
+      class="player-dropdown"
+    >
+      <option value="">--Choose an filter--</option>
+      {% for option in category %}
+      <option value="{{ option}}">{{ option}}</option>
+      {% endfor %}
+    </select>
+  </form>
+  <form action="/products" method="post" enctype="multipart/form-data">
+    <label for="filterPrice">Choose a price filter:</label>
+    <select
+      onchange="this.form.submit()"
+      id="filterPrice"
+      name="category"
+      class="player-dropdown"
+    >
+      <option value="">--Choose an price filter--</option>
+      <option value="none,{{sel}}">
+        none
+        <i class="fa-solid fa-arrow-down-short-wide"></i>
+      </option>
 
-</select>
-</form>
+      <option value="a-z,{{sel}}">
+        up
+        <i class="fa-solid fa-arrow-down-short-wide"></i>
+      </option>
+      <option value="z-a,{{sel}}">
+        down
+        <i class="fa-solid fa-arrow-down-wide-short"></i>
+      </option>
+    </select>
+  </form>
   <div style="width: 85%; margin: auto">
     {% for product in products %}
     <div
@@ -49,11 +77,22 @@
         alt="pic of {{ product.order }}"
       />
       <p style="font-size: 24px">{{ product.price }} €</p>
-      
-      <p style="font-size: 24px">category:{% for cat in product.category %} {{ cat}} {% endfor %}</p>
-      
+
+      <p style="font-size: 24px">
+        category:{% for cat in product.category %} {{ cat}} {% endfor %}
+      </p>
     </div>
     {% endfor %}
+  </div>
+  <div class="pagination">
+    <a href="#">&laquo;</a>
+    <a href="#">1</a>
+    <a href="#">2</a>
+    <a href="#">3</a>
+    <a href="#">4</a>
+    <a href="#">5</a>
+    <a href="#">6</a>
+    <a href="#">&raquo;</a>
   </div>
 </div>
 

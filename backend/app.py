@@ -187,6 +187,7 @@ def about():
 @app.route("/products/", methods=["GET"])
 def products():
     category = ["all"]
+    sel = "all"
     try:
         response = requests.get(f"http://{product_catalog}:{product_port}/api/products")
         if response.status_code == 200:
@@ -203,6 +204,7 @@ def products():
         "products.html",
         products=products,
         category=list(dict.fromkeys(category)),
+        sel=sel,
         user=check_user_auth(),
     )
 
@@ -210,7 +212,8 @@ def products():
 @app.route("/products", methods=["POST"])
 def handle_category_product():
     categoryName = request.form["category"]
-    if categoryName == "all":
+    sel = categoryName
+    if categoryName == "all" or categoryName == "none-all":
         return redirect(url_for("products"))
     category = ["all"]
     try:
@@ -218,10 +221,11 @@ def handle_category_product():
             f"http://{product_catalog}:{product_port}/api/product_category/{categoryName}"
         )
         res_all = requests.get(f"http://{product_catalog}:{product_port}/api/products")
+        if "," in sel:
+            sel = sel.split(",")[1]
         if res.status_code == 200 and res_all.status_code == 200:
             products_category = json.loads(res.text)
             products_all = json.loads(res_all.text)
-
             for x in products_all:
                 for a in x["category"]:
                     category.append(a)
@@ -229,6 +233,7 @@ def handle_category_product():
                 "products.html",
                 products=products_category,
                 category=list(dict.fromkeys(category)),
+                sel=sel,
                 user=check_user_auth(),
             )
     except requests.exceptions.RequestException as e:
