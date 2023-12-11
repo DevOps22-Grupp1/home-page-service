@@ -1,22 +1,17 @@
 {% extends 'base.html' %} {% block content %}
-<div class="content">
-  <div>
-    <h3>Admin Page</h3>
-    <div>
-      {% if user == "false" %}
-      <a href="{{ url_for('get_login') }}">Login</a>
-      {% else %}
-      <a href="{{ url_for('get_login') }}">admin-product page</a>
-      {% endif %}
-    </div>
-    <h1>{% block title %} Products {% endblock %}</h1>
-  </div>
-  <hr />
-</div>
-<div>
   {% if products == "Failed to fetch data" %}
   <h3>{{ products }}</h3>
   {% else %}
+  <div>
+      {% if user != "false" %}
+      <h3>Admin Page</h3>
+      <div>
+      <a href="{{ url_for('get_login') }}">admin-product page</a>
+      </div>
+      {% endif %}
+    <h1 style="text-text-align: center;font-size: 24px;">{% block title %} Products {% endblock %}</h1>
+  </div>
+  
   <form action="/products" method="post" enctype="multipart/form-data">
     <label for="playerselect">Choose a category:</label>
 
@@ -81,17 +76,22 @@
       <p style="font-size: 24px">
         category:{% for cat in product.category %} {{ cat}} {% endfor %}
       </p>
+        {% if user != "false" %}
+       <a href="{{ url_for('buy', id=product.id ) }}">
+        <button>Buy</button>
+      </a>
+    {% endif %}
     </div>
     {% endfor %}
   </div>
   <div class="pagination">
     <a href="#">&laquo;</a>
-    <a href="#">1</a>
-    <a href="#">2</a>
-    <a href="#">3</a>
-    <a href="#">4</a>
-    <a href="#">5</a>
-    <a href="#">6</a>
+    <a href="{{ url_for('pagination', page="1" ) }}">1</a>
+    <a href="{{ url_for('pagination', page="2" ) }}">2</a>
+    <a href="{{ url_for('pagination', page="3" ) }}">3</a>
+    <a href="{{ url_for('pagination', page="4" ) }}">4</a>
+    <a href="{{ url_for('pagination', page="5" ) }}">5</a>
+    <a href="{{ url_for('pagination', page="6" ) }}">6</a>
     <a href="#">&raquo;</a>
   </div>
 </div>

@@ -43,7 +43,7 @@ app = Flask(__name__)
 app.secret_key = "your_secret_key"  # Replace with a secure secret key
 
 metrics = PrometheusMetrics(app)
-metrics.info("app_info", "home-page-service", version="1.0.0")
+metrics.info("app_info", "home-page-service", version="1.0.1")
 
 # Initialize Flask-Login
 login_manager = LoginManager()
@@ -57,7 +57,7 @@ class User(UserMixin):
 
 
 # Simulate a user database (replace with your user authentication logic)
-users = {"password": "password1", "user": "user1"}
+users = {"username": "", "role": "", "avatar": "", "id": ""}
 
 
 @login_manager.user_loader
@@ -69,9 +69,29 @@ def load_user(user_id):
     "invocation_by_method",
     "Number of invocations by HTTP method",
 )
+def get_count_for_current_user():
+    if current_user.is_authenticated:
+        user_id = users["id"]
+        request = requests.get(
+            f"http://{order_processing}:{order_port}/api/count-products/{user_id}"
+        )
+        if request.status_code == 200:
+            repondcount = json.loads(request.text)
+            basketCount = repondcount
+        else:
+            basketCount = 0
+    else:
+        basketCount = 0
+    return basketCount
+
+
 def check_user_auth():
     if current_user.is_authenticated:
-        user = users["user"]
+        if users["username"] == "":
+            logout()
+            user = "false"
+        else:
+            user = users["username"]
     else:
         user = "false"
     return user
@@ -79,14 +99,17 @@ def check_user_auth():
 
 @app.route("/")
 def hello():
-    return render_template("index.html", utc_dt=datetime.datetime.utcnow())
+    return render_template(
+        "index.html",
+        utc_dt=datetime.datetime.utcnow(),
+        user=check_user_auth(),
+    )
 
 
 @app.route("/admin-product/")
 @login_required
 def handle_products():
-    user = users["user"]
-    # return handle
+    user = users["username"]
     try:
         response = requests.get(f"http://{product_catalog}:{product_port}/api/products")
         if response.status_code == 200:
@@ -98,15 +121,28 @@ def handle_products():
 
 @app.route("/login/", methods=["GET"])
 def get_login():
-    if current_user.is_authenticated:
-        return redirect(url_for("handle_products"))
-    return render_template("login.html")
+    if users["username"] == "":
+        logout()
+    # if current_user.is_authenticated:
+    #     return redirect(url_for("products"))
+    return render_template("login.html", user=check_user_auth())
 
 
 @app.route("/lougout", methods=["GET"])
 def logout():
     logout_user()
-    return render_template("login.html")
+    users["username"] = ""
+    return render_template("login.html", user=check_user_auth())
+
+
+@app.route("/pagination/", methods=["GET"])
+def pagination():
+    return request.args.get("page")
+
+
+@app.route("/buy/", methods=["GET"])
+def buy():
+    return request.args.get("id")
 
 
 @app.route("/delete/", methods=["GET"])
@@ -166,22 +202,64 @@ def post_product():
         # You can handle different status codes as needed
 
 
+# {
+# "password": "lC2)Pug$Dsq*8b|6",  password1
+# "username": "emclinden0" user1
+# }
+
+
 @app.route("/login/", methods=["POST"])
 def post_login():
-    if (
-        users["user"] == request.form["username"]
-        and users["password"] == request.form["password"]
-    ):
-        user = User(request.form["username"])
-        login_user(user)
-        return redirect(url_for("handle_products"))
-    else:
+    add_url = f"http://{user_management}:{user_port}/api/login"
+    headers = {"Content-Type": "application/json"}
+    user = request.form["username"]
+    passw = request.form["password"]
+    json_data = json.dumps({"username": user, "password": passw})
+    try:
+        response = requests.post(add_url, data=json_data, headers=headers)
+        dataresponse = json.loads(response.text)
+        if len(dataresponse) == 1:
+            user = User(dataresponse[0]["username"])
+            login_user(user)
+            users["username"] = dataresponse[0]["username"]
+            users["id"] = dataresponse[0]["id"]
+            users["role"] = dataresponse[0]["role"]
+            users["avatar"] = dataresponse[0]["avatar"]
+            return redirect(url_for("products"))
+        else:
+            return redirect(url_for("get_login"))
+    except requests.exceptions.RequestException as e:
         return redirect(url_for("get_login"))
 
 
 @app.route("/about/")
 def about():
-    return render_template("about.html")
+    return render_template(
+        "about.html",
+        user=check_user_auth(),
+    )
+
+
+@app.route("/cart/", methods=["GET"])
+@login_required
+def cart():
+    data = []
+    price = 0
+    user_id = users["id"]
+    request = requests.get(
+        f"http://{order_processing}:{order_port}/api/order-user/{user_id}"
+    )
+
+    respjson = json.loads(request.text)
+    for prod in respjson:
+        prod_id = prod["productid"]
+        prodreq = requests.get(
+            f"http://{product_catalog}:{product_port}/api/product/{prod_id}"
+        )
+        prodjson = json.loads(prodreq.text)
+        data.append(prodjson)
+    print(data)
+    return render_template("cart.html")
 
 
 @app.route("/products/", methods=["GET"])
@@ -190,7 +268,12 @@ def products():
     sel = "all"
     try:
         response = requests.get(f"http://{product_catalog}:{product_port}/api/products")
+        responseCount = requests.get(
+            f"http://{product_catalog}:{product_port}/api/count/all"
+        )
+
         if response.status_code == 200:
+            count = json.loads(responseCount.text)
             products = json.loads(response.text)
     except requests.exceptions.RequestException as e:
         products = "Failed to fetch data"
@@ -199,13 +282,13 @@ def products():
         for x in products:
             for a in x["category"]:
                 category.append(a)
-
     return render_template(
         "products.html",
         products=products,
         category=list(dict.fromkeys(category)),
         sel=sel,
         user=check_user_auth(),
+        value=get_count_for_current_user(),
     )
 
 
@@ -235,6 +318,7 @@ def handle_category_product():
                 category=list(dict.fromkeys(category)),
                 sel=sel,
                 user=check_user_auth(),
+                value=get_count_for_current_user(),
             )
     except requests.exceptions.RequestException as e:
         return redirect(url_for("products"))
@@ -270,7 +354,10 @@ def server():
     ]
 
     return render_template(
-        "server.html", utc_dt=datetime.datetime.utcnow(), status=status
+        "server.html",
+        utc_dt=datetime.datetime.utcnow(),
+        status=status,
+        user=check_user_auth(),
     )
 
 

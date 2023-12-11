@@ -1,180 +1,217 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{% block title %} Home / Index {% endblock %} - Scamazon</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+    <link rel="icon"
+      type="image/ico"
+      href={{ url_for("static", filename="favicon.ico") }}>
+    <style>
+      body {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
 
-<head>
-  <meta charset="UTF-8" />
-  <title>{% block title %} Home / Index {% endblock %} - Scamazon</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+      nav {
+        background-color: #f0f0f0;
+      }
 
-  <style>
-    body {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
+      nav a {
+        color: #d64161;
+        font-size: 3em;
+        margin-left: 50px;
+        text-decoration: none;
+      }
 
-    nav {
-      background-color: #f0f0f0;
-    }
+      footer {
+        background-color: #f0f0f0;
+        padding: 20px 0;
+        text-align: center;
+        margin-top: auto;
+      }
 
-    nav a {
-      color: #d64161;
-      font-size: 3em;
-      margin-left: 50px;
-      text-decoration: none;
-    }
+      .footer-column {
+        display: inline-block;
+        width: 30%;
+        /* Adjust as needed */
+        margin: 10px;
+        vertical-align: top;
+      }
 
-    footer {
-      background-color: #f0f0f0;
-      padding: 20px 0;
-      text-align: center;
-      margin-top: auto;
-    }
+      .footer-column h3 {
+        font-size: 1.5em;
+      }
 
-    .footer-column {
-      display: inline-block;
-      width: 30%;
-      /* Adjust as needed */
-      margin: 10px;
-      vertical-align: top;
-    }
+      .footer-column ul {
+        list-style: none;
+        padding: 0;
+      }
 
-    .footer-column h3 {
-      font-size: 1.5em;
-    }
+      .footer-column ul li {
+        margin: 5px 0;
+      }
 
-    .footer-column ul {
-      list-style: none;
-      padding: 0;
-    }
+      .footer-column form {
+        margin-top: 10px;
+      }
 
-    .footer-column ul li {
-      margin: 5px 0;
-    }
+      .footer-column form input[type="email"] {
+        width: 100%;
+        padding: 5px;
+      }
 
-    .footer-column form {
-      margin-top: 10px;
-    }
+      .footer-column form button {
+        background-color: #d64161;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+      }
 
-    .footer-column form input[type="email"] {
-      width: 100%;
-      padding: 5px;
-    }
+      .social-media-icons {
+        list-style: none;
+        padding: 0;
+      }
 
-    .footer-column form button {
-      background-color: #d64161;
-      color: white;
-      border: none;
-      padding: 5px 10px;
-      cursor: pointer;
-    }
+      .social-media-icons li {
+        display: inline-block;
+        margin-right: 10px;
+      }
 
-    .social-media-icons {
-      list-style: none;
-      padding: 0;
-    }
+      .facebook-icon {
+        color: #1877f2;
+      }
 
-    .social-media-icons li {
-      display: inline-block;
-      margin-right: 10px;
-    }
+      .twitter-icon {
+        color: #1da1f2;
+      }
 
-    .facebook-icon {
-      color: #1877f2;
-    }
+      .content {
+        margin-left: 20px;
+      }
 
-    .twitter-icon {
-      color: #1da1f2;
-    }
+      .instagram-icon {
+        color: #c13584;
+      }
 
-    .content {
-      margin-left: 20px;
-    }
+      .main-nav {
+        display: -webkit-flex;
+        display: flex;
+        -webkit-justify-content: center;
+        justify-content: center;
+      }
 
-    .instagram-icon {
-      color: #c13584;
-    }
+      .main-nav a {
+        margin: 10px;
+        border-radius: 5px;
+        display: block;
+        padding: 15px;
+        text-decoration: none;
+      }
 
-    .main-nav {
-      display: -webkit-flex;
-      display: flex;
-      -webkit-justify-content: center;
-      justify-content: center;
-    }
+      .main-nav .logo {
+      }
 
-    .main-nav a {
-      margin: 10px;
-      border-radius: 5px;
-      display: block;
-      padding: 15px;
-      text-decoration: none;
-    }
+      .products {
+        padding: 10px;
+        background-color: #e6f9ff;
+        margin: 10px;
 
-    .main-nav .logo {}
+        border-radius: 15px;
 
-    .products {
-      padding: 10px;
-      background-color: #e6f9ff;
-      margin: 10px;
+        justify-content: center;
+        align-items: center;
+      }
 
-      border-radius: 15px;
+      .products img {
+        object-fit: cover;
+        height: 400px;
+      }
 
-      justify-content: center;
-      align-items: center;
-    }
+      .products #order {
+        text-align: center;
+        font-size: 24px;
+      }
 
-    .products img {
-      object-fit: cover;
-      height: 400px;
-    }
+      .products #price {
+        font-size: 24px;
+      }
+      .pagination {
+        display: inline-block;
+      }
 
-    .products #order {
-      text-align: center;
-      font-size: 24px;
-    }
+      .pagination a {
+        color: black;
+        float: left;
+        padding: 8px 16px;
+        text-decoration: none;
+      }
+      .badge:after {
+        content: attr(value);
+        font-size: 12px;
+        background: red;
+        border-radius: 50%;
+        padding: 3px;
+        position: relative;
+        left: -8px;
+        top: -10px;
+        opacity: 0.9;
+      }
+    </style>
+  </head>
 
-    .products #price {
-      font-size: 24px;
-    }
-  </style>
-</head>
+  <body>
+    <nav class="main-nav">
+      <a class="logo" href="{{ url_for('hello') }}">Scamazon</a>
+      <a href="{{ url_for('products') }}">Products</a>
+      <a href="{{ url_for('about') }}">About</a>
+      <a href="{{ url_for('server') }}">Server</a>
+      {% if user != "false" %}
+          <a href="{{ url_for('logout') }}">Log Out: {{ user}}</a>
+          </a>
+          <a href="{{ url_for('cart') }}"><i class="fa badge" style="font-size: 24px" value="{{value}}"
+          ><i class="fa-solid fa-cart-shopping"></i></i></a>
+        {% else %}
+          <a href="{{ url_for('get_login') }}">Login</a>
+        {% endif %}
+      <div>
+      
+      </div>
+    </nav>
+    <hr />
 
-<body>
-  <nav class="main-nav">
-    <a class="logo" href="{{ url_for('hello') }}">Scamazon</a>
-    <a href="{{ url_for('products') }}">Products</a>
-    <a href="{{ url_for('about') }}">About</a>
-    <a href="{{ url_for('server') }}">Server</a>
-  </nav>
-  <hr />
-  <div class="content">{% block content %} {% endblock %}</div>
-  <footer>
-    <div class="footer-column">
-      <h3>Useful Links</h3>
-      <ul>
-        <a href="{{ url_for('hello') }}">Scamazon</a>
-        <a href="{{ url_for('products') }}">Products</a>
-        <a href="{{ url_for('about') }}">About</a>
-        <a href="{{ url_for('server') }}">Server</a>
-      </ul>
-    </div>
-    <div class="footer-column">
-      <h3>Newsletter Subscription</h3>
-      <form action="/subscribe" method="post">
-        <input type="email" name="email" placeholder="Enter your email" />
-        <button type="submit">Subscribe</button>
-      </form>
-    </div>
+    <div class="content">{% block content %} {% endblock %}</div>
+    <footer>
+      <div class="footer-column">
+        <h3>Useful Links</h3>
+        <ul>
+          <a href="{{ url_for('hello') }}">Scamazon</a>
+          <a href="{{ url_for('products') }}">Products</a>
+          <a href="{{ url_for('about') }}">About</a>
+          <a href="{{ url_for('server') }}">Server</a>
+        </ul>
+      </div>
+      <div class="footer-column">
+        <h3>Newsletter Subscription</h3>
+        <form action="/subscribe" method="post">
+          <input type="email" name="email" placeholder="Enter your email" />
+          <button type="submit">Subscribe</button>
+        </form>
+      </div>
 
-    <div class="footer-column">
-      <h3>Social Media</h3>
-      <ul class="social-media-icons">
-        <li><a href="#" class="facebook-icon">Facebook</a></li>
-        <li><a href="#" class="twitter-icon">Twitter</a></li>
-        <li><a href="#" class="instagram-icon">Instagram</a></li>
-      </ul>
-    </div>
-  </footer>
-</body>
-
+      <div class="footer-column">
+        <h3>Social Media</h3>
+        <ul class="social-media-icons">
+          <li><a href="#" class="facebook-icon">Facebook</a></li>
+          <li><a href="#" class="twitter-icon">Twitter</a></li>
+          <li><a href="#" class="instagram-icon">Instagram</a></li>
+        </ul>
+      </div>
+    </footer>
+  </body>
 </html>

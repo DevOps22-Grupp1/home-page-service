@@ -20,7 +20,7 @@ services:
         condition: service_healthy
     environment:
       - DB_PORT=4004
-      - USER_URL=user-managament-service
+      - USER_URL=user-management-service
       - USER_PORT=4006
       - PRODUCT_URL=product-catalog-service
       - PRODUCT_PORT=4005
