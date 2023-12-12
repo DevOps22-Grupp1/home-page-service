@@ -86,14 +86,16 @@ def get_count_for_current_user():
 
 
 def check_user_auth():
+    user = {"user":"", "role":""}
     if current_user.is_authenticated:
         if users["username"] == "":
             logout()
-            user = "false"
+            user["user"] = "false"
         else:
-            user = users["username"]
+            user["user"] = users["username"]
+            user["role"] = users["role"]
     else:
-        user = "false"
+        user["user"] = "false"
     return user
 
 
@@ -137,12 +139,21 @@ def logout():
 
 @app.route("/pagination/", methods=["GET"])
 def pagination():
+    
     return request.args.get("page")
 
 
 @app.route("/buy/", methods=["GET"])
 def buy():
-    return request.args.get("id")
+    user_id = users["id"]
+    product_id =  request.args.get("id")
+    json_data = json.dumps(
+        {"userid": int(user_id), "productid": int(product_id)}
+    )
+    d_url = f"http://{order_processing}:{order_port}/api/order"
+    headers = {"Content-Type": "application/json"}
+    response = requests.post(d_url, data=json_data, headers=headers)
+    return redirect(url_for("products"))
 
 
 @app.route("/delete/", methods=["GET"])
@@ -166,12 +177,11 @@ def update_p():
     order = request.form["updateOrder"]
     price = request.form["updatePrice"]
     img = request.form["updateImg"]
-    catArray = request.form["updateCat"]
-    # for x in catArray:
-    #     newCat.append(x)
-    # return [catArray]  # , newCat
+    catArray = request.form["updateCat"].split(",")
+    for x in catArray:
+        newCat.append(x.strip())
     json_data = json.dumps(
-        {"order": order, "price": price, "image": img}  # , "category": catArray
+        {"order": order, "price": price, "image": img, "category": newCat}  # 
     )
     d_url = f"http://{product_catalog}:{product_port}/api/product/{id}"
     headers = {"Content-Type": "application/json"}
@@ -183,6 +193,20 @@ def update_p():
         return f"POST request returned a status code: {response.status_code}"
         # You can handle different status codes as needed
 
+@app.route("/delete_cart/", methods=["GET"])
+def del_cart():
+    id = request.args.get("id")
+    delete_url = f"http://{order_processing}:{order_port}/api/order/{id}"
+    print(delete_url)
+    response = requests.delete(delete_url)
+    if response.status_code == 204:
+        # The DELETE request was successful, and there's no response content.
+        return redirect(url_for("cart"))
+    elif response.status_code == 404:
+        return jsonify({"error": "Product not found"})
+    else:
+        return jsonify({"error": "Failed to delete product"})
+    return "muu"
 
 @app.route("/add_products/", methods=["POST"])
 def post_product():
@@ -252,14 +276,17 @@ def cart():
 
     respjson = json.loads(request.text)
     for prod in respjson:
-        prod_id = prod["productid"]
+        id =  prod["id"]
+        prod_id = int(prod["productid"])
         prodreq = requests.get(
             f"http://{product_catalog}:{product_port}/api/product/{prod_id}"
         )
         prodjson = json.loads(prodreq.text)
-        data.append(prodjson)
-    print(data)
-    return render_template("cart.html")
+        prodjson[0]["order_id"] = id
+        price = price + prodjson[0]["price"]
+        data.append(prodjson[0])
+    return render_template("cart.html", products=data, user=check_user_auth(),
+        value=get_count_for_current_user(), price=round(price, 2))
 
 
 @app.route("/products/", methods=["GET"])
@@ -281,7 +308,7 @@ def products():
     if products != "Failed to fetch data":
         for x in products:
             for a in x["category"]:
-                category.append(a)
+                category.append(a.strip())
     return render_template(
         "products.html",
         products=products,

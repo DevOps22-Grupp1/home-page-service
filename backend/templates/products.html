@@ -3,10 +3,11 @@
   <h3>{{ products }}</h3>
   {% else %}
   <div>
-      {% if user != "false" %}
+      {% if user["user"] != "false" and user["role"] == 'admin' %}
+
       <h3>Admin Page</h3>
       <div>
-      <a href="{{ url_for('get_login') }}">admin-product page</a>
+      <a href="{{ url_for('handle_products') }}">admin-product page</a>
       </div>
       {% endif %}
     <h1 style="text-text-align: center;font-size: 24px;">{% block title %} Products {% endblock %}</h1>
@@ -78,7 +79,7 @@
       </p>
         {% if user != "false" %}
        <a href="{{ url_for('buy', id=product.id ) }}">
-        <button>Buy</button>
+        <button>Add to cart</button>
       </a>
     {% endif %}
     </div>

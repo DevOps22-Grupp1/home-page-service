@@ -1,6 +1,45 @@
 {% extends 'base.html' %} {% block content %}
 <h1 style="text-text-align: center; font-size: 24px">
-  {% block title %} Your cart:<i class="fa-solid fa-cart-shopping"></i>
-  {% endblock %}
+{% block title %} Cart {% endblock %}
+<p>Total price: {{price}} €</p>  
+<i class="fa-solid fa-cart-shopping"></i>Your cart:
+  <div style="width: 85%; margin: auto">
+    {% for product in products %}
+    <div
+      style="
+        padding: 10px;
+        background-color: #e6f9ff;
+        margin: 10px;
+        border-radius: 15px;
+        display: inline-block;
+        justify-content: center;
+        align-items: center;
+      "
+    >
+      <p>#{{ loop.index }}</p>
+      <p style="text-align: center; font-size: 24px">{{ product.order }}</p>
+      <img
+        style="object-fit: cover; height: 400px"
+        src="{{ product.image }}"
+        alt="pic of {{ product.order }}"
+      />
+      <p style="font-size: 24px">{{ product.price }} €</p>
+
+      <p style="font-size: 24px">
+        category:{% for cat in product.category %} {{ cat}} {% endfor %}
+      </p>
+        {% if user["user"] != "false" %}
+       <a href="{{ url_for('del_cart', id=product.order_id ) }}">
+        <button>Delete item</button>
+      </a>
+    {% endif %}
+    </div>
+    {% endfor %}
+    <br>
+    <a href="#">
+      <button><i class="fa-solid fa-basket-shopping">Pay: {{price}}</i> </button>
+    </a>
+
+  </div>
 </h1>
 {% endblock %}

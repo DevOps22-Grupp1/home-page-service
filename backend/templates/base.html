@@ -153,14 +153,18 @@
       }
       .badge:after {
         content: attr(value);
-        font-size: 12px;
-        background: red;
+        font-size: 30px;
+        color: black; !important
         border-radius: 50%;
-        padding: 3px;
+        padding: 15px;
         position: relative;
-        left: -8px;
+        left: -1px;
         top: -10px;
-        opacity: 0.9;
+        opacity: 0.7;
+        
+      }
+      .fa-solid fa-cart-shopping{
+        color: black
       }
     </style>
   </head>
@@ -171,10 +175,10 @@
       <a href="{{ url_for('products') }}">Products</a>
       <a href="{{ url_for('about') }}">About</a>
       <a href="{{ url_for('server') }}">Server</a>
-      {% if user != "false" %}
-          <a href="{{ url_for('logout') }}">Log Out: {{ user}}</a>
+      {% if user["user"] != "false" %}
+          <a href="{{ url_for('logout') }}">Log Out: {{ user["user"]}}</a>
           </a>
-          <a href="{{ url_for('cart') }}"><i class="fa badge" style="font-size: 24px" value="{{value}}"
+          <a href="{{ url_for('cart') }}"><i class="fa badge" style="font-size: 40px color:"white" value="{{value}}"
           ><i class="fa-solid fa-cart-shopping"></i></i></a>
         {% else %}
           <a href="{{ url_for('get_login') }}">Login</a>
