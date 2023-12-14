@@ -17,7 +17,17 @@
   <form action="/products" method="post" enctype="multipart/form-data">
     <label for="playerselect">Choose a category:</label>
 
-    
+    <select
+      onchange="this.form.submit()"
+      id="playerselect"
+      name="category"
+      class="player-dropdown"
+    >
+      <option value="">--Choose an filter--</option>
+      {% for option in category %}
+      <option value="{{ option}}">{{ option}}</option>
+      {% endfor %}
+    </select>
   </form>
   <form action="/products" method="post" enctype="multipart/form-data">
     <label for="filterPrice">Choose a price filter:</label>
@@ -71,7 +81,7 @@
       </p>
         {% if user["user"] != "false" %}
        <a href="{{ url_for('buy', id=product.id ) }}">
-        <button class="button-89">Add to cart</button>
+        <button>Add to cart</button>
       </a>
     {% endif %}
     </div>
