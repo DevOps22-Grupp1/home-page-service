@@ -1,4 +1,6 @@
 {% extends 'base.html' %} {% block content %}
+<div style="width: 50%; margin: auto">
+
 <h1>{% block title %} Welcome to Scamazon! {% endblock %}</h1>
 <h1>A shopping paradise for all people on this earth!</h1>
 <h2>
@@ -11,15 +13,17 @@
   to go away by itself.
 </p>
 <h3>{{ utc_dt }}</h3>
-<hr />
+</div>
+
+<div style="width: 50%; margin-top:4%; margin: auto">
 <h1>LOOK!</h1>
-<div>
-<h1>Here is a picture of our amazing scammer team!</h1>
+  <h1>Here is a picture of our amazing scammer team!</h1>
 <div style="margin: auto">
   <img
     src="https://gadgetguy-assets.s3.ap-southeast-2.amazonaws.com/wordpress/wp-content/uploads/2020/01/02182039/Scamazon.jpg"
     alt="picture"
   />
 </div>
-<div>
+
+</div>
 {% endblock %}

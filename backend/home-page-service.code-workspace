@@ -1,0 +1,16 @@
+{
+    "folders": [
+        {
+            "path": ".."
+        },
+        {
+            "path": "../../order-processing-service"
+        },
+        {
+            "path": "../../produkt-catalog-service"
+        },
+        {
+            "path": "../../user-management-service"
+        }
+    ]
+}

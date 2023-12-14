@@ -3,7 +3,11 @@
 <h3>{{ utc_dt }}</h3>
 <hr />
 <h2>SERVER STATUS</h2>
-<div style="width: 50%; margin: auto">
+
+<div style="width: 50%; margin: auto padding: 10px;
+        background-color: #e6f9ff;
+        margin: 10px;
+        border-radius: 15px;">
   {% for obj in status %} {% if obj.status == "Success" %} {% set bg_color =
   'green' %} {% else %} {% set bg_color = 'red' %} {% endif %}
 

@@ -86,7 +86,7 @@ def get_count_for_current_user():
 
 
 def check_user_auth():
-    user = {"user":"", "role":""}
+    user = {"user": "", "role": ""}
     if current_user.is_authenticated:
         if users["username"] == "":
             logout()
@@ -139,17 +139,14 @@ def logout():
 
 @app.route("/pagination/", methods=["GET"])
 def pagination():
-    
     return request.args.get("page")
 
 
 @app.route("/buy/", methods=["GET"])
 def buy():
     user_id = users["id"]
-    product_id =  request.args.get("id")
-    json_data = json.dumps(
-        {"userid": int(user_id), "productid": int(product_id)}
-    )
+    product_id = request.args.get("id")
+    json_data = json.dumps({"userid": int(user_id), "productid": int(product_id)})
     d_url = f"http://{order_processing}:{order_port}/api/order"
     headers = {"Content-Type": "application/json"}
     response = requests.post(d_url, data=json_data, headers=headers)
@@ -181,7 +178,7 @@ def update_p():
     for x in catArray:
         newCat.append(x.strip())
     json_data = json.dumps(
-        {"order": order, "price": price, "image": img, "category": newCat}  # 
+        {"order": order, "price": price, "image": img, "category": newCat}  #
     )
     d_url = f"http://{product_catalog}:{product_port}/api/product/{id}"
     headers = {"Content-Type": "application/json"}
@@ -192,6 +189,7 @@ def update_p():
     else:
         return f"POST request returned a status code: {response.status_code}"
         # You can handle different status codes as needed
+
 
 @app.route("/delete_cart/", methods=["GET"])
 def del_cart():
@@ -207,6 +205,7 @@ def del_cart():
     else:
         return jsonify({"error": "Failed to delete product"})
     return "muu"
+
 
 @app.route("/add_products/", methods=["POST"])
 def post_product():
@@ -234,25 +233,67 @@ def post_product():
 
 @app.route("/login/", methods=["POST"])
 def post_login():
-    add_url = f"http://{user_management}:{user_port}/api/login"
+    login_url = f"http://{user_management}:{user_port}/api/login"
+    add_url = f"http://{user_management}:{user_port}/api/user"
     headers = {"Content-Type": "application/json"}
-    user = request.form["username"]
-    passw = request.form["password"]
-    json_data = json.dumps({"username": user, "password": passw})
-    try:
-        response = requests.post(add_url, data=json_data, headers=headers)
-        dataresponse = json.loads(response.text)
-        if len(dataresponse) == 1:
-            user = User(dataresponse[0]["username"])
-            login_user(user)
-            users["username"] = dataresponse[0]["username"]
-            users["id"] = dataresponse[0]["id"]
-            users["role"] = dataresponse[0]["role"]
-            users["avatar"] = dataresponse[0]["avatar"]
-            return redirect(url_for("products"))
-        else:
+
+    if "sign_in" in request.form:
+        user = request.form["user"]
+        passw = request.form["password"]
+        json_data = json.dumps({"username": user, "password": passw})
+        try:
+            response = requests.post(login_url, data=json_data, headers=headers)
+            dataresponse = json.loads(response.text)
+            if len(dataresponse) == 1 and response.status_code == 200:
+                user = User(dataresponse[0]["username"])
+                login_user(user)
+                users["username"] = dataresponse[0]["username"]
+                users["id"] = dataresponse[0]["id"]
+                users["role"] = dataresponse[0]["role"]
+                users["avatar"] = dataresponse[0]["avatar"]
+                return redirect(url_for("products"))
+            else:
+                return redirect(url_for("get_login"))
+        except requests.exceptions.RequestException as e:
             return redirect(url_for("get_login"))
-    except requests.exceptions.RequestException as e:
+    else:
+        user = request.form["username"]
+        name = request.form["name"]
+        passw = request.form["pass"]
+        email = request.form["email"]
+        avatar = request.form["avatar"]
+        role = request.form["select"]
+        json_data = json.dumps(
+            {
+                "name": name,
+                "username": user,
+                "password": passw,
+                "avatar": avatar,
+                "role": role,
+                "email": email,
+            }
+        )
+
+        try:
+            response = requests.post(add_url, data=json_data, headers=headers)
+            dataresponse = json.loads(response.text)
+            if response.status_code == 201:
+                json_data = json.dumps({"username": user, "password": passw})
+                response = requests.post(login_url, data=json_data, headers=headers)
+                dataresponse = json.loads(response.text)
+                if len(dataresponse) == 1 and response.status_code == 200:
+                    user = User(dataresponse[0]["username"])
+                    login_user(user)
+                    users["username"] = dataresponse[0]["username"]
+                    users["id"] = dataresponse[0]["id"]
+                    users["role"] = dataresponse[0]["role"]
+                    users["avatar"] = dataresponse[0]["avatar"]
+                    return redirect(url_for("products"))
+                else:
+                    return redirect(url_for("get_login"))
+        except requests.exceptions.RequestException as e:
+            return redirect(url_for("get_login"))
+
         return redirect(url_for("get_login"))
 
 
@@ -276,7 +317,7 @@ def cart():
 
     respjson = json.loads(request.text)
     for prod in respjson:
-        id =  prod["id"]
+        id = prod["id"]
         prod_id = int(prod["productid"])
         prodreq = requests.get(
             f"http://{product_catalog}:{product_port}/api/product/{prod_id}"
@@ -285,8 +326,13 @@ def cart():
         prodjson[0]["order_id"] = id
         price = price + prodjson[0]["price"]
         data.append(prodjson[0])
-    return render_template("cart.html", products=data, user=check_user_auth(),
-        value=get_count_for_current_user(), price=round(price, 2))
+    return render_template(
+        "cart.html",
+        products=data,
+        user=check_user_auth(),
+        value=get_count_for_current_user(),
+        price=round(price, 2),
+    )
 
 
 @app.route("/products/", methods=["GET"])
@@ -323,6 +369,7 @@ def products():
 def handle_category_product():
     categoryName = request.form["category"]
     sel = categoryName
+    print(sel, categoryName)
     if categoryName == "all" or categoryName == "none-all":
         return redirect(url_for("products"))
     category = ["all"]
@@ -389,4 +436,4 @@ def server():
 
 
 # Very important to disable debug mode
-app.run(host="0.0.0.0", port=server_port, debug=False)
+app.run(host="0.0.0.0", port=server_port, debug=False, use_reloader=False)

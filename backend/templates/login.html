@@ -1,12 +1,71 @@
 {% extends 'base.html' %} {% block content %}
-<div style="width: 20%; margin: auto; margin-bottom: 3%">
-  <h1>{% block title %} Login {% endblock %}</h1>
+<div style="width: 20%; margin: auto; margin-top: 4%; margin-bottom: 3%">
   <form method="POST" action="/login">
-    <label for="username">Username:</label>
-    <input type="text" name="username" required /><br /><br />
-    <label for="password">Password:</label>
-    <input type="password" name="password" required /><br /><br />
-    <input type="submit" value="Login" />
-  </form>
+<div class="login-wrap">
+  <div class="login-html">
+    <input id="tab-1" type="radio" name="tab" class="sign-in" checked><label for="tab-1" class="tab">Sign In</label>
+    <input id="tab-2" type="radio" name="tab" class="sign-up"><label for="tab-2" class="tab">Sign Up</label>
+    <div class="login-form">
+      <div class="sign-in-htm">
+        <div class="group">
+          <label for="user" class="label">Username</label>
+          <input id="user" name="user" type="text" class="input">
+        </div>
+        <div class="group">
+          <label for="pass" class="label">Password</label>
+          <input id="pass" name="password" type="password" class="input" data-type="password">
+        </div>
+        <div class="group">
+          <input id="check" type="checkbox" class="check" checked>
+          <label for="check"><span class="icon"></span> Keep me Signed in</label>
+        </div>
+        <div class="group">
+          <input type="submit" name="sign_in" class="button"  value="Sign In">
+        </div>
+        <div class="hr"></div>
+        <div class="foot-lnk">
+          <!--<a href="#">Forgot Password?</a>-->
+        </div>
+      </div>
+      <div class="sign-up-htm">
+        <div class="group">
+           <label for="user" class="label">username</label>
+          <input id="user"  name="username" type="text" class="input">
+        </div>
+        <div class="group">
+          <label for="email" class="label">Email Address</label>
+          <input id="email"  name="email" type="text" class="input">
+        </div>
+        <div class="group">
+          <label for="name" class="label">name</label>
+          <input id="name"  name="name" type="text" class="input">
+        </div>
+        <div class="group">
+          <label for="pass" class="label">Password</label>
+          <input id="pass"  name="pass" type="password" class="input" data-type="password">
+        </div>
+        <div class="group">
+          <label for="avatar" class="label">Avatar(url)</label>
+          <input id="avatar" name="avatar" type="text" class="input" >
+        </div>
+         
+        <div class="group">
+          <label for="drop" class="label">Role:</label>
+          <select name="select" id="drop">
+          <option value="customer">Customer</option>
+          <option value="admin">Admin</option>
+        </select>
+        </label>
+      </div>
+        <div class="group">
+          <input type="submit" class="button" name="sign_up" value="Sign Up">
+        </div>
+        <div class="hr"></div>
+      </div>
+    </div>
+  </div>
+</div>
+</form>
 </div>
 {% endblock %}
+

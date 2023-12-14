@@ -30,14 +30,14 @@
       </p>
         {% if user["user"] != "false" %}
        <a href="{{ url_for('del_cart', id=product.order_id ) }}">
-        <button>Delete item</button>
+        <butbutton class="button-89"ton>Delete item</button>
       </a>
     {% endif %}
     </div>
     {% endfor %}
     <br>
     <a href="#">
-      <button><i class="fa-solid fa-basket-shopping">Pay: {{price}}</i> </button>
+      <button class="button-89"><i class="fa-solid fa-basket-shopping">Pay: {{price}}</i> </button>
     </a>
 
   </div>
