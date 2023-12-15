@@ -19,7 +19,7 @@ services:
       mongo-home-page-service:
         condition: service_healthy
     environment:
-      - DB_PORT=4004
+      - SERVER_PORT=4004
       - USER_URL=user-management-service
       - USER_PORT=4006
       - PRODUCT_URL=product-catalog-service

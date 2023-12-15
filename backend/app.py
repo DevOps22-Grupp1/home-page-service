@@ -13,7 +13,7 @@ from flask_login import (
 )
 import os
 
-server_port = os.environ.get("DB_PORT")
+server_port = os.environ.get("SERVER_PORT")
 user_management = os.environ.get("USER_URL")
 user_port = os.environ.get("USER_PORT")
 try:
@@ -104,6 +104,16 @@ def hello():
     return render_template(
         "index.html",
         utc_dt=datetime.datetime.utcnow(),
+        user=check_user_auth(),
+    )
+
+
+@app.route("/subscribe", methods=["POST"])
+def handling_sub():
+    print(request.form["email"])
+    return render_template(
+        "index.html",
+        utc_dt=datetime.datetime.utcnow,
         user=check_user_auth(),
     )
 
