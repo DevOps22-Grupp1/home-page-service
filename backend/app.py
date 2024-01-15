@@ -159,7 +159,7 @@ def buy():
     json_data = json.dumps({"userid": int(user_id), "productid": int(product_id)})
     d_url = f"http://{order_processing}:{order_port}/api/order"
     headers = {"Content-Type": "application/json"}
-    response = requests.post(d_url, data=json_data, headers=headers)
+    requests.post(d_url, data=json_data, headers=headers)
     return redirect(url_for("products"))
 
 
