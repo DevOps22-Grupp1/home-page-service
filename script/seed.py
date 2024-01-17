@@ -81,7 +81,7 @@ insert_data(
             "role": "customer",
         },
         {
-            id: 7,
+            "id": 7,
             "name": "Testy de Testsson",
             "email": "user1@test.se",
             "avatar": "https://robohash.org/ametveldolorem.png?size=50x50&set=set1",
