@@ -82,12 +82,12 @@ insert_data(
         },
         {
             id: 7,
-            name: "Testy de Testsson",
-            email: "user1@test.se",
-            avatar: "https://robohash.org/ametveldolorem.png?size=50x50&set=set1",
-            username: "user1",
-            password: "password1",
-            role: "customer",
+            "name": "Testy de Testsson",
+            "email": "user1@test.se",
+            "avatar": "https://robohash.org/ametveldolorem.png?size=50x50&set=set1",
+            "username": "user1",
+            "password": "password1",
+            "role": "customer",
         },
     ],
 )
