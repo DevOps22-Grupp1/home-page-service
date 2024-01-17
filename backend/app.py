@@ -105,6 +105,7 @@ def hello():
         "index.html",
         utc_dt=datetime.datetime.utcnow(),
         user=check_user_auth(),
+        value=get_count_for_current_user(),
     )
 
 
@@ -312,6 +313,7 @@ def about():
     return render_template(
         "about.html",
         user=check_user_auth(),
+        value=get_count_for_current_user(),
     )
 
 
@@ -442,6 +444,7 @@ def server():
         utc_dt=datetime.datetime.utcnow(),
         status=status,
         user=check_user_auth(),
+        value=get_count_for_current_user(),
     )
 
 
