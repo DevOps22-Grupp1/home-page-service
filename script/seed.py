@@ -211,7 +211,7 @@ insert_data(
             "id": 15,
             "order": "HP Envy Laptop 16-h1024no",
             "price": 1917.63,
-            "image": "https://www.hp.com/se-sv/shop/Html/Merch/Images/c08426512_1750x1285.jpg",
+            "image": "https://billigteknik.b-cdn.net/144782-home_default/hp-victus-hp-16-d0028no-16-full-hd-144-hz-i7-11-16gb-1tb-ssd-rtx-3060-6gb-win-11-demo.jpg",
             "category": ["laptop"],
         },
         {
