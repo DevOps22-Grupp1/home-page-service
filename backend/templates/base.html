@@ -7,13 +7,13 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
     />
-      <!--  <link rel="stylesheet" href="{{ url_for('static', filename='button.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='button.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='dropdown.css') }}">
-        <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}"> -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}"> 
     <link rel="icon"
       type="image/ico"
-      href={{ url_for("static", filename="favicon.ico") }}>
+      href="{{ url_for("static", filename="favicon.ico") }}">
 
   </head>
 
@@ -24,10 +24,13 @@
       <a href="{{ url_for('about') }}">About</a>
       <a href="{{ url_for('server') }}">Server</a>
       {% if user["user"] != "false" %}
-          <a href="{{ url_for('logout') }}">Log Out: {{ user["user"]}}</a>
+          <a href="{{ url_for('logout') }}">Log Out: <img style="height: 50px; margin: auto;" src="{{ user["image"] }}" alt="image of avatar" />{{ user["user"]}} </a>
           </a>
-          <a href="{{ url_for('cart') }}"><i class="fa badge" style="font-size: 40px color:"white" value="{{value}}"
-          ><i class="fa-solid fa-cart-shopping"></i></i></a>
+          
+          <a href="{{ url_for('cart') }}">
+            <i class="fa badge" style="font-size: 40px color:white" value="{{value}}" >
+              <i class="fa-solid fa-cart-shopping"></i>
+        </i></a>
         {% else %}
           <a href="{{ url_for('get_login') }}">Login</a>
         {% endif %}

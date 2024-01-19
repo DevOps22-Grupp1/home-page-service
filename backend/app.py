@@ -86,7 +86,7 @@ def get_count_for_current_user():
 
 
 def check_user_auth():
-    user = {"user": "", "role": ""}
+    user = {"user": "", "role": "", "image": ""}
     if current_user.is_authenticated:
         if users["username"] == "":
             logout()
@@ -94,6 +94,7 @@ def check_user_auth():
         else:
             user["user"] = users["username"]
             user["role"] = users["role"]
+            user["image"] = users["avatar"]
     else:
         user["user"] = "false"
     return user
