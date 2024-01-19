@@ -27,15 +27,6 @@ services:
       - ORDER_URL=order-processing-service
       - ORDER_PORT=4007
 
-  prometheus-home-page-service:
-    image: prom/prometheus:latest
-    ports:
-      - "9092:9090"
-    networks:
-      - my_network
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yaml
-
   mongo-home-page-service:
     image: mongo
     restart: always
