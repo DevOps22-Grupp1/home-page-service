@@ -146,21 +146,21 @@ insert_data(
         },
         {
             "id": 6,
-            "order": "KÖKSMASKIN 4,8L - ARTISAN - RÖD",
+            "order": "Kitchen Aid 4,8L - ARTISAN - RED",
             "price": 490.60,
             "image": "https://whirlpool-cdn.thron.com/delivery/public/thumbnail/whirlpool/pi-240352b9-0345-4027-95fb-0d7684c11d8e/sckne7/std/1000x1000/Kitchenaid_Food_processor_5KSM125EER_R_d_Profile.jpg?fill=zoom&fillcolor=rgba:255,255,255&scalemode=product&format=auto",
             "category": ["food-machine"],
         },
         {
             "id": 7,
-            "order": "NOD Glassmaskin 1,5 liter, svart",
+            "order": "NOD Icecream machine 1,5 liter, BLACK",
             "price": 191.57,
             "image": "https://static.goshopping.dk/products/600/nod-ismaskine-1-5-liter-ice-1533w-59202-1.jpg",
             "category": ["food-machine"],
         },
         {
             "id": 8,
-            "order": "Sage Belgiskt Våffeljärn The Smart Waffle",
+            "order": "Sage Belgian Waffeiron - The Smart Waffle",
             "price": 258.68,
             "image": "https://static.goshopping.dk/products/600/sage-bwm620-the-smart-waffle-vaffeljern-bwm-620-eu-5560-1.jpg",
             "category": ["food-machine"],
@@ -272,7 +272,7 @@ insert_data(
         },
         {
             "id": 24,
-            "order": "Optoma DX 322 Projektor",
+            "order": "Optoma DX 322 Projector",
             "price": 520.74,
             "image": "https://www.tradeinn.com/f/13826/138260153_3/optoma-dx-322-projektor.jpg",
             "category": ["projector"],
@@ -286,7 +286,7 @@ insert_data(
         },
         {
             "id": 26,
-            "order": "GEQ Fisksandaler",
+            "order": "GEQ Fish sandals",
             "price": 22.57,
             "image": "https://m.media-amazon.com/images/I/71j8kzR0AtL._AC_SY695_.jpg",
             "category": ["shoes"],
@@ -300,7 +300,7 @@ insert_data(
         },
         {
             "id": 28,
-            "order": "Skyrunner Känguruskor",
+            "order": "Skyrunner Kangaroo shoes",
             "price": 239.34,
             "image": "https://m.media-amazon.com/images/I/61FTkuWktYL._AC_UF1000,1000_QL80_.jpg",
             "category": ["shoes"],
