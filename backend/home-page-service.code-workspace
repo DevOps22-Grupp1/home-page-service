@@ -12,5 +12,8 @@
         {
             "path": "../../user-management-service"
         }
-    ]
+    ],
+    "settings": {
+        "liveServer.settings.multiRootWorkspaceName": "home-page-service"
+    }
 }
