@@ -12,6 +12,8 @@ from flask_login import (
     current_user,
 )
 import os
+import math
+
 
 server_port = os.environ.get("SERVER_PORT")
 user_management = os.environ.get("USER_URL")
@@ -112,7 +114,6 @@ def hello():
 
 @app.route("/subscribe", methods=["POST"])
 def handling_sub():
-    print(request.form["email"])
     return render_template(
         "index.html",
         utc_dt=datetime.datetime.utcnow,
@@ -123,14 +124,31 @@ def handling_sub():
 @app.route("/admin-product/")
 @login_required
 def handle_products():
+    if request.args.get("page") == None:
+        page = 1
+    else:
+        page = int(request.args.get("page"))
     user = users["username"]
     try:
-        response = requests.get(f"http://{product_catalog}:{product_port}/api/products")
+        response = requests.get(
+            f"http://{product_catalog}:{product_port}/api/products/{page}"
+        )
+        responseCount = requests.get(
+            f"http://{product_catalog}:{product_port}/api/count/all"
+        )
         if response.status_code == 200:
             products = json.loads(response.text)
+            count = json.loads(responseCount.text)
     except requests.exceptions.RequestException as e:
         products = "Failed to fetch data"
-    return render_template("admin-product.html", products=products, user=user)
+    return render_template(
+        "admin-product.html",
+        products=products,
+        user=check_user_auth(),
+        value=get_count_for_current_user(),
+        current_page=page,
+        total_page=math.ceil(count / 9),
+    )
 
 
 @app.route("/login/", methods=["GET"])
@@ -237,12 +255,6 @@ def post_product():
         # You can handle different status codes as needed
 
 
-# {
-# "password": "lC2)Pug$Dsq*8b|6",  password1
-# "username": "emclinden0" user1
-# }
-
-
 @app.route("/login/", methods=["POST"])
 def post_login():
     login_url = f"http://{user_management}:{user_port}/api/login"
@@ -339,6 +351,7 @@ def cart():
         prodjson[0]["order_id"] = id
         price = price + prodjson[0]["price"]
         data.append(prodjson[0])
+
     return render_template(
         "cart.html",
         products=data,
@@ -348,12 +361,19 @@ def cart():
     )
 
 
-@app.route("/products/", methods=["GET"])
+@app.route("/products", methods=["GET"])
 def products():
+    if request.args.get("page") == None:
+        page = 1
+    else:
+        page = int(request.args.get("page"))
+
     category = ["all"]
     sel = "all"
     try:
-        response = requests.get(f"http://{product_catalog}:{product_port}/api/products")
+        response = requests.get(
+            f"http://{product_catalog}:{product_port}/api/products/{page}"
+        )
         responseCount = requests.get(
             f"http://{product_catalog}:{product_port}/api/count/all"
         )
@@ -375,6 +395,8 @@ def products():
         sel=sel,
         user=check_user_auth(),
         value=get_count_for_current_user(),
+        current_page=page,
+        total_page=math.ceil(count / 9),
     )
 
 

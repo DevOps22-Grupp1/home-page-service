@@ -31,6 +31,18 @@
 
 <div style="width: 60%; margin: auto">
   <h2 style="text-align: center">{% block undertitle %} All Products {% endblock %}</h2>
+    <div class="pagination">
+    {% if current_page != 1 %}
+    <a href="{{ url_for('handle_products', page="1" ) }}">&laquo;</a>
+    {% endif %}
+  {% for n in range(1,total_page+1) %}
+    <a class="{% if current_page == n %} pager {% endif %}" href="{{ url_for('handle_products', page=n ) }}">{{n}}</a>
+  {% endfor %}  
+    {% if current_page != total_page %}
+    <a href="{{ url_for('handle_products', page=total_page ) }}">&raquo;</a>
+    {% endif %}
+        <a href="{{ url_for('handle_products', page="0" ) }}"><i class="fa-solid fa-list"></i></a>
+  </div>
   {% for product in products %}
   <div
     style="
@@ -72,5 +84,17 @@
     >
   </div>
   {% endfor %}
+  <div class="pagination">
+    {% if current_page != 1 %}
+    <a href="{{ url_for('handle_products', page="1" ) }}">&laquo;</a>
+    {% endif %}
+  {% for n in range(1,total_page+1) %}
+    <a class="{% if current_page == n %} pager {% endif %}" href="{{ url_for('handle_products', page=n ) }}">{{n}}</a>
+  {% endfor %}  
+    {% if current_page != total_page %}
+    <a href="{{ url_for('handle_products', page=total_page ) }}">&raquo;</a>
+    {% endif %}
+        <a href="{{ url_for('handle_products', page="0" ) }}"><i class="fa-solid fa-list"></i></a>
+  </div>
 </div>
 {% endblock %}

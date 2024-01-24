@@ -157,6 +157,12 @@ footer {
 
 }
 
+.pager {
+    text-decoration: underline;
+    background: green;
+}
+
+
 .fa-solid fa-cart-shopping {
     color: black
 }

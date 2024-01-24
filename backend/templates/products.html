@@ -3,12 +3,24 @@
 {% if products == "Failed to fetch data" %}
   <h3>{{ products }}</h3>
   {% else %}
+  <div class="pagination">
+    {% if current_page != 1 %}
+    <a href="{{ url_for('products', page="1" ) }}">&laquo;</a>
+    {% endif %}
+  {% for n in range(1,total_page+1) %}
+    <a class="{% if current_page == n %} pager {% endif %}" href="{{ url_for('products', page=n ) }}">{{n}}</a>
+  {% endfor %}  
+    {% if current_page != total_page %}
+    <a href="{{ url_for('products', page=total_page ) }}">&raquo;</a>
+    {% endif %}
+        <a href="{{ url_for('products', page="0" ) }}"><i class="fa-solid fa-list"></i></a>
+  </div>
   <div>
       {% if user["user"] != "false" and user["role"] == 'admin' %}
 
       <h3>Admin Page</h3>
       <div>
-      <a href="{{ url_for('handle_products') }}">admin-product page</a>
+      <a class="current_page"  href="{{ url_for('handle_products') }}">admin-product page</a>
       </div>
       {% endif %}
     <h1 style="text-text-align: center;font-size: 24px;">{% block title %} Products {% endblock %}</h1>
@@ -88,14 +100,17 @@
     {% endfor %}
   </div>
   <div class="pagination">
-    <a href="#">&laquo;</a>
-    <a href="{{ url_for('pagination', page="1" ) }}">1</a>
-    <a href="{{ url_for('pagination', page="2" ) }}">2</a>
-    <a href="{{ url_for('pagination', page="3" ) }}">3</a>
-    <a href="{{ url_for('pagination', page="4" ) }}">4</a>
-    <a href="{{ url_for('pagination', page="5" ) }}">5</a>
-    <a href="{{ url_for('pagination', page="6" ) }}">6</a>
-    <a href="#">&raquo;</a>
+    {% if current_page != 1 %}
+    <a href="{{ url_for('products', page="0" ) }}">&laquo;</a>
+    {% endif %}
+  {% for n in range(1,total_page+1) %}
+    <a class="{% if current_page == n %} pager {% endif %}" href="{{ url_for('products', page=n ) }}">{{n}}</a>
+  {% endfor %}  
+
+    {% if current_page != total_page %}
+      <a href="{{ url_for('products', page=total_page ) }}">&raquo;</a>
+    {% endif %}
+    <a href="{{ url_for('products', page="0" ) }}"><i class="fa-solid fa-list"></i></a>
   </div>
 </div>
 
