@@ -1,28 +1,23 @@
 {% extends 'base.html' %} {% block content %}
-<div style="width: 50%; margin: auto">  
-{% if products == "Failed to fetch data" %}
+<div style="width: 50%; margin: auto">
+  {% if products == "Failed to fetch data" %}
   <h3>{{ products }}</h3>
   {% else %}
   <div>
-      {% if user["user"] != "false" and user["role"] == 'admin' %}
+    {% if user["user"] != "false" and user["role"] == 'admin' %}
 
-      <h3>Admin Page</h3>
-      <div>
+    <h3>Admin Page</h3>
+    <div>
       <a href="{{ url_for('handle_products') }}">admin-product page</a>
-      </div>
-      {% endif %}
+    </div>
+    {% endif %}
     <h1 style="text-align: center;font-size: 24px;">{% block title %} Products {% endblock %}</h1>
   </div>
-  
+
   <form action="/products" method="post" enctype="multipart/form-data">
     <label for="playerselect">Choose a category:</label>
 
-    <select
-      onchange="this.form.submit()"
-      id="playerselect"
-      name="category"
-      class="player-dropdown"
-    >
+    <select onchange="this.form.submit()" id="playerselect" name="category" class="player-dropdown">
       <option value="">--Choose an filter--</option>
       {% for option in category %}
       <option value="{{ option}}">{{ option}}</option>
@@ -31,12 +26,7 @@
   </form>
   <form action="/products" method="post" enctype="multipart/form-data">
     <label for="filterPrice">Choose a price filter:</label>
-    <select
-      onchange="this.form.submit()"
-      id="filterPrice"
-      name="category"
-      class="player-dropdown"
-    >
+    <select onchange="this.form.submit()" id="filterPrice" name="category" class="player-dropdown">
       <option value="">--Choose an price filter--</option>
       <option value="none,{{sel}}">
         none
@@ -53,11 +43,10 @@
       </option>
     </select>
   </form>
-  </div>
-  <div style="width: 85%; margin: auto">
-    {% for product in products %}
-    <div
-      style="
+</div>
+<div style="width: 85%; margin: auto">
+  {% for product in products %}
+  <div class="product-container" style="
         padding: 10px;
         background-color: #e6f9ff;
         margin: 10px;
@@ -65,38 +54,33 @@
         display: inline-block;
         justify-content: center;
         align-items: center;
-      "
-    >
-      <p>#{{ loop.index }}</p>
-      <p style="text-align: center; font-size: 24px">{{ product.order }}</p>
-      <img
-        style="object-fit: cover; height: 400px"
-        src="{{ product.image }}"
-        alt="pic of {{ product.order }}"
-      />
-      <p style="font-size: 24px">{{ product.price }} €</p>
+      ">
+    <p>#{{ loop.index }}</p>
+    <p style="text-align: center; font-size: 24px">{{ product.order }}</p>
+    <img style="object-fit: cover; height: 400px" src="{{ product.image }}" alt="pic of {{ product.order }}" />
+    <p style="font-size: 24px">{{ product.price }} €</p>
 
-      <p style="font-size: 24px">
-        category:{% for cat in product.category %} {{ cat}} {% endfor %}
-      </p>
-        {% if user["user"] != "false" %}
-       <a href="{{ url_for('buy', id=product.id ) }}">
-        <button>Add to cart</button>
-      </a>
+    <p style="font-size: 24px">
+      category:{% for cat in product.category %} {{ cat}} {% endfor %}
+    </p>
+    {% if user["user"] != "false" %}
+    <a href="{{ url_for('buy', id=product.id ) }}">
+      <button>Add to cart</button>
+    </a>
     {% endif %}
-    </div>
-    {% endfor %}
   </div>
-  <div class="pagination">
-    <a href="#">&laquo;</a>
-    <a href="{{ url_for('pagination', page="1" ) }}">1</a>
-    <a href="{{ url_for('pagination', page="2" ) }}">2</a>
-    <a href="{{ url_for('pagination', page="3" ) }}">3</a>
-    <a href="{{ url_for('pagination', page="4" ) }}">4</a>
-    <a href="{{ url_for('pagination', page="5" ) }}">5</a>
-    <a href="{{ url_for('pagination', page="6" ) }}">6</a>
-    <a href="#">&raquo;</a>
-  </div>
+  {% endfor %}
+</div>
+<div class="pagination">
+  <a href="#">&laquo;</a>
+  <a href="{{ url_for('pagination', page=" 1" ) }}">1</a>
+  <a href="{{ url_for('pagination', page=" 2" ) }}">2</a>
+  <a href="{{ url_for('pagination', page=" 3" ) }}">3</a>
+  <a href="{{ url_for('pagination', page=" 4" ) }}">4</a>
+  <a href="{{ url_for('pagination', page=" 5" ) }}">5</a>
+  <a href="{{ url_for('pagination', page=" 6" ) }}">6</a>
+  <a href="#">&raquo;</a>
+</div>
 </div>
 
 {% endif %} {% endblock %}

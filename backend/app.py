@@ -101,8 +101,29 @@ def check_user_auth():
 
 @app.route("/")
 def hello():
+    category = ["all"]
+    sel = "all"
+    try:
+        response = requests.get(f"http://{product_catalog}:{product_port}/api/products")
+        responseCount = requests.get(
+            f"http://{product_catalog}:{product_port}/api/count/all"
+        )
+
+        if response.status_code == 200:
+            count = json.loads(responseCount.text)
+            products = json.loads(response.text)
+            limited_products = products[:10]
+    except requests.exceptions.RequestException as e:
+        products = "Failed to fetch data"
+
+    if products != "Failed to fetch data":
+        for x in products:
+            for a in x["category"]:
+                category.append(a.strip())
+
     return render_template(
         "index.html",
+        products=limited_products,
         utc_dt=datetime.datetime.utcnow(),
         user=check_user_auth(),
         value=get_count_for_current_user(),
@@ -141,7 +162,7 @@ def get_login():
     return render_template("login.html", user=check_user_auth())
 
 
-@app.route("/lougout", methods=["GET"])
+@app.route("/logout", methods=["GET"])
 def logout():
     logout_user()
     users["username"] = ""

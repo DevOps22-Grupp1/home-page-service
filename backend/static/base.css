@@ -1,0 +1,110 @@
+/* base.css */
+
+body {
+  background-color: lightgray;
+  color: darkgray;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* nav.navbar {
+  background-color: orange;
+  padding: 10px;
+  text-align: center;
+}
+
+nav.navbar a {
+  color: black;
+  text-decoration: none;
+  margin: 0 10px;
+  font-size: 1.2em;
+}
+
+nav.navbar a.logo {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+nav.navbar hr {
+  border-color: gold;
+} */
+
+div.content {
+  padding: 20px;
+  margin: auto;
+}
+
+footer {
+  display: flex;
+  background-color: #333;
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+footer .footer-column {
+  margin-bottom: 20px;
+}
+
+footer h3 {
+  font-size: 1.5em;
+  margin-bottom: 10px;
+  color: white
+}
+
+footer ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+footer ul a {
+  color: white;
+  text-decoration: none;
+  font-size: 1.2em;
+}
+
+footer form {
+  margin-top: 10px;
+}
+
+footer input {
+  padding: 5px;
+  width: 200px;
+  font-size: 1em;
+}
+
+footer button {
+  background-color: black;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  cursor: pointer;
+  font-size: 1em;
+}
+
+footer .social-media-icons {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+footer .social-media-icons li {
+  margin-top: 10px;
+}
+
+footer .social-media-icons a {
+  font-size: 1.5em;
+}
+
+footer .social-media-icons a.facebook-icon {
+  color: #3b5998;
+}
+
+footer .social-media-icons a.twitter-icon {
+  color: #00aced;
+}
+
+footer .social-media-icons a.instagram-icon {
+  color: #8a51a4;
+}

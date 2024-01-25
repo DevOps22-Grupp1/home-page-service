@@ -1,29 +1,37 @@
-{% extends 'base.html' %} {% block content %}
-<div style="width: 50%; margin: auto">
-
-<h1>{% block title %} Welcome to Scamazon! {% endblock %}</h1>
-<h1>A shopping paradise for all people on this earth!</h1>
-<h2>
-  If you have any questions we are just a few hours on the phone away, please
-  dont hesitate to contact us!
-</h2>
-<p>
-  Don't be alarmed if you have payed 3 times the price and never recieved your
-  product. This happends all the time, and in 86% of the cases the problem seems
-  to go away by itself.
-</p>
-<h3>{{ utc_dt }}</h3>
+{% extends 'base.html' %}
+{% block content %}
+<div style="width: 80%; margin: auto; text-align: center;">
+  <h1 style="font-size: 2.5em; margin-bottom: 10px;">{% block title %} Welcome to Scamazon! {% endblock %}</h1>
+  <p style="font-size: 1.2em;">
+    Discover the ultimate shopping experience at Scamazon! Your one-stop destination for amazing deals and exclusive
+    products.
+  </p>
+  <p style="font-size: 1.2em;">
+    Shop with confidence! Our dedicated team is here to assist you at every step. Unbelievable prices, unbeatable scams!
+  </p>
+  <h3 style="font-size: 1.5em; margin-top: 20px;">{{ utc_dt }}</h3>
 </div>
 
-<div style="width: 50%; margin-top:4%; margin: auto">
-<h1>LOOK!</h1>
-  <h1>Here is a picture of our amazing scammer team!</h1>
-<div style="margin: auto">
-  <img
-    src="https://gadgetguy-assets.s3.ap-southeast-2.amazonaws.com/wordpress/wp-content/uploads/2020/01/02182039/Scamazon.jpg"
-    alt="picture"
-  />
-</div>
-
+<div class="slider">
+  <!-- Your existing product rendering code -->
+  {% for product in products %}
+  <div class="product-container" style="
+        padding: 20px;
+        background-color: rgb(129, 126, 112);
+        color: lightgray;
+        margin: 20px;
+        border-radius: 15px;
+        display: inline-block;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      ">
+    <p style="font-size: 1.2em; color: lightgray; margin-bottom: 10px;">{{ product.order }}</p>
+    <img src="{{ product.image }}" alt="pic of {{ product.order }}"
+      style="object-fit: cover; height: 300px; width: 100%; border-radius: 10px; margin-bottom: 10px;">
+    <p style="font-size: 1em; margin-bottom: 10px;">{{ product.price }} €</p>
+    <p style="font-size: 0.75em; margin-bottom: 10px;">Category: {% for cat in product.category %} {{ cat }} {% endfor
+      %}
+    </p>
+  </div>
+  {% endfor %}
 </div>
 {% endblock %}
