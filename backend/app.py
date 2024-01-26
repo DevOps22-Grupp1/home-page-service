@@ -104,7 +104,28 @@ def check_user_auth():
 
 @app.route("/")
 def hello():
-    return render_template(
+    category = []
+    cat_prod = []
+    try:
+        response = requests.get(
+            f"http://{product_catalog}:{product_port}/api/products/0"
+        )
+
+        if response.status_code == 200:
+            products = json.loads(response.text)
+    except requests.exceptions.RequestException as e:
+        products = "Failed to fetch data"
+
+    for x in products:
+        for a in x["category"]:
+            category.append(a.strip())
+        for x in list(dict.fromkeys(category)):
+            prod_cat = requests.get(
+                f"http://{product_catalog}:{product_port}/api/product_category/{x}"
+            )
+            m = json.loads(prod_cat.text)
+            cat_prod.append(m[0])
+    
         "index.html",
         utc_dt=datetime.datetime.utcnow(),
         user=check_user_auth(),
@@ -242,9 +263,12 @@ def post_product():
     order = request.form["name"]
     price = request.form["price"]
     img = request.form["images"]
+    cat = request.form["category"]
     add_url = f"http://{product_catalog}:{product_port}/api/product"
 
-    json_data = json.dumps({"order": order, "price": price, "image": img})
+    json_data = json.dumps(
+        {"order": order, "price": price, "image": img, "category": [cat]}
+    )
     headers = {"Content-Type": "application/json"}
     response = requests.post(add_url, data=json_data, headers=headers)
     if response.status_code == 201:
@@ -412,9 +436,12 @@ def handle_category_product():
         res = requests.get(
             f"http://{product_catalog}:{product_port}/api/product_category/{categoryName}"
         )
-        res_all = requests.get(f"http://{product_catalog}:{product_port}/api/products")
+        res_all = requests.get(
+            f"http://{product_catalog}:{product_port}/api/products/0"
+        )
         if "," in sel:
             sel = sel.split(",")[1]
+        print(res_all.status_code)
         if res.status_code == 200 and res_all.status_code == 200:
             products_category = json.loads(res.text)
             products_all = json.loads(res_all.text)
