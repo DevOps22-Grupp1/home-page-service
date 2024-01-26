@@ -3,7 +3,7 @@ name: Docker Build and Push
 on:
   push:
     branches:
-      - 10-test-github-action-building-docker-image-and-publish
+      - harisha_homepage_testing
 
 jobs:
   build:
