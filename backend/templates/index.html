@@ -1,36 +1,29 @@
 {% extends 'base.html' %}
 {% block content %}
 <div style="width: 80%; margin: auto; text-align: center;">
-  <h1 style="font-size: 2.5em; margin-bottom: 10px;">{% block title %} Welcome to Scamazon! {% endblock %}</h1>
-  <p style="font-size: 1.2em;">
+  <h1>{% block title %} Welcome to Scamazon! {% endblock %}</h1>
+  <p>
     Discover the ultimate shopping experience at Scamazon! Your one-stop destination for amazing deals and exclusive
     products.
   </p>
-  <p style="font-size: 1.2em;">
+  <p>
     Shop with confidence! Our dedicated team is here to assist you at every step. Unbelievable prices, unbeatable scams!
   </p>
-  <h3 style="font-size: 1.5em; margin-top: 20px;">{{ utc_dt }}</h3>
+  <h3>{{ utc_dt }}</h3>
 </div>
 
 <div class="slider">
   <!-- Your existing product rendering code -->
   {% for product in products %}
-  <div class="product-container" style="
-        padding: 20px;
-        background-color: rgb(129, 126, 112);
-        color: lightgray;
-        margin: 20px;
-        border-radius: 15px;
-        display: inline-block;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      ">
-    <p style="font-size: 1.2em; color: lightgray; margin-bottom: 10px;">{{ product.order }}</p>
-    <img src="{{ product.image }}" alt="pic of {{ product.order }}"
-      style="object-fit: cover; height: 300px; width: 100%; border-radius: 10px; margin-bottom: 10px;">
-    <p style="font-size: 1em; margin-bottom: 10px;">{{ product.price }} €</p>
-    <p style="font-size: 0.75em; margin-bottom: 10px;">Category: {% for cat in product.category %} {{ cat }} {% endfor
+  <div class="product-container">
+    <p class="category">{% for cat in product.category %} {{ cat }} {% endfor
       %}
     </p>
+    <p class="description">{{ product.order }}</p>
+    <img class="prod-pic" src="{{ product.image }}" alt="pic of {{ product.order }}">
+    <p class="price">{{ product.price }} €</p>
+    <button class="button-89" type="submit" style="margin:auto;">Add to cart</button>
+
   </div>
   {% endfor %}
 </div>

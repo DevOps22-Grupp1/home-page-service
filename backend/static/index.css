@@ -46,12 +46,18 @@ img {
 
 .product-container {
   padding: 20px;
-  background-color: black;
-  color: black;
+  background-color: gray;
+  color: white;
   margin: 20px;
   border-radius: 15px;
   display: inline-block;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.product-container:hover {
+  box-shadow: 0 8px 16px goldenrod;
+  transition: ease-in-out 0.2s;
+  cursor: pointer;
 }
 
 .product-container p {
@@ -72,7 +78,15 @@ img {
   margin-bottom: 10px;
 }
 
-.product-container p.category {
+.product-container p.description {
   font-size: 1.5em;
   margin-bottom: 10px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.product-container p.category {
+  font-size: 0.7em;
+  margin-top: 10px;
 }

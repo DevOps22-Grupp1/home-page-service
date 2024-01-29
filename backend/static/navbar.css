@@ -23,8 +23,8 @@ body {
 }
 
 .navbar a:hover {
-  background: #ddd;
-  color: black;
+  background: orange;
+  color: white;
 }
 
 .navbar a.logo {
