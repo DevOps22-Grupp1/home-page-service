@@ -113,19 +113,21 @@ def hello():
 
         if response.status_code == 200:
             products = json.loads(response.text)
+            for x in products:
+                for a in x["category"]:
+                    category.append(a.strip())
+                    
+                    
+            for x in list(dict.fromkeys(category)):
+                prod_cat = requests.get(
+                    f"http://{product_catalog}:{product_port}/api/product_category/{x}"
+                )
+                m = json.loads(prod_cat.text)
+                cat_prod.append(m[0])
     except requests.exceptions.RequestException as e:
-        products = "Failed to fetch data"
+        products = ""
 
-    for x in products:
-        for a in x["category"]:
-            category.append(a.strip())
-        for x in list(dict.fromkeys(category)):
-            prod_cat = requests.get(
-                f"http://{product_catalog}:{product_port}/api/product_category/{x}"
-            )
-            m = json.loads(prod_cat.text)
-            cat_prod.append(m[0])
-    
+    return render_template(
         "index.html",
         utc_dt=datetime.datetime.utcnow(),
         user=check_user_auth(),
@@ -401,17 +403,17 @@ def products():
         responseCount = requests.get(
             f"http://{product_catalog}:{product_port}/api/count/all"
         )
-
         if response.status_code == 200:
             count = json.loads(responseCount.text)
             products = json.loads(response.text)
+            total_page = math.ceil(count / 9)
+        else: 
+            products = "Failed to fetch data"
+            total_page = 0    
     except requests.exceptions.RequestException as e:
         products = "Failed to fetch data"
-
-    if products != "Failed to fetch data":
-        for x in products:
-            for a in x["category"]:
-                category.append(a.strip())
+        total_page = 0
+        
     return render_template(
         "products.html",
         products=products,
@@ -420,8 +422,7 @@ def products():
         user=check_user_auth(),
         value=get_count_for_current_user(),
         current_page=page,
-        total_page=math.ceil(count / 9),
-    )
+        total_page=total_page)
 
 
 @app.route("/products", methods=["POST"])
