@@ -5,8 +5,10 @@ body {
 }
 
 .content {
-    animation-delay: 10s;
-    animation: fadeIn 3s;
+    opacity: 0;
+    animation: fadeIn 4s;
+    animation-delay: 2.5s;
+    animation-fill-mode: forwards;
     position: absolute;
     top: 50%;
     left: 50%;
@@ -15,8 +17,10 @@ body {
 }
 
 .lamp-img {
-    animation-delay: 3s;
+    opacity: 0;
     animation: fadeIn 3s;
+    animation-delay: 1.5s;
+    animation-fill-mode: forwards;
 }
 
 .title {
