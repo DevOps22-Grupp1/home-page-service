@@ -1,0 +1,50 @@
+body {
+    background-color: black;
+    text-align: center;
+    align-items: center;
+}
+
+.content {
+    animation-delay: 10s;
+    animation: fadeIn 3s;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.lamp-img {
+    animation-delay: 3s;
+    animation: fadeIn 3s;
+}
+
+.title {
+    font-size: 48px;
+    font-weight: bold;
+    font-family: 'Lucida Sans', sans-serif;
+    color: white;
+    margin-bottom: 20px;
+    z-index: 1;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.button {
+    z-index: 1;
+    padding: 10px 20px;
+    font-size: 24px;
+    background-color: #ff9900;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}

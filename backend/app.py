@@ -98,8 +98,12 @@ def check_user_auth():
         user["user"] = "false"
     return user
 
-
 @app.route("/")
+def index():
+    return render_template("landing.html")
+
+
+@app.route("/home")
 def hello():
     category = ["all"]
     sel = "all"
