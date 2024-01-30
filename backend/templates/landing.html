@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>Landing Page</title>
+  <title>Scamazon</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}">
   <link rel="icon" type="image/ico" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
@@ -12,7 +12,7 @@
   <img class="lamp-img" src="../static/images/background2.jpg" alt="background-img">
   <div class="content">
     <h1 class="title"><img src="{{ url_for('static', filename='favicon.ico') }}" alt="logo"> Scamazon</h1>
-    <button class="button"> <a href="/home"></a>Store</button>
+    <a href="{{ url_for('hello') }}"><button class="button">Store</button></a>
   </div>
 </body>
 

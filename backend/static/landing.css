@@ -7,7 +7,7 @@ body {
 .content {
     opacity: 0;
     animation: fadeIn 4s;
-    animation-delay: 2.5s;
+    animation-delay: 2s;
     animation-fill-mode: forwards;
     position: absolute;
     top: 50%;
@@ -19,7 +19,7 @@ body {
 .lamp-img {
     opacity: 0;
     animation: fadeIn 3s;
-    animation-delay: 1.5s;
+    animation-delay: 1s;
     animation-fill-mode: forwards;
 }
 
