@@ -1,30 +1,34 @@
-{% extends 'base.html' %}
-{% block content %}
-<div style="width: 80%; margin: auto; text-align: center;">
+{% extends 'base.html' %} {% block content %}
+<div style="width: 80%; margin: auto; text-align: center">
   <h1>{% block title %} Welcome to Scamazon! {% endblock %}</h1>
   <p>
-    Discover the ultimate shopping experience at Scamazon! Your one-stop destination for amazing deals and exclusive
-    products.
+    Discover the ultimate shopping experience at Scamazon! Your one-stop
+    destination for amazing deals and exclusive products.
   </p>
   <p>
-    Shop with confidence! Our dedicated team is here to assist you at every step. Unbelievable prices, unbeatable scams!
+    Shop with confidence! Our dedicated team is here to assist you at every
+    step. Unbelievable prices, unbeatable scams!
   </p>
   <h3>{{ utc_dt }}</h3>
 </div>
-
+<div class="slider-wrapper">
+  <h2>Our best selling products</h2>
 <div class="slider">
   <!-- Your existing product rendering code -->
   {% for product in products %}
   <div class="product-container">
-    <p class="category">{% for cat in product.category %} {{ cat }} {% endfor
-      %}
-    </p>
     <p class="description">{{ product.order }}</p>
-    <img class="prod-pic" src="{{ product.image }}" alt="pic of {{ product.order }}">
+    <img
+      class="prod-pic"
+      src="{{ product.image }}"
+      alt="pic of {{ product.order }}"
+    />
     <p class="price">{{ product.price }} €</p>
-    <button class="button-89" type="submit" style="margin:auto;">Add to cart</button>
-
+    <button class="button-89" type="submit" style="margin: auto">
+      Add to cart
+    </button>
   </div>
   {% endfor %}
+</div>
 </div>
 {% endblock %}

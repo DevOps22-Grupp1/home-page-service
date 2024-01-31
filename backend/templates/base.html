@@ -1,130 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{% block title %} Home / Index {% endblock %} - Scamazon</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="path/to/font-awesome/css/font-awesome.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='base.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='index.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='button.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='navbar.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css"
+    />
 
-<head>
-  <meta charset="UTF-8" />
-  <title>{% block title %} Home / Index {% endblock %} - Scamazon</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-  <link rel="stylesheet" href="path/to/font-awesome/css/font-awesome.min.css">
-  <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='button.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='navbar.css') }}">
-  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css" />
-  <link rel="stylesheet" type="text/css"
-    href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css" />
+    <link
+      rel="icon"
+      type="image/ico"
+      href="{{ url_for('static', filename='favicon.ico') }}"
+    />
+  </head>
 
-  <link rel="icon" type="image/ico" href="{{ url_for('static', filename='favicon.ico') }}">
-</head>
+  <body>
+    <nav class="navbar">
+      <img src="{{ url_for('static', filename='favicon.ico') }}" alt="logo" />
+      <a href="{{ url_for('hello') }}" class="logo">Scamazon</a>
+      <a href="{{ url_for('products') }}" class="logo">Products</a>
+      <a href="{{ url_for('about') }}" class="logo">About</a>
+      <a href="{{ url_for('server') }}" class="logo">Server</a>
+      {% if user["user"] != "false" %}
+      <a href="{{ url_for('logout') }}" class="logo"
+        >Logout: {{ user["user"]}}</a
+      >
+      <a href="{{ url_for('cart') }}" class="right"
+        ><i class="fa badge" value="{{value}}"
+          ><i class="fa-solid fa-cart-shopping"></i></i
+      ></a>
+      {% else %}
+      <a
+        href="{{ url_for('get_login') }}"
+        class="right"
+        style="font-size: 25px; font-weight: bold"
+        >Login</a
+      >
+      {% endif %}
+      <a href="javascript:void(0);" class="icon" onclick="myFunction()">
+        <i class="fa fa-bars"></i>
+      </a>
+    </nav>
 
-<body>
-  <nav class="navbar">
-    <img src="{{ url_for('static', filename='favicon.ico') }}" alt="logo">
-    <a href="{{ url_for('hello') }}" class="logo">Scamazon</a>
-    <a href="{{ url_for('products') }}" class="logo">Products</a>
-    <a href="{{ url_for('about') }}" class="logo">About</a>
-    <a href="{{ url_for('server') }}" class="logo">Server</a>
-    {% if user["user"] != "false" %}
-    <a href="{{ url_for('logout') }}" class="logo">Logout: {{ user["user"]}}</a>
-    <a href="{{ url_for('cart') }}" class="right"><i class="fa badge" value="{{value}}"><i
-          class="fa-solid fa-cart-shopping"></i></i></a>
-    {% else %}
-    <a href="{{ url_for('get_login') }}" class="right" style="font-size: 25px;
-  font-weight: bold;">Login</a>
-    {% endif %}
-    <a href="javascript:void(0);" class="icon" onclick="myFunction()">
-      <i class="fa fa-bars"></i>
-    </a>
-  </nav>
+    <div class="content">{% block content %} {% endblock %}</div>
+    <footer>
+      <div class="footer-column">
+        <h3>Useful Links</h3>
+        <ul>
+          <a href="{{ url_for('hello') }}">Scamazon</a>
+          <a href="{{ url_for('products') }}">Products</a>
+          <a href="{{ url_for('about') }}">About</a>
+          <a href="{{ url_for('server') }}">Server</a>
+        </ul>
+      </div>
+      <div class="footer-column">
+        <h3>Newsletter Subscription</h3>
+        <form action="/subscribe" method="post">
+          <input type="email" name="email" placeholder="Enter your email" />
+          <button class="button-89" type="submit">Subscribe</button>
+        </form>
+      </div>
 
-  <div class="content">{% block content %} {% endblock %}</div>
-  <footer>
-    <div class="footer-column">
-      <h3>Useful Links</h3>
-      <ul>
-        <a href="{{ url_for('hello') }}">Scamazon</a>
-        <a href="{{ url_for('products') }}">Products</a>
-        <a href="{{ url_for('about') }}">About</a>
-        <a href="{{ url_for('server') }}">Server</a>
-      </ul>
-    </div>
-    <div class="footer-column">
-      <h3>Newsletter Subscription</h3>
-      <form action="/subscribe" method="post">
-        <input type="email" name="email" placeholder="Enter your email" />
-        <button class="button-89" type="submit">Subscribe</button>
-      </form>
-    </div>
+      <div class="footer-column">
+        <h3>Social Media</h3>
+        <ul class="social-media-icons">
+          <li>
+            <a href="#" class="facebook-icon"
+              ><i class="fa-brands fa-facebook"></i> Facebook</a
+            >
+          </li>
+          <li>
+            <a href="#" class="twitter-icon"
+              ><i class="fa-brands fa-twitter"></i> Twitter</a
+            >
+          </li>
+          <li>
+            <a href="#" class="instagram-icon"
+              ><i class="fa-brands fa-instagram"></i> Instagram</a
+            >
+          </li>
+        </ul>
+      </div>
+    </footer>
 
-    <div class="footer-column">
-      <h3>Social Media</h3>
-      <ul class="social-media-icons">
-        <li><a href="#" class="facebook-icon"><i class="fa-brands fa-facebook"></i> Facebook</a></li>
-        <li><a href="#" class="twitter-icon"><i class="fa-brands fa-twitter"></i> Twitter</a></li>
-        <li><a href="#" class="instagram-icon"><i class="fa-brands fa-instagram"></i> Instagram</a></li>
-      </ul>
-    </div>
-  </footer>
-
-  <!-- Add jQuery before the Slick Carousel script -->
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
-  <script type="text/javascript">
-    $(document).ready(function () {
-      $('.slider').slick({
-        infinite: true,
-        slidesToShow: 3,
-        slidesToScroll: 1,
-        autoplay: true,
-        autoplaySpeed: 5000, // Adjust the speed as needed
-        arrows: true,
-        dots: true,
-        pauseOnHover: true,
-        responsive: [{
-          breakpoint: 1024,
-          settings: {
-            slidesToShow: 3,
-            slidesToScroll: 1,
-            infinite: true,
-            dots: true,
-            arrows: true,
-            scrollbars: true,
-          }
-        },
-        {
-          breakpoint: 600,
-          settings: {
-            slidesToShow: 2,
-            slidesToScroll: 1,
-            arrows: true,
-            dots: true,
-            scrollbars: true,
-          }
-        },
-        {
-          breakpoint: 480,
-          settings: {
-            slidesToShow: 1,
-            slidesToScroll: 1,
-            arrows: true,
-            dots: true,
-            scrollbars: true,
-          }
-        }
-        ]
+    <!-- Add jQuery before the Slick Carousel script -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"
+    ></script>
+    <script type="text/javascript">
+      $(document).ready(function () {
+        $(".slider").slick({
+          infinite: true,
+          slidesToShow: 4,
+          slidesToScroll: 1,
+          autoplay: true,
+          autoplaySpeed: 5000, // Adjust the speed as needed
+          arrows: true,
+          dots: true,
+          pauseOnHover: true,
+          responsive: [
+            {
+              breakpoint: 1400,
+              settings: {
+                slidesToShow: 3,
+                slidesToScroll: 1,
+                infinite: true,
+                dots: true,
+                arrows: true,
+                scrollbars: true,
+              },
+            },
+            {
+              breakpoint: 600,
+              settings: {
+                slidesToShow: 2,
+                slidesToScroll: 1,
+                arrows: true,
+                dots: true,
+                scrollbars: true,
+              },
+            },
+            {
+              breakpoint: 480,
+              settings: {
+                slidesToShow: 1,
+                slidesToScroll: 1,
+                arrows: true,
+                dots: true,
+                scrollbars: true,
+              },
+            },
+          ],
+        });
       });
-    });
 
-    /* Toggle between adding and removing the "responsive" class to navbar when the user clicks on the icon */
-    function myFunction() {
-      var x = document.querySelector(".navbar");
-      if (x.className === "navbar") {
-        x.className += " responsive";
-      } else {
-        x.className = "navbar";
+      /* Toggle between adding and removing the "responsive" class to navbar when the user clicks on the icon */
+      function myFunction() {
+        var x = document.querySelector(".navbar");
+        if (x.className === "navbar") {
+          x.className += " responsive";
+        } else {
+          x.className = "navbar";
+        }
       }
-    }
-  </script>
-</body>
-
+    </script>
+  </body>
 </html>

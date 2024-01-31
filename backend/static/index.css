@@ -3,7 +3,7 @@
 body {
   background-color: lightgray;
   color: black;
-  font-family: 'Lucida Sans', sans-serif;
+  font-family: "Lucida Sans", sans-serif;
   margin: 0;
   padding: 0;
 }
@@ -51,16 +51,15 @@ img {
 
 .product-container {
   padding: 20px;
-  background-color: gray;
-  color: white;
+  background-color: lightgray;
+  color: black;
   margin: 20px;
-  border-radius: 15px;
+  border-radius: 10px;
   display: inline-block;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .product-container:hover {
-  box-shadow: 0 8px 16px #ff9900;
+  box-shadow: 0 4px 8px #ff9900;
   transition: ease-in-out 0.2s;
   cursor: pointer;
 }
@@ -94,4 +93,9 @@ img {
 .product-container p.category {
   font-size: 0.7em;
   margin-top: 10px;
+}
+
+.slider-wrapper {
+  width: 80%;
+  margin: auto;
 }
