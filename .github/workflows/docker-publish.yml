@@ -1,4 +1,4 @@
-name: Docker Build and Push
+name: Docker Build, Push, Deploy to Minikube, and Cypress Tests
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - harisha_homepage_testing
 
 jobs:
-  build:
+  build-and-deploy-and-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,42 +20,50 @@ jobs:
         run: |
           echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
 
-      - name: Build Docker Image
+      - name: Build Docker Image for home-page-service
         run: |
           docker build -t passwordnotsafe/home-page-service ./backend
 
-      - name: Push Docker Image
+      - name: Push Docker Image for home-page-service
         run: |
           docker push passwordnotsafe/home-page-service
 
-      # build and push the second image also
-      - name: Build Docker Image
+      - name: Build Docker Image for seed-data
         run: |
           docker build -t passwordnotsafe/seed-data ./script
 
-      - name: Push Docker Image for script
+      - name: Push Docker Image for seed-data
         run: |
           docker push passwordnotsafe/seed-data
 
-      # build and push the third image also ## we could use a better way
-      - name: Build Docker Image
+      - name: Build Docker Image for mongo-backup
         run: |
           docker build -t passwordnotsafe/mongo-backup ./script/backup
 
-      - name: Push Docker Image for script
+      - name: Push Docker Image for mongo-backup
         run: |
           docker push passwordnotsafe/mongo-backup
-      
-       # Add Cypress tests
+
+      # Deploy to Minikube
+      - name: Setup Minikube
+        uses: medyagh/setup-minikube@master
+        id: minikube
+        with:
+          driver: docker
+          wait: all
+         
+      # Cypress Tests
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-         node-version: '14'
+          node-version: '14'
 
       - name: Install dependencies
         run: |
-         npm install
+          npm install
 
       - name: Run Cypress tests
         run: |
-         npx cypress run --browser chrome --config baseUrl=http://localhost:4004
+          eval $(minikube -p minikube docker-env)
+          npx cypress run --browser chrome --config baseUrl=http://localhost:4004
+
