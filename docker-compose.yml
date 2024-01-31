@@ -18,6 +18,11 @@ services:
     depends_on:
       mongo-home-page-service:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://home-page-service:4004/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5    
     environment:
       - SERVER_PORT=4004
       - USER_URL=user-management-service
