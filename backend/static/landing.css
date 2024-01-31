@@ -1,54 +1,56 @@
 body {
-    background-color: black;
-    text-align: center;
-    align-items: center;
+  background-color: black;
+  text-align: center;
+  align-items: center;
+  overflow-y: hidden;
 }
 
 .content {
-    opacity: 0;
-    animation: fadeIn 4s;
-    animation-delay: 2s;
-    animation-fill-mode: forwards;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
+  opacity: 0;
+  animation: fadeIn 4s;
+  animation-delay: 2s;
+  animation-fill-mode: forwards;
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
 }
 
 .lamp-img {
-    opacity: 0;
-    animation: fadeIn 3s;
-    animation-delay: 1s;
-    animation-fill-mode: forwards;
+  margin-left: 20%;
+  opacity: 0;
+  animation: fadeIn 3s;
+  animation-delay: 1s;
+  animation-fill-mode: forwards;
 }
 
 .title {
-    font-size: 48px;
-    font-weight: bold;
-    font-family: 'Lucida Sans', sans-serif;
-    color: white;
-    margin-bottom: 20px;
-    z-index: 1;
+  font-size: 48px;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 20px;
+  z-index: 2;
+  font-family: "Lucida Sans", sans-serif;
 }
 
 @keyframes fadeIn {
-    0% {
-        opacity: 0;
-    }
+  0% {
+    opacity: 0;
+  }
 
-    100% {
-        opacity: 1;
-    }
+  100% {
+    opacity: 1;
+  }
 }
 
 .button {
-    z-index: 1;
-    padding: 10px 20px;
-    font-size: 24px;
-    background-color: #ff9900;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+  z-index: 1;
+  padding: 10px 20px;
+  font-size: 24px;
+  background-color: #ff9900;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
