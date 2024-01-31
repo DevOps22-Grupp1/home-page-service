@@ -77,7 +77,7 @@ jobs:
       - name: Wait for home-page-service to be ready
         run: |
           sleep 30s # Add appropriate wait time
-          docker compose -f home-page-service/docker-compose.yml exec home-page-service curl -f http://home-page-service:4004/health || exit 1
+          docker compose -f home-page-service/docker-compose.yml exec home-page-service curl -f http://localhost:4004/health || exit 1
     
       - name: Run Cypress tests
         run: |
