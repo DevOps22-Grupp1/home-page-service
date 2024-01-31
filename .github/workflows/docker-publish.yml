@@ -72,12 +72,6 @@ jobs:
       - name: Wait for Minikube to be ready
         run: |
           minikube status    
-      
-      # Wait for services to be ready (replace with your service check commands)
-      - name: Wait for home-page-service to be ready
-        run: |
-          sleep 30s # Add appropriate wait time
-          docker compose -f home-page-service/docker-compose.yml exec home-page-service curl -f http://localhost:4004 || exit 1
     
       - name: Run Cypress tests
         run: |
