@@ -43,20 +43,6 @@ jobs:
       - name: Push Docker Image for mongo-backup
         run: |
           docker push passwordnotsafe/mongo-backup
-
-      # Deploy to Minikube
-      - name: Setup Minikube
-        uses: medyagh/setup-minikube@master
-        id: minikube
-        with:
-          driver: docker
-          wait: all
-
-      # Debug Minikube IP
-      - name: Debug Minikube IP
-        run: |
-          minikube status
-          minikube ip    
          
       # Cypress Tests
       - name: Setup Node.js
@@ -67,14 +53,8 @@ jobs:
       - name: Install dependencies
         run: |
           npm install
-
-      # Wait for Minikube to be ready (add more checks if necessary)
-      - name: Wait for Minikube to be ready
-        run: |
-          minikube status    
     
       - name: Run Cypress tests
         run: |
-          eval $(minikube -p minikube docker-env)
-          npx cypress run --browser chrome --config baseUrl=http://localhost:4004
+          npx cypress open --browser chrome --config baseUrl=http://localhost:4004
 
