@@ -2,15 +2,22 @@ from flask import Flask, render_template, redirect, url_for, request, jsonify
 import datetime
 import json
 import requests
+import stripe
+import os
 from prometheus_flask_exporter import PrometheusMetrics
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
 
+stripe.api_key = 'sk_test_51OexmCIffcetN3aYn6rn9dlZIhjDwLgbz0Xw0P0WCV1YXVaMUbT1WET9GkkXkprTwdfqgSgLa0M9C8j5vtflPcjs00F9Bp9d64'
 
 # Initialize Flask-Login
 login_manager = LoginManager()
 
-app = Flask(__name__)
+app = Flask(__name__,
+            static_url_path='',
+            static_folder='public')
+
+YOUR_DOMAIN = 'http://localhost:4004'
 app.secret_key = 'your_secret_key'  # Replace with a secure secret key
 
 metrics = PrometheusMetrics(app)
@@ -178,6 +185,31 @@ def server():
 
     return render_template("server.html", utc_dt=datetime.datetime.utcnow(), status=status)
 
+@app.route('/create-checkout-session', methods=['POST'])
+def create_checkout_session():
+    try:
+        session = stripe.checkout.Session.create(
+            ui_mode = 'embedded',
+            line_items=[
+                {
+                    # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+                    'price': 'price_1OeyzyIffcetN3aY2LhK5buH',
+                    'quantity': 1,
+                },
+            ],
+            mode='payment',
+            return_url=YOUR_DOMAIN + '/return.html?session_id={CHECKOUT_SESSION_ID}',
+        )
+    except Exception as e:
+        return str(e)
+
+    return jsonify(clientSecret=session.client_secret)
+
+@app.route('/session-status', methods=['GET'])
+def session_status():
+  session = stripe.checkout.Session.retrieve(request.args.get('session_id'))
+
+  return jsonify(status=session.status, customer_email=session.customer_details.email)
  
 
 
