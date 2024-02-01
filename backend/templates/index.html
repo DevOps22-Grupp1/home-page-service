@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} Welcome to Scamazon! {% endblock %}</h1>
+    <h1>A shopping paradise for all people on this earth!</h1>
+    <h2>If you have any questions we are just a few hours on the phone away, please dont hesitate to contact us!</h2>
+    <p>Don't be alarmed if you have payed 3 times the price and never recieved your product. This happends all the time, and in 86% of the cases the problem seems to go away by itself.</p>
+    <h3>{{ utc_dt }}</h3>
+    <hr>
+    <h1>LOOK!</h1>
+    <h1>Here is a picture of our amazing scammer team!</h1>
+    <div style="margin: auto;">
+        <img src="https://gadgetguy-assets.s3.ap-southeast-2.amazonaws.com/wordpress/wp-content/uploads/2020/01/02182039/Scamazon.jpg" alt="picture">
+    </div>
+{% endblock %}
