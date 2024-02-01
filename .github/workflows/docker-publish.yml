@@ -6,7 +6,8 @@ on:
       - harisha_homepage_testing
 
 jobs:
-  build-and-deploy-and-test:
+  docker:
+    timeout-minutes: 10
     runs-on: ubuntu-latest
 
     steps:
@@ -19,30 +20,33 @@ jobs:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
           echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+      
+      - name: Start containers
+        run: docker-compose -f "docker-compose.yml" up -d --build
 
-      - name: Build Docker Image for home-page-service
-        run: |
-          docker build -t passwordnotsafe/home-page-service ./backend
+      #- name: Build Docker Image for home-page-service
+      #  run: |
+       #   docker build -t passwordnotsafe/home-page-service ./backend
 
-      - name: Push Docker Image for home-page-service
-        run: |
-          docker push passwordnotsafe/home-page-service
+     # - name: Push Docker Image for home-page-service
+      #  run: |
+       #   docker push passwordnotsafe/home-page-service
 
-      - name: Build Docker Image for seed-data
-        run: |
-          docker build -t passwordnotsafe/seed-data ./script
+     # - name: Build Docker Image for seed-data
+      #  run: |
+      #    docker build -t passwordnotsafe/seed-data ./script
 
-      - name: Push Docker Image for seed-data
-        run: |
-          docker push passwordnotsafe/seed-data
+      #- name: Push Docker Image for seed-data
+      #  run: |
+      #    docker push passwordnotsafe/seed-data
 
-      - name: Build Docker Image for mongo-backup
-        run: |
-          docker build -t passwordnotsafe/mongo-backup ./script/backup
+    #  - name: Build Docker Image for mongo-backup
+      #  run: |
+       #   docker build -t passwordnotsafe/mongo-backup ./script/backup
 
-      - name: Push Docker Image for mongo-backup
-        run: |
-          docker push passwordnotsafe/mongo-backup
+     # - name: Push Docker Image for mongo-backup
+      #  run: |
+       ##   docker push passwordnotsafe/mongo-backup
          
       # Cypress Tests
       - name: Setup Node.js
@@ -58,3 +62,6 @@ jobs:
         run: |
           npx cypress open --browser chrome --config baseUrl=http://localhost:4004
 
+      - name: Stop containers
+        if: always()
+        run: docker-compose -f "docker-compose.yml" down
