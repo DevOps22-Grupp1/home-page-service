@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          path: "buildEverything"
 
       - name: Docker Login
         env:
@@ -21,8 +23,11 @@ jobs:
         run: |
           echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
       
-      - name: Start containers
-        run: docker compose -f "docker-compose.yml" up -d --build
+      - name: Build docker
+        run: |
+          echo ---Building and starting up docker---
+          docker compose -f ./home-page-service/docker-compose.yml -p testing up -d  
+          echo ---containers up---
 
       #- name: Build Docker Image for home-page-service
       #  run: |
@@ -62,6 +67,9 @@ jobs:
         run: |
           npx cypress open --browser chrome --config baseUrl=http://localhost:4004
 
-      - name: Stop containers
-        if: always()
-        run: docker compose -f "docker-compose.yml" down
+      - name: Run test
+        run: |
+          echo ---running test cases ---
+          docker compose -f ./home-page-service/docker-compose.yml -p testing up --build --exit-code-from api-test
+          echo ---Completed test cases ---  
+        
