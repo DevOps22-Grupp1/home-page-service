@@ -12,6 +12,7 @@ from flask_login import (
     current_user,
 )
 import os
+import math
 
 server_port = os.environ.get("SERVER_PORT")
 user_management = os.environ.get("USER_URL")
@@ -86,7 +87,7 @@ def get_count_for_current_user():
 
 
 def check_user_auth():
-    user = {"user": "", "role": ""}
+    user = {"user": "", "role": "image"}
     if current_user.is_authenticated:
         if users["username"] == "":
             logout()
@@ -94,9 +95,11 @@ def check_user_auth():
         else:
             user["user"] = users["username"]
             user["role"] = users["role"]
+            user["image"] = users["avatar"]
     else:
         user["user"] = "false"
     return user
+
 
 @app.route("/")
 def index():
@@ -105,29 +108,30 @@ def index():
 
 @app.route("/home")
 def hello():
-    category = ["all"]
-    sel = "all"
+    category = []
+    cat_prod = []
     try:
-        response = requests.get(f"http://{product_catalog}:{product_port}/api/products")
-        responseCount = requests.get(
-            f"http://{product_catalog}:{product_port}/api/count/all"
-        )
+        response = requests.get(
+            f"http://{product_catalog}:{product_port}/api/products/0")
 
         if response.status_code == 200:
-            count = json.loads(responseCount.text)
             products = json.loads(response.text)
-            limited_products = products[:10]
     except requests.exceptions.RequestException as e:
         products = "Failed to fetch data"
 
-    if products != "Failed to fetch data":
-        for x in products:
-            for a in x["category"]:
-                category.append(a.strip())
+    for x in products:
+        for a in x["category"]:
+            category.append(a.strip())
+    for x in list(dict.fromkeys(category)):
+        prod_cat = requests.get(
+            f"http://{product_catalog}:{product_port}/api/product_category/{x}"
+        )
+        m = json.loads(prod_cat.text)
+        cat_prod.append(m[0])
 
     return render_template(
         "index.html",
-        products=limited_products,
+        products=cat_prod,
         utc_dt=datetime.datetime.utcnow(),
         user=check_user_auth(),
         value=get_count_for_current_user(),
@@ -136,7 +140,6 @@ def hello():
 
 @app.route("/subscribe", methods=["POST"])
 def handling_sub():
-    print(request.form["email"])
     return render_template(
         "index.html",
         utc_dt=datetime.datetime.utcnow,
@@ -147,14 +150,31 @@ def handling_sub():
 @app.route("/admin-product/")
 @login_required
 def handle_products():
+    if request.args.get("page") is None:
+        page = 1
+    else:
+        page = int(request.args.get("page"))
     user = users["username"]
     try:
-        response = requests.get(f"http://{product_catalog}:{product_port}/api/products")
+        response = requests.get(
+            f"http://{product_catalog}:{product_port}/api/products/{page}"
+        )
+        responseCount = requests.get(
+            f"http://{product_catalog}:{product_port}/api/count/all"
+        )
         if response.status_code == 200:
+            count = json.loads(responseCount.text)
             products = json.loads(response.text)
     except requests.exceptions.RequestException as e:
         products = "Failed to fetch data"
-    return render_template("admin-product.html", products=products, user=user)
+    return render_template(
+        "admin-product.html",
+        products=products,
+        user=check_user_auth(),
+        value=get_count_for_current_user(),
+        current_page=page,
+        total_page=math.ceil(count / 9),
+    )
 
 
 @app.route("/login/", methods=["GET"])
@@ -182,8 +202,9 @@ def pagination():
 def buy():
     user_id = users["id"]
     product_id = request.args.get("id")
-    json_data = json.dumps({"userid": int(user_id), "productid": int(product_id)})
-    d_url = f"http://{order_processing}:{order_port}/api/order"
+    json_data = json.dumps(
+        {"userid": int(user_id), "productid": int(product_id)})
+    d_url = f"http://{order_processing}:{order_port}/api/cart"
     headers = {"Content-Type": "application/json"}
     requests.post(d_url, data=json_data, headers=headers)
     return redirect(url_for("products"))
@@ -230,8 +251,7 @@ def update_p():
 @app.route("/delete_cart/", methods=["GET"])
 def del_cart():
     id = request.args.get("id")
-    delete_url = f"http://{order_processing}:{order_port}/api/order/{id}"
-    print(delete_url)
+    delete_url = f"http://{order_processing}:{order_port}/api/cart/{id}"
     response = requests.delete(delete_url)
     if response.status_code == 204:
         # The DELETE request was successful, and there's no response content.
@@ -240,7 +260,6 @@ def del_cart():
         return jsonify({"error": "Product not found"})
     else:
         return jsonify({"error": "Failed to delete product"})
-    return "muu"
 
 
 @app.route("/add_products/", methods=["POST"])
@@ -248,9 +267,11 @@ def post_product():
     order = request.form["name"]
     price = request.form["price"]
     img = request.form["images"]
+    cat = request.form["category"]
     add_url = f"http://{product_catalog}:{product_port}/api/product"
 
-    json_data = json.dumps({"order": order, "price": price, "image": img})
+    json_data = json.dumps(
+        {"order": order, "price": price, "image": img, "category": [cat]})
     headers = {"Content-Type": "application/json"}
     response = requests.post(add_url, data=json_data, headers=headers)
     if response.status_code == 201:
@@ -278,7 +299,8 @@ def post_login():
         passw = request.form["password"]
         json_data = json.dumps({"username": user, "password": passw})
         try:
-            response = requests.post(login_url, data=json_data, headers=headers)
+            response = requests.post(
+                login_url, data=json_data, headers=headers)
             dataresponse = json.loads(response.text)
             if len(dataresponse) == 1 and response.status_code == 200:
                 user = User(dataresponse[0]["username"])
@@ -315,7 +337,8 @@ def post_login():
             dataresponse = json.loads(response.text)
             if response.status_code == 201:
                 json_data = json.dumps({"username": user, "password": passw})
-                response = requests.post(login_url, data=json_data, headers=headers)
+                response = requests.post(
+                    login_url, data=json_data, headers=headers)
                 dataresponse = json.loads(response.text)
                 if len(dataresponse) == 1 and response.status_code == 200:
                     user = User(dataresponse[0]["username"])
@@ -349,7 +372,7 @@ def cart():
     price = 0
     user_id = users["id"]
     request = requests.get(
-        f"http://{order_processing}:{order_port}/api/order-user/{user_id}"
+        f"http://{order_processing}:{order_port}/api/cart-user/{user_id}"
     )
 
     respjson = json.loads(request.text)
@@ -374,22 +397,33 @@ def cart():
 
 @app.route("/products/", methods=["GET"])
 def products():
+    if request.args.get("page") is None:
+        page = 1
+    else:
+        page = int(request.args.get("page"))
+
     category = ["all"]
     sel = "all"
     try:
-        response = requests.get(f"http://{product_catalog}:{product_port}/api/products")
+        response = requests.get(
+            f"http://{product_catalog}:{product_port}/api/products/{page}"
+        )
         responseCount = requests.get(
             f"http://{product_catalog}:{product_port}/api/count/all"
         )
+        res_all = requests.get(
+            f"http://{product_catalog}:{product_port}/api/products/0")
 
         if response.status_code == 200:
             count = json.loads(responseCount.text)
             products = json.loads(response.text)
+            products_all = json.loads(res_all.text)
+            total_page = math.ceil(count / 9)
     except requests.exceptions.RequestException as e:
         products = "Failed to fetch data"
 
     if products != "Failed to fetch data":
-        for x in products:
+        for x in products_all:
             for a in x["category"]:
                 category.append(a.strip())
     return render_template(
@@ -399,6 +433,8 @@ def products():
         sel=sel,
         user=check_user_auth(),
         value=get_count_for_current_user(),
+        current_page=page,
+        total_page=math.ceil(count / 9),
     )
 
 
@@ -406,6 +442,7 @@ def products():
 def handle_category_product():
     categoryName = request.form["category"]
     sel = categoryName
+    page = 1
     print(sel, categoryName)
     if categoryName == "all" or categoryName == "none-all":
         return redirect(url_for("products"))
@@ -414,12 +451,17 @@ def handle_category_product():
         res = requests.get(
             f"http://{product_catalog}:{product_port}/api/product_category/{categoryName}"
         )
-        res_all = requests.get(f"http://{product_catalog}:{product_port}/api/products")
+        res_all = requests.get(
+            f"http://{product_catalog}:{product_port}/api/products/0")
+        responseCount = requests.get(
+            f"http://{product_catalog}:{product_port}/api/count/{categoryName}"
+        )
         if "," in sel:
             sel = sel.split(",")[1]
         if res.status_code == 200 and res_all.status_code == 200:
             products_category = json.loads(res.text)
             products_all = json.loads(res_all.text)
+            count = json.loads(responseCount.text)
             for x in products_all:
                 for a in x["category"]:
                     category.append(a)
@@ -430,9 +472,55 @@ def handle_category_product():
                 sel=sel,
                 user=check_user_auth(),
                 value=get_count_for_current_user(),
+                current_page=page,
+                total_page=math.ceil(count / 9),
             )
     except requests.exceptions.RequestException as e:
         return redirect(url_for("products"))
+
+
+@app.route("/payment", methods=["GET"])
+def buy_products():
+    data = []
+    price = 0
+    user_id = users["id"]
+    request = requests.get(
+        f"http://{order_processing}:{order_port}/api/cart-user/{user_id}"
+    )
+
+    respjson = json.loads(request.text)
+    for prod in respjson:
+        id = prod["id"]
+        prod_id = int(prod["productid"])
+        prodreq = requests.get(
+            f"http://{product_catalog}:{product_port}/api/product/{prod_id}"
+        )
+        prodjson = json.loads(prodreq.text)
+        prodjson[0]["order_id"] = id
+        price = price + prodjson[0]["price"]
+        data.append(prodjson[0])
+
+    json_data = json.dumps(
+        {
+            "userid": int(user_id),
+            "history": data,
+            "time": str(datetime.datetime.now()),
+            "price": price,
+        }
+    )
+
+    d_url = f"http://{order_processing}:{order_port}/api/order"
+    headers = {"Content-Type": "application/json"}
+    response = requests.post(d_url, data=json_data, headers=headers)
+    delete_url = f"http://{order_processing}:{order_port}/api/cart/{user_id}"
+    responseDelete = requests.delete(delete_url)
+
+    if response.status_code == 201 and responseDelete.status_code == 204:
+        return render_template(
+            "checkout.html",
+            user=check_user_auth(),
+            value=get_count_for_current_user(),
+        )
 
 
 @app.route("/server/")

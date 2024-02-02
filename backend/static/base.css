@@ -3,12 +3,39 @@
 body {
   background-color: lightgray;
   color: darkgray;
-  font-family: 'Lucida Sans',
-    sans-serif;
+  font-family: "Lucida Sans", sans-serif;
   margin: 0;
   padding: 0;
 }
+/* ____ */
+.pagination {
+  display: inline-block;
+}
 
+.pagination a {
+  color: black;
+  float: left;
+  padding: 8px 16px;
+  text-decoration: none;
+}
+
+.badge:after {
+  content: attr(value);
+  font-size: 30px;
+  color: white !important;
+  border-radius: 50%;
+  padding: 15px;
+  position: relative;
+  left: -1px;
+  top: -10px;
+  opacity: 0.7;
+}
+
+.pager {
+  text-decoration: underline;
+  background-color: green;
+}
+/* ____________________ */
 /* nav.navbar {
   background-color: orange;
   padding: 10px;
@@ -53,7 +80,7 @@ footer .footer-column {
 footer h3 {
   font-size: 1.5em;
   margin-bottom: 10px;
-  color: white
+  color: white;
 }
 
 footer ul {

@@ -54,10 +54,10 @@
       <a href="{{ url_for('server') }}" class="logo">Server</a>
       {% if user["user"] != "false" %}
       <a href="{{ url_for('logout') }}" class="logo"
-        >Logout: {{ user["user"]}}</a
+        >Logout: <img src="{{user["image"]}}" alt="myface"></img> {{ user["user"]}} </a
       >
-      <a href="{{ url_for('cart') }}" class="right"
-        ><i class="fa badge" value="{{value}}"
+      <a href="{{ url_for('cart') }}" class="right logo"
+        ><i style="color: white" class="fa badge" value="{{value}}"
           ><i class="fa-solid fa-cart-shopping"></i></i
       ></a>
       {% else %}
