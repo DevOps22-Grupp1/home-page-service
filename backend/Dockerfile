@@ -1,5 +1,5 @@
 FROM python
-RUN pip install flask prometheus-flask-exporter requests flask_login
+RUN pip install flask requests stripe prometheus-flask-exporter flask-login
 COPY ./app.py /app.py
 COPY ./templates /templates
 CMD ["python", "app.py"]
