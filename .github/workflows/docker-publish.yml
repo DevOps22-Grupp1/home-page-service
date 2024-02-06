@@ -3,7 +3,7 @@ name: Docker Build and Push
 on:
   push:
     branches:
-      10-test-github-action-building-docker-image-and-publish
+      12356
 
 
 jobs:
@@ -23,10 +23,9 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build -t passwordnotsafe/home-page-service ./backend
-          docker tag passwordnotsafe/your-repo-name:${{ github.sha }}
+          docker build -t passwordnotsafe/home-page-service:${{ github.sha }} ./backend
 
-      - name: Push Docker image to Docker Hub
+      - name: Push Docker Image
         run: |
           docker push passwordnotsafe/home-page-service:${{ github.sha }}
 
@@ -47,4 +46,3 @@ jobs:
       - name: Push Docker Image for script
         run: |
           docker push passwordnotsafe/mongo-backup
-      
