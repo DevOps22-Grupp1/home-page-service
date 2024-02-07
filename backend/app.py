@@ -4,13 +4,18 @@ import json
 import requests
 from prometheus_flask_exporter import PrometheusMetrics
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+import stripe
 
-
+stripe.api_key = 'sk_test_51OexmCIffcetN3aYn6rn9dlZIhjDwLgbz0Xw0P0WCV1YXVaMUbT1WET9GkkXkprTwdfqgSgLa0M9C8j5vtflPcjs00F9Bp9d64'
 
 # Initialize Flask-Login
 login_manager = LoginManager()
 
-app = Flask(__name__)
+app = Flask(__name__,
+            static_url_path='')
+
+YOUR_DOMAIN = 'http://dennisnevback.se'
+
 app.secret_key = 'your_secret_key'  # Replace with a secure secret key
 
 metrics = PrometheusMetrics(app)
@@ -178,8 +183,42 @@ def server():
 
     return render_template("server.html", utc_dt=datetime.datetime.utcnow(), status=status)
 
+@app.route('/create-checkout-session', methods=['POST'])
+def create_checkout_session():
+    try:
+        checkout_session = stripe.checkout.Session.create(
+            line_items=[
+                {
+                    # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+                    'price': 'price_1OeyzyIffcetN3aY2LhK5buH',
+                    'quantity': 1,
+                },
+            ],
+            mode='payment',
+            success_url=YOUR_DOMAIN + '/success',
+            cancel_url=YOUR_DOMAIN + '/cancel',
+        )
+    except Exception as e:
+        return str(e)
+
+    return redirect(checkout_session.url, code=303)
+
+@app.route("/checkout")
+def checkout():
+    return render_template("checkout.html")
+
+@app.route("/cancel")
+def cancel():
+    return render_template("cancel.html")
+
+@app.route("/success")
+def success():
+    return render_template("success.html")
+
  
 
 
 # Very important to disable debug mode
-app.run(host="0.0.0.0", port=4004, debug=True)
+
+if __name__ == '__main__':
+    app.run(host="0.0.0.0", port=4004, debug=True)
