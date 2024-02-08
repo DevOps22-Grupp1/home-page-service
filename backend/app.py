@@ -11,10 +11,11 @@ stripe.api_key = 'sk_test_51OexmCIffcetN3aYn6rn9dlZIhjDwLgbz0Xw0P0WCV1YXVaMUbT1W
 # Initialize Flask-Login
 login_manager = LoginManager()
 
+path = 'scamazon'
 app = Flask(__name__,
-            static_url_path='')
+            static_url_path=f"/{path}")
 
-YOUR_DOMAIN = 'http://dennisnevback.se'
+YOUR_DOMAIN = f"https://dennisnevback.se/{path}"
 
 app.secret_key = 'your_secret_key'  # Replace with a secure secret key
 
@@ -43,12 +44,12 @@ def load_user(user_id):
     "invocation_by_method",
     "Number of invocations by HTTP method",
 )
-@app.route("/")
+@app.route(f"/{path}")
 def hello():
     return render_template("index.html", utc_dt=datetime.datetime.utcnow())
 
 
-@app.route('/admin-product/')
+@app.route(f"/{path}/admin-product/")
 @login_required
 def handle_products():
 
@@ -62,12 +63,12 @@ def handle_products():
         return jsonify({'error': 'Failed to fetch data'})
 
 
-@app.route("/login/", methods=["GET"])
+@app.route(f"/{path}/login/", methods=["GET"])
 def get_login():
     return render_template('login.html')
 
 
-@app.route("/delete/", methods=["GET"])
+@app.route(f"/{path}/delete/", methods=["GET"])
 def delete_p():
     id = request.args.get('id')
     delete_url = 'http://scamazon-product-catalog-service-1:4005/api/product/{}'.format(id)
@@ -82,7 +83,7 @@ def delete_p():
 
 
 
-@app.route("/update/", methods=["POST"])
+@app.route(f"/{path}/update/", methods=["POST"])
 def update_p():
     # return request.form['id']
     id =  request.form['id']
@@ -104,7 +105,7 @@ def update_p():
         # You can handle different status codes as needed
 
 
-@app.route("/add_products/", methods=["POST"])
+@app.route(f"/{path}/add_products/", methods=["POST"])
 def post_product():
     order = request.form['name']
     price = request.form['price']
@@ -124,7 +125,7 @@ def post_product():
         # You can handle different status codes as needed
     
 
-@app.route("/login/", methods=["POST"])
+@app.route(f"/{path}/login/", methods=["POST"])
 def post_login():
     username = request.form['username']
     password = request.form['password']
@@ -134,11 +135,11 @@ def post_login():
         login_user(user)
         return redirect(url_for('handle_products'))
 
-@app.route("/about/")
+@app.route(f"/{path}/about/")
 def about():
     return render_template("about.html")
 
-@app.route("/products/")
+@app.route(f"/{path}/products/")
 def products():
     try:
         response = requests.get('http://scamazon-product-catalog-service-1:4005/api/products') 
@@ -151,10 +152,10 @@ def products():
 
 
     ### Make requests to the other services and return the result ok or not ok ###
-@app.route("/server/")
+@app.route(f"/{path}/server/")
 def server():
     try:
-        res1 = requests.get("http://scamazon-product-catalog-service-1:4005")
+        res1 = requests.get("product-catalog-service.scamazon-application.svc.cluster.local:4005")
         if res1.status_code == 200:
             r1 = res1.text
     except requests.exceptions.RequestException as e:
@@ -183,7 +184,7 @@ def server():
 
     return render_template("server.html", utc_dt=datetime.datetime.utcnow(), status=status)
 
-@app.route('/create-checkout-session', methods=['POST'])
+@app.route(f"/{path}/create-checkout-session", methods=['POST'])
 def create_checkout_session():
     try:
         checkout_session = stripe.checkout.Session.create(
@@ -203,15 +204,15 @@ def create_checkout_session():
 
     return redirect(checkout_session.url, code=303)
 
-@app.route("/checkout")
+@app.route(f"/{path}/checkout")
 def checkout():
     return render_template("checkout.html")
 
-@app.route("/cancel")
+@app.route(f"/{path}/cancel")
 def cancel():
     return render_template("cancel.html")
 
-@app.route("/success")
+@app.route(f"/{path}/success")
 def success():
     return render_template("success.html")
 
