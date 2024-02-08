@@ -24,7 +24,7 @@ jobs:
       - name: Build Docker Image
         run: |
           docker build -t passwordnotsafe/home-page-service:${{ github.sha }} ./backend
-          docker build -t passwordnotsafe/home-page-service
+          docker build -t passwordnotsafe/home-page-service ./backend
 
       - name: Push Docker Image
         run: |
