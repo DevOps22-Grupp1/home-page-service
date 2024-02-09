@@ -3,8 +3,12 @@ name: Docker Build and Push
 on:
   push:
     branches:
-      10-test-github-action-building-docker-image-and-publish
+      - 10-test-github-action-building-docker-image-and-publish
+      - main
 
+
+permissions:
+  issues: write
 
 jobs:
   build:
@@ -43,6 +47,20 @@ jobs:
         run: |
           docker build -t passwordnotsafe/mongo-backup ./script/backup
 
-      - name: Push Docker Image for script
+      # dont know why at the moment why, I think it was for a backup database test 
+      # - name: Push Docker Image for script
+      #   run: |
+      #     docker push passwordnotsafe/mongo-backup
+
+      - name: Sleep for 30 seconds
+        uses: jakejarvis/wait-action@master
+        with:
+          time: '15s' 
+
+      - name: Trigger fetch new sha update to k8 deployment file.
         run: |
-          docker push passwordnotsafe/mongo-backup
+          curl --request POST \
+            --url 'https://api.github.com/repos/DevOps22-Grupp1/scamazon/actions/workflows/home-update-sha.yml/dispatches' \
+            -H "Accept: application/vnd.github+json" \
+            -H 'Authorization: Bearer ${{secrets.TOKEN}}' \
+            -d '{"ref":"main"}'
