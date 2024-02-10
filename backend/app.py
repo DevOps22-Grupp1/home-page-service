@@ -121,8 +121,7 @@ def hello():
 
     for x in products:
         for a in x["category"]:
-            category.append(a.strip())
-    for x in list(dict.fromkeys(category)):
+                category.append(a.strip())
         prod_cat = requests.get(
             f"http://{product_catalog}:{product_port}/api/product_category/{x}"
         )
