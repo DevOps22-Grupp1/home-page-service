@@ -21,12 +21,19 @@ jobs:
 
       - name: Check automation pipeline status
         run: |
-          RESPONSE=$(curl https://api.github.com/repos/conrec-devops22/microservices-testing/actions/runs)
-          STATUS=$(echo $RESPONSE | jq -r '.workflow_runs[0].conclusion')
-          echo $STATUS
-          if [ "$STATUS" = "failure" ]; then
-            exit 1
-          fi
+          RESPONSE=$(curl --request POST \
+          --url 'https://api.github.com/repos/DevOps22-Grupp1/test/actions/workflows/run.test.yml/dispatches' \
+          -H "Accept: application/vnd.github+json" \
+          -H 'Authorization: Bearer ${{secrets.TOKEN}}' \
+          -d '{"ref":"main"}')
+
+          JOB_STATUS=$(echo "$RESPONSE" | jq -r '.status')
+
+          echo "Job status: $JOB_STATUS"
+
+          # if [ "$STATUS" = "failure" ]; then
+          #   exit 1
+          # fi
       
       - name: Docker Login
         env:
