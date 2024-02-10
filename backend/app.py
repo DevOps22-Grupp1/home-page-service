@@ -118,7 +118,10 @@ def hello():
             products = json.loads(response.text)
             for x in products:
                 for a in x["category"]:
+                    if a.strip() not in category:
                         category.append(a.strip())
+
+            for x in category:
                 prod_cat = requests.get(
                     f"http://{product_catalog}:{product_port}/api/product_category/{x}"
                 )
