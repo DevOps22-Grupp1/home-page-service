@@ -21,24 +21,25 @@ jobs:
 
       - name: Check automation pipeline status
         run: |
-          RESPONSE=$(curl --request POST \
-          --url 'https://api.github.com/repos/DevOps22-Grupp1/test/actions/workflows/run.test.yml/dispatches' \
+          # Skicka en repository_dispatch-händelse
+          curl --request POST \
+          --url 'https://api.github.com/repos/DevOps22-Grupp1/scamazon/actions/workflows/home-update-sha.yml/dispatches' \
           -H "Accept: application/vnd.github+json" \
           -H 'Authorization: Bearer ${{secrets.TOKEN}}' \
-          -d '{"ref":"main"}' \
-          -s \
-          -w "%{http_code}\n%{response_code}")
-          
-          HTTP_STATUS=$(echo "$RESPONSE" | awk 'NR==1 {print}')
-          if [[ $HTTP_STATUS -ne 200 ]]; then
-            echo "Error: HTTP request failed with status code $HTTP_STATUS"
-            exit 1
-          fi
+          -d '{"ref":"main"}'
 
-          JOB_STATUS=$(echo "$RESPONSE" | jq -r '.status')
+          # Vänta på att svar kommer tillbaka från cURL-förfrågan innan du fortsätter
+          wait-for "curl -s -o /dev/null -w '%{http_code}' https://api.github.com/repos/DevOps22-Grupp1/scamazon/actions/workflows/home-update-sha.yml/dispatches" "200"
+
+          # Skicka en förfrågan till GitHub API för att hämta statusen för det senaste jobbet
+          JOB_STATUS=$(curl -s -H "Authorization: Bearer ${{ secrets.TOKEN }}" \
+          "https://api.github.com/repos/DevOps22-Grupp1/scamazon/actions/runs?event=repository_dispatch&status=completed" \
+          |  jq -r '.workflow_runs[0].conclusion')
 
           echo "Job status: $JOB_STATUS"
 
+          
+          
           # if [ "$STATUS" = "failure" ]; then
           #   exit 1
           # fi
