@@ -35,42 +35,42 @@ jobs:
         run: |
           echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
 
-      - name: Build Docker Image
-        run: |
-          docker build -t passwordnotsafe/home-page-service:${{ github.sha }} ./backend
+      # - name: Build Docker Image
+      #   run: |
+      #     docker build -t passwordnotsafe/home-page-service:${{ github.sha }} ./backend
 
-      - name: Push Docker Image
-        run: |
-          docker push passwordnotsafe/home-page-service:${{ github.sha }}
+      # - name: Push Docker Image
+      #   run: |
+      #     docker push passwordnotsafe/home-page-service:${{ github.sha }}
 
-      # build and push the second image also
-      - name: Build Docker Image
-        run: |
-          docker build -t passwordnotsafe/seed-data ./script
+      # # build and push the second image also
+      # - name: Build Docker Image
+      #   run: |
+      #     docker build -t passwordnotsafe/seed-data ./script
 
-      - name: Push Docker Image for script
-        run: |
-          docker push passwordnotsafe/seed-data
+      # - name: Push Docker Image for script
+      #   run: |
+      #     docker push passwordnotsafe/seed-data
 
-      # build and push the third image also ## we could use a better way
-      - name: Build Docker Image
-        run: |
-          docker build -t passwordnotsafe/mongo-backup ./script/backup
+      # # build and push the third image also ## we could use a better way
+      # - name: Build Docker Image
+      #   run: |
+      #     docker build -t passwordnotsafe/mongo-backup ./script/backup
 
       # dont know why at the moment why, I think it was for a backup database test 
       # - name: Push Docker Image for script
       #   run: |
       #     docker push passwordnotsafe/mongo-backup
 
-      - name: Sleep for 30 seconds
-        uses: jakejarvis/wait-action@master
-        with:
-          time: '15s' 
+      # - name: Sleep for 30 seconds
+      #   uses: jakejarvis/wait-action@master
+      #   with:
+      #     time: '15s' 
 
-      - name: Trigger fetch new sha update to k8 deployment file.
-        run: |
-          curl --request POST \
-            --url 'https://api.github.com/repos/DevOps22-Grupp1/scamazon/actions/workflows/home-update-sha.yml/dispatches' \
-            -H "Accept: application/vnd.github+json" \
-            -H 'Authorization: Bearer ${{secrets.TOKEN}}' \
-            -d '{"ref":"main"}'
+      # - name: Trigger fetch new sha update to k8 deployment file.
+      #   run: |
+      #     curl --request POST \
+      #       --url 'https://api.github.com/repos/DevOps22-Grupp1/scamazon/actions/workflows/home-update-sha.yml/dispatches' \
+      #       -H "Accept: application/vnd.github+json" \
+      #       -H 'Authorization: Bearer ${{secrets.TOKEN}}' \
+      #       -d '{"ref":"main"}'
