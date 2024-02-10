@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 10-test-github-action-building-docker-image-and-publish
+      - 11-updating-frontend-dockerfile
       - main
 
 
