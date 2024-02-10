@@ -23,23 +23,27 @@ jobs:
         run: |
           # Skicka en repository_dispatch-händelse
           curl --request POST \
-          --url 'https://api.github.com/repos/DevOps22-Grupp1/scamazon/actions/workflows/home-update-sha.yml/dispatches' \
-          -H "Accept: application/vnd.github+json" \
-          -H 'Authorization: Bearer ${{secrets.TOKEN}}' \
-          -d '{"ref":"main"}'
+            --url 'https://api.github.com/repos/DevOps22-Grupp1/scamazon/actions/workflows/home-update-sha.yml/dispatches' \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{secrets.TOKEN}}" \
+            -d '{"ref":"main"}'
 
           # Vänta på att svar kommer tillbaka från cURL-förfrågan innan du fortsätter
-          wait-for "curl -s -o /dev/null -w '%{http_code}' https://api.github.com/repos/DevOps22-Grupp1/scamazon/actions/workflows/home-update-sha.yml/dispatches" "200"
+          response_code=$(curl -s -o /dev/null -w "%{http_code}" https://api.github.com/repos/DevOps22-Grupp1/scamazon/actions/workflows/home-update-sha.yml/dispatches)
+          while [ $response_code -ne 200 ]; do
+            sleep 1
+            response_code=$(curl -s -o /dev/null -w "%{http_code}" https://api.github.com/repos/DevOps22-Grupp1/scamazon/actions/workflows/home-update-sha.yml/dispatches)
+          done
 
           # Skicka en förfrågan till GitHub API för att hämta statusen för det senaste jobbet
-          JOB_STATUS=$(curl -s -H "Authorization: Bearer ${{ secrets.TOKEN }}" \
-          "https://api.github.com/repos/DevOps22-Grupp1/scamazon/actions/runs?event=repository_dispatch&status=completed" \
-          |  jq -r '.workflow_runs[0].conclusion')
+          JOB_STATUS=$(curl -s -H "Authorization: Bearer ${{secrets.TOKEN}}" \
+            "https://api.github.com/repos/DevOps22-Grupp1/scamazon/actions/runs?event=repository_dispatch&status=completed" \
+            |  jq -r '.workflow_runs[0].conclusion')
 
           echo "Job status: $JOB_STATUS"
 
           
-          
+  
           # if [ "$STATUS" = "failure" ]; then
           #   exit 1
           # fi
