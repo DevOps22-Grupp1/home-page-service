@@ -22,41 +22,20 @@ jobs:
 
       - name: Check automation pipeline status
         run: |
-          # Skicka en repository_dispatch-händelse
-          curl --request POST \
+            curl --request POST \
             --url 'https://api.github.com/repos/DevOps22-Grupp1/test/actions/workflows/run.test.yml/dispatches' \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${{secrets.TOKEN}}" \
             -d '{"ref":"main"}'
 
-          resp=$(curl -L \
-          -H "Accept: application/vnd.github+json" \
-          -H "Authorization: Bearer ${{secrets.TOKEN}}' \
-          -H "X-GitHub-Api-Version: 2022-11-28" \
-          https://api.github.com/repos/DevOps22-Grupp1/test/actions/runs?event=repository_dispatch&status=completed
-          )
+            resp=$(curl -L \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{secrets.TOKEN}}' \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/DevOps22-Grupp1/test/actions/runs?event=repository_dispatch&status=completed
+            )
 
-          echo "$resp"
-          # # Vänta på att svar kommer tillbaka från cURL-förfrågan innan du fortsätter
-          # response_code=$(curl -s -o /dev/null -w "%{http_code}" https://api.github.com/repos/DevOps22-Grupp1/test/actions/workflows/run.test.yml/dispatches)
-          # while [ $response_code -ne 200 ]; do
-          #   sleep 1
-          #   response_code=$(curl -s -o /dev/null -w "%{http_code}" https://api.github.com/repos/DevOps22-Grupp1/test/actions/workflows/run.test.yml/dispatches)
-          # done
-
-          # # Skicka en förfrågan till GitHub API för att hämta statusen för det senaste jobbet
-          # JOB_STATUS=$(curl -s -H "Authorization: Bearer ${{secrets.TOKEN}}" \
-          #   "https://api.github.com/repos/DevOps22-Grupp1/test/actions/runs?event=repository_dispatch&status=completed" \
-          #   |  jq -r '.workflow_runs[0].conclusion')
-
-          # echo "Job status: $JOB_STATUS"
-
-          
-  
-          # if [ "$STATUS" = "failure" ]; then
-          #   exit 1
-          # fi
-      
+            echo "$resp"
       - name: Docker Login
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
