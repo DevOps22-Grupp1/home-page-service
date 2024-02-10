@@ -3,8 +3,12 @@ name: Docker Build and Push
 on:
   push:
     branches:
-     11-updating-frontend-dockerfile
+      - 10-test-github-action-building-docker-image-and-publish
+      - main
 
+
+permissions:
+  issues: write
 
 jobs:
   build:
@@ -14,6 +18,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Check automation pipeline status
+        run: |
+          RESPONSE=$(curl https://api.github.com/repos/DevOps22-Grupp1/test/actions/runs)
+          STATUS=$(echo $RESPONSE | jq -r '.workflow_runs[0].conclusion')
+          echo $STATUS
+          if [ "$STATUS" = "failure" ]; then
+            exit 1
+          fi
+      
       - name: Docker Login
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -24,12 +37,10 @@ jobs:
       - name: Build Docker Image
         run: |
           docker build -t passwordnotsafe/home-page-service:${{ github.sha }} ./backend
-          docker build -t passwordnotsafe/home-page-service ./backend
 
       - name: Push Docker Image
         run: |
           docker push passwordnotsafe/home-page-service:${{ github.sha }}
-          docker push passwordnotsafe/home-page-service
 
       # build and push the second image also
       - name: Build Docker Image
@@ -45,6 +56,20 @@ jobs:
         run: |
           docker build -t passwordnotsafe/mongo-backup ./script/backup
 
-      - name: Push Docker Image for script
+      # dont know why at the moment why, I think it was for a backup database test 
+      # - name: Push Docker Image for script
+      #   run: |
+      #     docker push passwordnotsafe/mongo-backup
+
+      - name: Sleep for 30 seconds
+        uses: jakejarvis/wait-action@master
+        with:
+          time: '15s' 
+
+      - name: Trigger fetch new sha update to k8 deployment file.
         run: |
-          docker push passwordnotsafe/mongo-backup
+          curl --request POST \
+            --url 'https://api.github.com/repos/DevOps22-Grupp1/scamazon/actions/workflows/home-update-sha.yml/dispatches' \
+            -H "Accept: application/vnd.github+json" \
+            -H 'Authorization: Bearer ${{secrets.TOKEN}}' \
+            -d '{"ref":"main"}'
