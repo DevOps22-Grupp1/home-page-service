@@ -116,17 +116,16 @@ def hello():
 
         if response.status_code == 200:
             products = json.loads(response.text)
+            for x in products:
+                for a in x["category"]:
+                        category.append(a.strip())
+                prod_cat = requests.get(
+                    f"http://{product_catalog}:{product_port}/api/product_category/{x}"
+                )
+                m = json.loads(prod_cat.text)
+                cat_prod.append(m[0])
     except requests.exceptions.RequestException as e:
         products = "Failed to fetch data"
-
-    for x in products:
-        for a in x["category"]:
-                category.append(a.strip())
-        prod_cat = requests.get(
-            f"http://{product_catalog}:{product_port}/api/product_category/{x}"
-        )
-        m = json.loads(prod_cat.text)
-        cat_prod.append(m[0])
 
     return render_template(
         "index.html",
