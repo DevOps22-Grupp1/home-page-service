@@ -23,16 +23,16 @@ jobs:
         run: |
           # Skicka en repository_dispatch-händelse
           curl --request POST \
-            --url 'https://api.github.com/repos/DevOps22-Grupp1/test/actions/workflows/home-update-sha.yml/dispatches' \
+            --url 'https://api.github.com/repos/DevOps22-Grupp1/test/actions/workflows/run.test.yml/dispatches' \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${{secrets.TOKEN}}" \
             -d '{"ref":"main"}'
 
           # Vänta på att svar kommer tillbaka från cURL-förfrågan innan du fortsätter
-          response_code=$(curl -s -o /dev/null -w "%{http_code}" https://api.github.com/repos/DevOps22-Grupp1/test/actions/workflows/home-update-sha.yml/dispatches)
+          response_code=$(curl -s -o /dev/null -w "%{http_code}" https://api.github.com/repos/DevOps22-Grupp1/test/actions/workflows/run.test.yml/dispatches)
           while [ $response_code -ne 200 ]; do
             sleep 1
-            response_code=$(curl -s -o /dev/null -w "%{http_code}" https://api.github.com/repos/DevOps22-Grupp1/test/actions/workflows/home-update-sha.yml/dispatches)
+            response_code=$(curl -s -o /dev/null -w "%{http_code}" https://api.github.com/repos/DevOps22-Grupp1/test/actions/workflows/run.test.yml/dispatches)
           done
 
           # Skicka en förfrågan till GitHub API för att hämta statusen för det senaste jobbet
