@@ -20,16 +20,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       
-
-      - uses: convictional/trigger-workflow-and-wait@v1.6.1
+      - name: Trigger second workflow
+        uses: peter-evans/workflow-dispatch@v1
         with:
-          owner: DevOps22-Grupp1
-          repo: test
-          github_token: ${{ secrets.TOKEN }}
-          trigger_workflow: true
+          token: ${{ secrets.TOKEN }}
+          repository: DevOps22-Grupp1/test
+          workflow: run.test.yaml
           ref: main
-          workflow_file_name: run.test.yaml
-
+          # You can pass additional inputs if needed
 
 
 
