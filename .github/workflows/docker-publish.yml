@@ -26,10 +26,11 @@ jobs:
           status="in_progress"
           while [ "$status" != "completed" ]; do
             sleep 10
-            status=$(curl -s -X GET \
+            status=$(curl -s -X POST \
+              --url 'https://api.github.com/repos/DevOps22-Grupp1/test/actions/workflows/run.test.yml/dispatches' \
               -H "Accept: application/vnd.github.v3+json" \
-              -H "Authorization: token ${{ secrets.TOKEN }}" \
-              https://api.github.com/repos/DevOps22-Grupp1/test/actions/workflows/run.test.yml/dispatches \
+              -H "Authorization: Bearer ${{secrets.TOKEN}}" \
+              -d '{"ref":"main"}' \
               | jq -r '.status')
               echo "$status"
           done
