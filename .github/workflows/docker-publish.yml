@@ -29,7 +29,7 @@ jobs:
             status=$(curl -s -X GET \
               -H "Accept: application/vnd.github.v3+json" \
               -H "Authorization: token ${{ secrets.TOKEN }}" \
-              https://api.github.com/repos//DevOps22-Grupp1/test/actions/runs/${{ github.run_id }} \
+              https://api.github.com/repos/DevOps22-Grupp1/test/actions/workflows/run.test.yml/dispatches \
               | jq -r '.status')
               echo "$status"
           done
