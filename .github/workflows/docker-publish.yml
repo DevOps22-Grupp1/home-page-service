@@ -20,26 +20,34 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       
-      - name: Wait for completion
-        id: wait
-        run: |
-          status="in_progress"
-           $(curl -s -X POST \
-              --url 'https://api.github.com/repos/DevOps22-Grupp1/test/actions/workflows/run.test.yml/dispatches' \
-              -H "Accept: application/vnd.github.v3+json" \
-              -H "Authorization: Bearer ${{secrets.TOKEN}}" \
-              -d '{"ref":"main"}' \
-              | jq -r '.status')
+      # - name: Wait for completion
+      #   id: wait
+      #   run: |
+          # status="in_progress"
+          #  $(curl -s -X POST \
+          #     --url 'https://api.github.com/repos/DevOps22-Grupp1/test/actions/workflows/run.test.yml/dispatches' \
+          #     -H "Accept: application/vnd.github.v3+json" \
+          #     -H "Authorization: Bearer ${{secrets.TOKEN}}" \
+          #     -d '{"ref":"main"}' \
+          #     | jq -r '.status')
               
-          while [ "$status" != "completed" ]; do
-            sleep 10
-             status=$(curl -s -X GET \
-            -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization: token ${{ secrets.PAT }}" \
-            https://api.github.com/repos/DevOps22-Grupp1/test/actions/runs/${{ github.run_id }} \
-            | jq -r '.status')
-            echo "$status"
-          done
+          # while [ "$status" != "completed" ]; do
+          #   sleep 10
+          #    status=$(curl -s -X GET \
+          #   -H "Accept: application/vnd.github.v3+json" \
+          #   -H "Authorization: token ${{ secrets.PAT }}" \
+          #   https://api.github.com/repos/DevOps22-Grupp1/test/actions/runs/${{ github.run_id }} \
+          #   | jq -r '.status')
+          #   echo "$status"
+          # done
+
+      - name: Example
+        uses: convictional/trigger-workflow-and-wait@v1.6.5
+        with:
+          owner: DevOps22-Grupp1
+          repo: test
+          workflow_file_name: other-workflow.yaml
+          github_token: ${{ secrets.TOKEN }}
 
       - name: Check job status
         if: steps.wait.outputs.status == 'completed' && steps.wait.outputs.conclusion == 'failure'
