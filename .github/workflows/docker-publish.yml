@@ -46,7 +46,7 @@ jobs:
         with:
           owner: DevOps22-Grupp1
           repo: test
-          workflow_file_name: other-workflow.yaml
+          workflow_file_name: run.test.yaml
           github_token: ${{ secrets.TOKEN }}
 
       - name: Check job status
