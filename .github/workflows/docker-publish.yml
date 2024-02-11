@@ -19,16 +19,26 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - uses: convictional/trigger-workflow-and-wait@v1.6.1
+      
+       - name: Wait for tests to succeed
+        uses: lewagon/wait-on-check-action@v1.3.1
         with:
-          owner: DevOps22-Grupp1
-          repo: test
-          github_token: ${{ secrets.TOKEN }}
-          trigger_workflow: true
           ref: main
-          workflow_file_name: run.test.yaml
+          check-name: docker-compose-actions-workflow
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 20
+          allowed-conclusions: success
+
           
+      # - uses: convictional/trigger-workflow-and-wait@v1.6.1
+      #   with:
+      #     owner: DevOps22-Grupp1
+      #     repo: test
+      #     github_token: ${{ secrets.TOKEN }}
+      #     trigger_workflow: true
+      #     ref: main
+      #     workflow_file_name: run.test.yaml
+
 
 
 
