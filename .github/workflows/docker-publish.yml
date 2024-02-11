@@ -20,22 +20,34 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Check automation pipeline status
-        run: |
-            curl --request POST \
-            --url 'https://api.github.com/repos/DevOps22-Grupp1/test/actions/workflows/run.test.yml/dispatches' \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${{secrets.TOKEN}}" \
-            -d '{"ref":"main"}'
+      - uses: convictional/trigger-workflow-and-wait@v1.6.1
+        with:
+          owner: DevOps22-Grupp1
+          repo: test
+          github_token: ${{ secrets.TOKEN }}
+          trigger_workflow: true
+          ref: main
+          workflow_file_name: run.test.yaml
+          
 
-            resp=$(curl -L \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${{secrets.TOKEN}}" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-                      https://api.github.com/repos/DevOps22-Grupp1/test/actions/runs?event=workflow_dispatch&status=in_progress&&name=run.test.yml&per_page=1
-            )
 
-            echo "$resp"
+
+        # run: |
+        #     curl --request POST \
+        #     --url 'https://api.github.com/repos/DevOps22-Grupp1/test/actions/workflows/run.test.yml/dispatches' \
+        #     -H "Accept: application/vnd.github+json" \
+        #     -H "Authorization: Bearer ${{secrets.TOKEN}}" \
+        #     -d '{"ref":"main"}'
+
+        #     resp=$(curl -L \
+        #     -H "Accept: application/vnd.github+json" \
+        #     -H "Authorization: Bearer ${{secrets.TOKEN}}" \
+        #     -H "X-GitHub-Api-Version: 2022-11-28" \
+        #               https://api.github.com/repos/DevOps22-Grupp1/test/actions/runs?event=workflow_dispatch&status=in_progress&&name=run.test.yml&per_page=1
+        #     )
+
+        #     echo "$resp"
+      
       - name: Docker Login
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
