@@ -26,7 +26,7 @@ jobs:
               --url 'https://api.github.com/repos/DevOps22-Grupp1/test/actions/workflows/run.test.yml/dispatches' \
               -H "Accept: application/vnd.github.v3+json" \
               -H "Authorization: Bearer ${{secrets.TOKEN}}" \
-              -d '{"ref":"main"}' 
+              -d '{"ref":"main"})' 
           
             STATUS="in_progress"
             while [ "$STATUS" != "completed" ]; do
