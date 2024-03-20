@@ -1,5 +1,5 @@
 # Använd en Python-basbild
-FROM python:3.9-slim
+FROM python:3.12.2-slim
 RUN pip install pymongo
 
 # Skapa en arbetskatalog
