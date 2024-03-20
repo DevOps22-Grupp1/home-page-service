@@ -28,72 +28,72 @@ jobs:
         run: |
           echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
 
-      - name: Build Docker Image
+      - name: Build Docker Image to Test repositoriet
         run: |
-          docker build -t passwordnotsafe/test-cypress:order-processing-service ./backend
+          docker build -t passwordnotsafe/test-cypress:home-page-service ./backend
 
-      - name: Push Docker Image
+      - name: Push Docker Image to Test repositoriet
         run: |
-          docker push passwordnotsafe/test-cypress:order-processing-service
+          docker push passwordnotsafe/test-cypress:home-page-service
       
-      - name: Wait for completion
-        run: |
-           $(curl -s -X POST \
-              --url 'https://api.github.com/repos/DevOps22-Grupp1/test/actions/workflows/run.test.yml/dispatches' \
-              -H "Accept: application/vnd.github.v3+json" \
-              -H "Authorization: Bearer ${{secrets.TOKEN}}" \
-              -d '{"ref":"main"}') 
+      # - name: Wait for completion
+      #   run: |
+      #      $(curl -s -X POST \
+      #         --url 'https://api.github.com/repos/DevOps22-Grupp1/test/actions/workflows/run.test.yml/dispatches' \
+      #         -H "Accept: application/vnd.github.v3+json" \
+      #         -H "Authorization: Bearer ${{secrets.TOKEN}}" \
+      #         -d '{"ref":"main"}') 
           
-            STATUS="in_progress"
-            while [ "$STATUS" != "success" ]; do
-              sleep 10
-              RESPONSE=$(curl https://api.github.com/repos/DevOps22-Grupp1/test/actions/runs)
-              STATUS=$(echo $RESPONSE | jq -r '.workflow_runs[0].conclusion')
-              if [ "$STATUS" = "failure" ]; then
-              exit 1
-            fi
-            done
+      #       STATUS="in_progress"
+      #       while [ "$STATUS" != "success" ]; do
+      #         sleep 10
+      #         RESPONSE=$(curl https://api.github.com/repos/DevOps22-Grupp1/test/actions/runs)
+      #         STATUS=$(echo $RESPONSE | jq -r '.workflow_runs[0].conclusion')
+      #         if [ "$STATUS" = "failure" ]; then
+      #         exit 1
+      #       fi
+      #       done
           
-      - name: Docker Login
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-        run: |
-          echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+      # - name: Docker Login
+      #   env:
+      #     DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      #     DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      #   run: |
+      #     echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
 
-      - name: Build Docker Image
-        run: |
-          docker build -t passwordnotsafe/order-processing-service ./backend
-          docker build -t passwordnotsafe/order-processing-service:${{ github.sha }} ./backend
+      # - name: Build Docker Image
+      #   run: |
+      #     docker build -t passwordnotsafe/home-page-service ./backend
+      #     docker build -t passwordnotsafe/home-page-service:${{ github.sha }} ./backend
 
-      - name: Push Docker Image
-        run: |
-          docker push passwordnotsafe/home-page-service
-          docker push passwordnotsafe/home-page-service:${{ github.sha }}
+      # - name: Push Docker Image
+      #   run: |
+      #     docker push passwordnotsafe/home-page-service
+      #     docker push passwordnotsafe/home-page-service:${{ github.sha }}
 
-      # build and push the second image also
-      - name: Build Docker Image
-        run: |
-          docker build -t passwordnotsafe/seed-data ./script
+      # # build and push the second image also
+      # - name: Build Docker Image
+      #   run: |
+      #     docker build -t passwordnotsafe/seed-data ./script
 
-      - name: Push Docker Image for script
-        run: |
-          docker push passwordnotsafe/seed-data
+      # - name: Push Docker Image for script
+      #   run: |
+      #     docker push passwordnotsafe/seed-data
 
-      # build and push the third image also ## we could use a better way
-      - name: Build Docker Image
-        run: |
-          docker build -t passwordnotsafe/mongo-backup ./script/backup
+      # # build and push the third image also ## we could use a better way
+      # - name: Build Docker Image
+      #   run: |
+      #     docker build -t passwordnotsafe/mongo-backup ./script/backup
 
-      - name: Sleep for 15 seconds
-        uses: jakejarvis/wait-action@master
-        with:
-          time: '15s' 
+      # - name: Sleep for 15 seconds
+      #   uses: jakejarvis/wait-action@master
+      #   with:
+      #     time: '15s' 
 
-      - name: Trigger fetch new sha update to k8 deployment file.
-        run: |
-          curl --request POST \
-            --url 'https://api.github.com/repos/DevOps22-Grupp1/scamazon/actions/workflows/home-update-sha.yml/dispatches' \
-            -H "Accept: application/vnd.github+json" \
-            -H 'Authorization: Bearer ${{secrets.TOKEN}}' \
-            -d '{"ref":"main"}'
+      # - name: Trigger fetch new sha update to k8 deployment file.
+      #   run: |
+      #     curl --request POST \
+      #       --url 'https://api.github.com/repos/DevOps22-Grupp1/scamazon/actions/workflows/home-update-sha.yml/dispatches' \
+      #       -H "Accept: application/vnd.github+json" \
+      #       -H 'Authorization: Bearer ${{secrets.TOKEN}}' \
+      #       -d '{"ref":"main"}'
