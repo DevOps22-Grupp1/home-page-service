@@ -62,7 +62,7 @@ users = {"username": "", "role": "", "avatar": "", "id": ""}
 
 
 @login_manager.user_loader
-def load_user(user_id):
+def load_user(user_id: str) -> User:
     return User(user_id)
 
 
@@ -70,7 +70,7 @@ def load_user(user_id):
     "invocation_by_method",
     "Number of invocations by HTTP method",
 )
-def get_count_for_current_user():
+def get_count_for_current_user() -> int:
     if current_user.is_authenticated:
         user_id = users["id"]
         request = requests.get(
@@ -86,7 +86,7 @@ def get_count_for_current_user():
     return basketCount
 
 
-def check_user_auth():
+def check_user_auth() -> dict:
     user = {"user": "", "role": "image"}
     if current_user.is_authenticated:
         if users["username"] == "":
@@ -102,17 +102,18 @@ def check_user_auth():
 
 
 @app.route("/")
-def index():
+def index() -> tuple:
     return render_template("landing.html")
 
 
 @app.route("/home")
-def hello():
+def hello() -> tuple:
     category = []
     cat_prod = []
     try:
         response = requests.get(
-            f"http://{product_catalog}:{product_port}/api/products/0")
+            f"http://{product_catalog}:{product_port}/api/products/0"
+        )
 
         if response.status_code == 200:
             products = json.loads(response.text)
@@ -140,7 +141,7 @@ def hello():
 
 
 @app.route("/subscribe", methods=["POST"])
-def handling_sub():
+def handling_sub() -> tuple:
     return render_template(
         "index.html",
         utc_dt=datetime.datetime.utcnow,
@@ -150,7 +151,7 @@ def handling_sub():
 
 @app.route("/admin-product/")
 @login_required
-def handle_products():
+def handle_products() -> tuple:
     if request.args.get("page") is None:
         page = 1
     else:
@@ -179,7 +180,7 @@ def handle_products():
 
 
 @app.route("/login/", methods=["GET"])
-def get_login():
+def get_login() -> tuple:
     if users["username"] == "":
         logout()
     # if current_user.is_authenticated:
@@ -188,31 +189,32 @@ def get_login():
 
 
 @app.route("/logout", methods=["GET"])
-def logout():
+def logout() -> tuple:
     logout_user()
     users["username"] = ""
     return render_template("login.html", user=check_user_auth())
 
 
 @app.route("/pagination/", methods=["GET"])
-def pagination():
+def pagination() -> str:
     return request.args.get("page")
 
 
 @app.route("/buy/", methods=["GET"])
-def buy():
+def buy() -> tuple:
+    user_page = users["page"] or 0
     user_id = users["id"]
     product_id = request.args.get("id")
-    json_data = json.dumps(
-        {"userid": int(user_id), "productid": int(product_id)})
+    json_data = json.dumps({"userid": int(user_id), "productid": int(product_id)})
     d_url = f"http://{order_processing}:{order_port}/api/cart"
     headers = {"Content-Type": "application/json"}
     requests.post(d_url, data=json_data, headers=headers)
-    return redirect(url_for("products"))
+    return redirect(url_for("products", page=user_page))
+    # page=user_page
 
 
 @app.route("/delete/", methods=["GET"])
-def delete_p():
+def delete_p() -> tuple:
     id = request.args.get("id")
     delete_url = f"http://{product_catalog}:{product_port}/api/product/{id}"
     response = requests.delete(delete_url)
@@ -226,7 +228,7 @@ def delete_p():
 
 
 @app.route("/update/", methods=["POST"])
-def update_p():
+def update_p() -> tuple:
     newCat = []
     id = request.form["id"]
     order = request.form["updateOrder"]
@@ -250,7 +252,7 @@ def update_p():
 
 
 @app.route("/delete_cart/", methods=["GET"])
-def del_cart():
+def del_cart() -> tuple:
     id = request.args.get("id")
     delete_url = f"http://{order_processing}:{order_port}/api/cart/{id}"
     response = requests.delete(delete_url)
@@ -264,7 +266,7 @@ def del_cart():
 
 
 @app.route("/add_products/", methods=["POST"])
-def post_product():
+def post_product() -> tuple:
     order = request.form["name"]
     price = request.form["price"]
     img = request.form["images"]
@@ -272,7 +274,8 @@ def post_product():
     add_url = f"http://{product_catalog}:{product_port}/api/product"
 
     json_data = json.dumps(
-        {"order": order, "price": price, "image": img, "category": [cat]})
+        {"order": order, "price": price, "image": img, "category": [cat]}
+    )
     headers = {"Content-Type": "application/json"}
     response = requests.post(add_url, data=json_data, headers=headers)
     if response.status_code == 201:
@@ -290,7 +293,7 @@ def post_product():
 
 
 @app.route("/login/", methods=["POST"])
-def post_login():
+def post_login() -> tuple:
     login_url = f"http://{user_management}:{user_port}/api/login"
     add_url = f"http://{user_management}:{user_port}/api/user"
     headers = {"Content-Type": "application/json"}
@@ -300,8 +303,7 @@ def post_login():
         passw = request.form["password"]
         json_data = json.dumps({"username": user, "password": passw})
         try:
-            response = requests.post(
-                login_url, data=json_data, headers=headers)
+            response = requests.post(login_url, data=json_data, headers=headers)
             dataresponse = json.loads(response.text)
             if len(dataresponse) == 1 and response.status_code == 200:
                 user = User(dataresponse[0]["username"])
@@ -338,8 +340,7 @@ def post_login():
             dataresponse = json.loads(response.text)
             if response.status_code == 201:
                 json_data = json.dumps({"username": user, "password": passw})
-                response = requests.post(
-                    login_url, data=json_data, headers=headers)
+                response = requests.post(login_url, data=json_data, headers=headers)
                 dataresponse = json.loads(response.text)
                 if len(dataresponse) == 1 and response.status_code == 200:
                     user = User(dataresponse[0]["username"])
@@ -358,7 +359,7 @@ def post_login():
 
 
 @app.route("/about/")
-def about():
+def about() -> tuple:
     return render_template(
         "about.html",
         user=check_user_auth(),
@@ -368,7 +369,7 @@ def about():
 
 @app.route("/cart/", methods=["GET"])
 @login_required
-def cart():
+def cart() -> tuple:
     data = []
     price = 0
     user_id = users["id"]
@@ -397,7 +398,7 @@ def cart():
 
 
 @app.route("/products/", methods=["GET"])
-def products():
+def products() -> tuple:
     if request.args.get("page") is None:
         page = 1
     else:
@@ -413,7 +414,8 @@ def products():
             f"http://{product_catalog}:{product_port}/api/count/all"
         )
         res_all = requests.get(
-            f"http://{product_catalog}:{product_port}/api/products/0")
+            f"http://{product_catalog}:{product_port}/api/products/0"
+        )
 
         if response.status_code == 200:
             count = json.loads(responseCount.text)
@@ -440,7 +442,7 @@ def products():
 
 
 @app.route("/products", methods=["POST"])
-def handle_category_product():
+def handle_category_product() -> tuple:
     categoryName = request.form["category"]
     sel = categoryName
     page = 1
@@ -453,7 +455,8 @@ def handle_category_product():
             f"http://{product_catalog}:{product_port}/api/product_category/{categoryName}"
         )
         res_all = requests.get(
-            f"http://{product_catalog}:{product_port}/api/products/0")
+            f"http://{product_catalog}:{product_port}/api/products/0"
+        )
         responseCount = requests.get(
             f"http://{product_catalog}:{product_port}/api/count/{categoryName}"
         )
@@ -481,7 +484,7 @@ def handle_category_product():
 
 
 @app.route("/payment", methods=["GET"])
-def buy_products():
+def buy_products() -> tuple:
     data = []
     price = 0
     user_id = users["id"]
@@ -525,7 +528,7 @@ def buy_products():
 
 
 @app.route("/server/")
-def server():
+def server() -> tuple:
     try:
         res1 = requests.get(f"http://{product_catalog}:{product_port}")
         if res1.status_code == 200:
