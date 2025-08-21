@@ -36,6 +36,13 @@ jobs:
         run: |
           docker push passwordnotsafe/test-cypress:home-page-service
       
+      - name: Build Docker Image to Home repositoriet
+        run: |
+          docker build -t passwordnotsafe/home-page-service ./backend
+
+      - name: Push Docker Image to Home repositoriet
+        run: |
+          docker push passwordnotsafe/home-page-service
       # - name: Wait for completion
       #   run: |
       #      $(curl -s -X POST \
