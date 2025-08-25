@@ -258,12 +258,9 @@ def update_p() -> tuple:
 
 @app.route("/delete_cart/", methods=["GET"])
 def del_cart() -> tuple:
-    print("Deleting product from cart...")
     id = request.args.get("id")
-    print("Deleting product from cart...", users, id)
     delete_url = f"http://{order_processing}:{order_port}/api/cart/{id}"
     response = requests.delete(delete_url)
-    print(response.status_code, response, "ddddddddddddddddddddd")
     if response.status_code == 204:
         # The DELETE request was successful, and there's no response content.
         return redirect(url_for("cart"))
