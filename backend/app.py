@@ -202,7 +202,12 @@ def pagination() -> str:
 
 @app.route("/buy/", methods=["GET"])
 def buy() -> tuple:
-    user_page = users["page"] or 0
+
+    if "page" in users:
+        user_page = users["page"]
+    else:
+        user_page = 0
+
     user_id = users["id"]
     product_id = request.args.get("id")
     json_data = json.dumps({"userid": int(user_id), "productid": int(product_id)})
@@ -253,9 +258,12 @@ def update_p() -> tuple:
 
 @app.route("/delete_cart/", methods=["GET"])
 def del_cart() -> tuple:
+    print("Deleting product from cart...")
     id = request.args.get("id")
+    print("Deleting product from cart...", users, id)
     delete_url = f"http://{order_processing}:{order_port}/api/cart/{id}"
     response = requests.delete(delete_url)
+    print(response.status_code, response, "ddddddddddddddddddddd")
     if response.status_code == 204:
         # The DELETE request was successful, and there's no response content.
         return redirect(url_for("cart"))
@@ -424,7 +432,7 @@ def products() -> tuple:
             total_page = math.ceil(count / 9)
     except requests.exceptions.RequestException as e:
         products = "Failed to fetch data"
-
+    print(check_user_auth)
     if products != "Failed to fetch data":
         for x in products_all:
             for a in x["category"]:

@@ -29,7 +29,7 @@
         category:{% for cat in product.category %} {{ cat}} {% endfor %}
       </p>
         {% if user["user"] != "false" %}
-       <a href="{{ url_for('del_cart', id=product.order_id ) }}">
+       <a href="{{ url_for('del_cart', id=product.id ) }}">
         <button class="button-89">Delete item</button>
       </a>
     {% endif %}
