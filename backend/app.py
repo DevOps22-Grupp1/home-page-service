@@ -260,7 +260,9 @@ def update_p() -> tuple:
 def del_cart() -> tuple:
     p_id = request.args.get("p_id")
     id = request.args.get("id")
-    delete_url = f"http://{order_processing}:{order_port}/api/cart/{id}/{p_id}"
+    delete_url = (
+        f"http://{order_processing}:{order_port}/api/cart/{int(id)}/{int(p_id)}"
+    )
     response = requests.delete(delete_url)
     if response.status_code == 204:
         # The DELETE request was successful, and there's no response content.
