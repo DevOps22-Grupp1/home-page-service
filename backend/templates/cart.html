@@ -24,9 +24,9 @@
         alt="pic of {{ product.order }}"
       />
       <p style="font-size: 24px">{{ product.price }} €</p>
-
       <p style="font-size: 24px">
         category:{% for cat in product.category %} {{ cat}} {% endfor %}
+        product info: {{ product }}
       </p>
         {% if user["user"] != "false" %}
        <a href="{{ url_for('del_cart', id=id, p_id=product.id) }}">
