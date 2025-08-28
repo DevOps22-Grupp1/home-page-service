@@ -70,7 +70,7 @@
     <p style="text-align: center; font-size: 24px; margin-bottom: 24px">{{ product.order }}</p>
     <img style="object-fit: cover; height: 400px" src="{{ product.image }}" alt="pic of {{ product.order }}" />
     <p style="font-size: 24px">{{ product.price }} €</p>
-
+    <p style="font-size: 24px">product: {{ product }}</p>
     <p style="font-size: 24px">
       category:{% for cat in product.category %} {{ cat}} {% endfor %}
     </p>
