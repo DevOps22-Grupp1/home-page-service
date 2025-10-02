@@ -260,7 +260,6 @@ def update_p() -> tuple:
 def del_cart() -> tuple:
     p_id = request.args.get("p_id")
     cart_id = request.args.get("c_id")
-    print("ddddddd", cart_id, p_id)
     delete_url = f"http://{order_processing}:{order_port}/api/cart/{cart_id}/{p_id}"
     response = requests.delete(delete_url)
     if response.status_code == 204:
@@ -535,6 +534,11 @@ def buy_products() -> tuple:
 
 @app.route("/server/")
 def server() -> tuple:
+
+    print(f"http://{product_catalog}:{product_port}", "product handling")
+    print(f"http://{user_management}:{user_port}", "user handling")
+    print(f"http://{order_processing}:{order_port}", "order processing")
+
     try:
         res1 = requests.get(f"http://{product_catalog}:{product_port}")
         if res1.status_code == 200:
@@ -543,6 +547,7 @@ def server() -> tuple:
         r1 = "Failed to fetch data"
 
     try:
+
         res2 = requests.get(f"http://{user_management}:{user_port}")
         if res2.status_code == 200:
             r2 = res2.text
