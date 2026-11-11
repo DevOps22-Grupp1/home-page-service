@@ -1,4 +1,6 @@
-from flask import Flask, render_template, redirect, url_for, request, jsonify
+from flask import Flask, render_template, redirect, url_for, request, jsonify, abort
+from functools import wraps
+from werkzeug.middleware.proxy_fix import ProxyFix
 import datetime
 import json
 import requests
@@ -41,7 +43,13 @@ except ValueError:
 login_manager = LoginManager()
 
 app = Flask(__name__)
-app.secret_key = "your_secret_key"  # Replace with a secure secret key
+# Behind a proxy on a sub-path (e.g. Traefik on /scamazon): X-Forwarded-Prefix makes url_for()
+# build links with the prefix. Without a proxy it changes nothing.
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
+app.secret_key = os.environ.get("SECRET_KEY", "your_secret_key")  # Set SECRET_KEY in production
+
+# READ_ONLY=1: a public demo where nobody can log in, register, buy or change the products
+READ_ONLY = os.environ.get("READ_ONLY") == "1"
 
 metrics = PrometheusMetrics(app)
 metrics.info("app_info", "home-page-service", version="1.0.1")
@@ -59,6 +67,23 @@ class User(UserMixin):
 
 # Simulate a user database (replace with your user authentication logic)
 users = {"username": "", "role": "", "avatar": "", "id": ""}
+
+
+def write_route(view):
+    """Pages that change data: require login, and do not exist at all in read-only mode."""
+
+    @wraps(view)
+    def wrapper(*args, **kwargs):
+        if READ_ONLY:
+            abort(403)
+        return login_required(view)(*args, **kwargs)
+
+    return wrapper
+
+
+@app.context_processor
+def inject_read_only() -> dict:
+    return {"read_only": READ_ONLY}
 
 
 @login_manager.user_loader
@@ -150,13 +175,15 @@ def handling_sub() -> tuple:
 
 
 @app.route("/admin-product/")
-@login_required
+@write_route
 def handle_products() -> tuple:
     if request.args.get("page") is None:
         page = 1
     else:
         page = int(request.args.get("page"))
     user = users["username"]
+    products = "Failed to fetch data"
+    count = 0
     try:
         response = requests.get(
             f"http://{product_catalog}:{product_port}/api/products/{page}"
@@ -181,6 +208,8 @@ def handle_products() -> tuple:
 
 @app.route("/login/", methods=["GET"])
 def get_login() -> tuple:
+    if READ_ONLY:
+        abort(403)
     if users["username"] == "":
         logout()
     # if current_user.is_authenticated:
@@ -201,6 +230,7 @@ def pagination() -> str:
 
 
 @app.route("/buy/", methods=["GET"])
+@write_route
 def buy() -> tuple:
 
     if "page" in users:
@@ -219,6 +249,7 @@ def buy() -> tuple:
 
 
 @app.route("/delete/", methods=["GET"])
+@write_route
 def delete_p() -> tuple:
     id = request.args.get("id")
     delete_url = f"http://{product_catalog}:{product_port}/api/product/{id}"
@@ -233,6 +264,7 @@ def delete_p() -> tuple:
 
 
 @app.route("/update/", methods=["POST"])
+@write_route
 def update_p() -> tuple:
     newCat = []
     id = request.form["id"]
@@ -257,6 +289,7 @@ def update_p() -> tuple:
 
 
 @app.route("/delete_cart/", methods=["GET"])
+@write_route
 def del_cart() -> tuple:
     p_id = request.args.get("p_id")
     cart_id = request.args.get("c_id")
@@ -272,6 +305,7 @@ def del_cart() -> tuple:
 
 
 @app.route("/add_products/", methods=["POST"])
+@write_route
 def post_product() -> tuple:
     order = request.form["name"]
     price = request.form["price"]
@@ -300,6 +334,8 @@ def post_product() -> tuple:
 
 @app.route("/login/", methods=["POST"])
 def post_login() -> tuple:
+    if READ_ONLY:
+        abort(403)
     login_url = f"http://{user_management}:{user_port}/api/login"
     add_url = f"http://{user_management}:{user_port}/api/user"
     headers = {"Content-Type": "application/json"}
@@ -374,7 +410,7 @@ def about() -> tuple:
 
 
 @app.route("/cart/", methods=["GET"])
-@login_required
+@write_route
 def cart() -> tuple:
     data = []
     price = 0
@@ -412,6 +448,9 @@ def products() -> tuple:
 
     category = ["all"]
     sel = "all"
+    products = "Failed to fetch data"
+    products_all = []
+    count = 0
     try:
         response = requests.get(
             f"http://{product_catalog}:{product_port}/api/products/{page}"
@@ -427,10 +466,8 @@ def products() -> tuple:
             count = json.loads(responseCount.text)
             products = json.loads(response.text)
             products_all = json.loads(res_all.text)
-            total_page = math.ceil(count / 9)
     except requests.exceptions.RequestException as e:
         products = "Failed to fetch data"
-    print(check_user_auth)
     if products != "Failed to fetch data":
         for x in products_all:
             for a in x["category"]:
@@ -489,6 +526,7 @@ def handle_category_product() -> tuple:
 
 
 @app.route("/payment", methods=["GET"])
+@write_route
 def buy_products() -> tuple:
     data = []
     price = 0
@@ -539,6 +577,7 @@ def server() -> tuple:
     print(f"http://{user_management}:{user_port}", "user handling")
     print(f"http://{order_processing}:{order_port}", "order processing")
 
+    r1 = r2 = r3 = "Failed to fetch data"
     try:
         res1 = requests.get(f"http://{product_catalog}:{product_port}")
         if res1.status_code == 200:

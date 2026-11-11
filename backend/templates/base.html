@@ -65,7 +65,7 @@
         ><i style="color: white" class="fa badge" value="{{value}}"
           ><i class="fa-solid fa-cart-shopping"></i></i
       ></a>
-      {% else %}
+      {% elif not read_only %}
       <a
         href="{{ url_for('get_login') }}"
         class="right"
@@ -91,7 +91,7 @@
       </div>
       <div class="footer-column">
         <h3>Newsletter Subscription</h3>
-        <form action="/subscribe" method="post">
+        <form action="{{ url_for('handling_sub') }}" method="post">
           <input type="email" name="email" placeholder="Enter your email" />
           <button class="button-89" type="submit">Subscribe</button>
         </form>
