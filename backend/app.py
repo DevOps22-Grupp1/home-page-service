@@ -1,7 +1,10 @@
-from flask import Flask, render_template, redirect, url_for, request, jsonify
+from flask import Flask, render_template, redirect, url_for, request, jsonify, abort
 import datetime
 import json
+import os
+from functools import wraps
 import requests
+from werkzeug.middleware.proxy_fix import ProxyFix
 from prometheus_flask_exporter import PrometheusMetrics
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
@@ -11,7 +14,20 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 login_manager = LoginManager()
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # Replace with a secure secret key
+# Behind a proxy on a sub-path (e.g. Traefik on /scamazon): X-Forwarded-Prefix makes url_for()
+# build links with the prefix. Without a proxy it changes nothing.
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
+app.secret_key = os.environ.get('SECRET_KEY', 'your_secret_key')  # Set SECRET_KEY in production
+
+# READ_ONLY=1: a public demo where nobody can log in or change the products
+READ_ONLY = os.environ.get('READ_ONLY') == '1'
+
+# The other services; the defaults are the container names in the compose project "scamazon"
+PRODUCT_SERVICE = os.environ.get('PRODUCT_SERVICE_URL', 'http://scamazon-product-catalog-service-1:4005')
+USER_SERVICE = os.environ.get('USER_SERVICE_URL', 'http://scamazon-user-management-service-1:4006')
+ORDER_SERVICE = os.environ.get('ORDER_SERVICE_URL', 'http://scamazon-order-processing-service-1:4007')
+# Seconds a call to another service may take before the page gives up
+TIMEOUT = 5
 
 metrics = PrometheusMetrics(app)
 metrics.info("app_info", "home-page-service", version="1.0.0")
@@ -27,7 +43,22 @@ class User(UserMixin):
 
 
 # Simulate a user database (replace with your user authentication logic)
-users = {'user1': {'password': 'password1'}}
+users = {os.environ.get('ADMIN_USER', 'user1'): {'password': os.environ.get('ADMIN_PASSWORD', 'password1')}}
+
+
+def admin_route(view):
+    """Admin pages: require login, and do not exist at all in read-only mode."""
+    @wraps(view)
+    def wrapper(*args, **kwargs):
+        if READ_ONLY:
+            abort(403)
+        return login_required(view)(*args, **kwargs)
+    return wrapper
+
+
+@app.context_processor
+def inject_read_only():
+    return {'read_only': READ_ONLY}
 
 
 @login_manager.user_loader
@@ -44,11 +75,10 @@ def hello():
 
 
 @app.route('/admin-product/')
-@login_required
+@admin_route
 def handle_products():
 
-    response = requests.get(
-        'http://scamazon-product-catalog-service-1:4005/api/products')
+    response = requests.get(PRODUCT_SERVICE + '/api/products', timeout=TIMEOUT)
 
     if response.status_code == 200:
         products = json.loads(response.text)
@@ -59,14 +89,17 @@ def handle_products():
 
 @app.route("/login/", methods=["GET"])
 def get_login():
+    if READ_ONLY:
+        abort(403)
     return render_template('login.html')
 
 
 @app.route("/delete/", methods=["GET"])
+@admin_route
 def delete_p():
     id = request.args.get('id')
-    delete_url = 'http://scamazon-product-catalog-service-1:4005/api/product/{}'.format(id)
-    response = requests.delete(delete_url)
+    delete_url = PRODUCT_SERVICE + '/api/product/{}'.format(id)
+    response = requests.delete(delete_url, timeout=TIMEOUT)
     if response.status_code == 204:
         # The DELETE request was successful, and there's no response content.
         return redirect(url_for('handle_products'))
@@ -78,6 +111,7 @@ def delete_p():
 
 
 @app.route("/update/", methods=["POST"])
+@admin_route
 def update_p():
     # return request.form['id']
     id =  request.form['id']
@@ -88,9 +122,9 @@ def update_p():
         'order': order,
         'price': price
     })
-    d_url = 'http://scamazon-product-catalog-service-1:4005/api/product/{}'.format(id)
+    d_url = PRODUCT_SERVICE + '/api/product/{}'.format(id)
     headers = {'Content-Type': 'application/json'}
-    response = requests.put(d_url, data=json_data, headers=headers)
+    response = requests.put(d_url, data=json_data, headers=headers, timeout=TIMEOUT)
     if response.status_code == 200:
         # The POST request was successful
         return redirect(url_for('handle_products'))
@@ -100,17 +134,18 @@ def update_p():
 
 
 @app.route("/add_products/", methods=["POST"])
+@admin_route
 def post_product():
     order = request.form['name']
     price = request.form['price']
-    add_url = 'http://scamazon-product-catalog-service-1:4005/api/product'
+    add_url = PRODUCT_SERVICE + '/api/product'
      
     json_data = json.dumps({
         'order': order,
         'price': price
     })
     headers = {'Content-Type': 'application/json'}
-    response = requests.post(add_url, data=json_data, headers=headers)
+    response = requests.post(add_url, data=json_data, headers=headers, timeout=TIMEOUT)
     if response.status_code == 201:
         # The POST request was successful
         return redirect(url_for('handle_products'))
@@ -121,6 +156,8 @@ def post_product():
 
 @app.route("/login/", methods=["POST"])
 def post_login():
+    if READ_ONLY:
+        abort(403)
     username = request.form['username']
     password = request.form['password']
     
@@ -128,6 +165,7 @@ def post_login():
         user = User(username)
         login_user(user)
         return redirect(url_for('handle_products'))
+    return redirect(url_for('get_login'))
 
 @app.route("/about/")
 def about():
@@ -136,7 +174,8 @@ def about():
 @app.route("/products/")
 def products():
     try:
-        response = requests.get('http://scamazon-product-catalog-service-1:4005/api/products') 
+        products = 'Failed to fetch data'
+        response = requests.get(PRODUCT_SERVICE + '/api/products', timeout=TIMEOUT)
         if response.status_code == 200:
             products = json.loads(response.text)
     except requests.exceptions.RequestException as e:
@@ -149,7 +188,8 @@ def products():
 @app.route("/server/")
 def server():
     try:
-        res1 = requests.get("http://scamazon-product-catalog-service-1:4005")
+        r1 = 'Failed to fetch data'
+        res1 = requests.get(PRODUCT_SERVICE, timeout=TIMEOUT)
         if res1.status_code == 200:
             r1 = res1.text
     except requests.exceptions.RequestException as e:
@@ -157,7 +197,8 @@ def server():
     
     
     try:
-        res2 = requests.get("http://scamazon-user-management-service-1:4006")
+        r2 = 'Failed to fetch data'
+        res2 = requests.get(USER_SERVICE, timeout=TIMEOUT)
         if res2.status_code == 200:
             r2 = res2.text
     except requests.exceptions.RequestException as e:
@@ -165,7 +206,8 @@ def server():
     
     
     try:
-        res3 = requests.get("http://scamazon-order-processing-service-1:4007")
+        r3 = 'Failed to fetch data'
+        res3 = requests.get(ORDER_SERVICE, timeout=TIMEOUT)
         if res3.status_code == 200:
             r3 = res3.text
     except requests.exceptions.RequestException as e:
@@ -181,5 +223,6 @@ def server():
  
 
 
-# Very important to disable debug mode
-app.run(host="0.0.0.0", port=4004, debug=True)
+# Very important to disable debug mode: the Werkzeug debugger lets anyone run code.
+# FLASK_DEBUG=1 turns it on locally.
+app.run(host="0.0.0.0", port=4004, debug=os.environ.get('FLASK_DEBUG') == '1')
