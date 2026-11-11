@@ -1,6 +1,6 @@
 {% extends 'base.html' %} {% block content %}
 <div style="width: 20%; margin: auto; margin-top: 4%; margin-bottom: 3%">
-  <form method="POST" action="/login">
+  <form method="POST" action="{{ url_for('post_login') }}">
 <div class="login-wrap">
   <div class="login-html">
     <input id="tab-1" type="radio" name="tab" class="sign-in" checked><label for="tab-1" class="tab">Sign In</label>

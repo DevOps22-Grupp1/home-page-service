@@ -26,7 +26,7 @@
     <h1 style="text-align: center;font-size: 24px;">{% block title %} Products {% endblock %}</h1>
   </div>
 
-  <form action="/products" method="post" enctype="multipart/form-data">
+  <form action="{{ url_for('handle_category_product') }}" method="post" enctype="multipart/form-data">
     <label for="playerselect">Choose a category:</label>
 
     <select onchange="this.form.submit()" id="playerselect" name="category" class="player-dropdown">
@@ -36,7 +36,7 @@
       {% endfor %}
     </select>
   </form>
-  <form action="/products" method="post" enctype="multipart/form-data">
+  <form action="{{ url_for('handle_category_product') }}" method="post" enctype="multipart/form-data">
     <label for="filterPrice">Choose a price filter:</label>
     <select onchange="this.form.submit()" id="filterPrice" name="category" class="player-dropdown">
       <option value="">--Choose an price filter--</option>
