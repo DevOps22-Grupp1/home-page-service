@@ -1,6 +1,6 @@
 {% extends 'base.html' %} {% block content %}
 <h1>{% block title %} Login {% endblock %}</h1>
-<form method="POST" action="/login">
+<form method="POST" action="{{ url_for('post_login') }}">
   <label for="username">Username:</label>
   <input type="text" name="username" required /><br /><br />
   <label for="password">Password:</label>

@@ -97,7 +97,7 @@
       </div>
       <div class="footer-column">
         <h3>Newsletter Subscription</h3>
-        <form action="/subscribe" method="post">
+        <form action="{{ url_for('hello') }}" method="get" onsubmit="return false">
           <input type="email" name="email" placeholder="Enter your email" />
           <button type="submit">Subscribe</button>
         </form>
