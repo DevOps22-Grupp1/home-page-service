@@ -24,9 +24,11 @@
       alt="pic of {{ product.order }}"
     />
     <p class="price">{{ product.price }} €</p>
+    {% if not read_only %}
     <button class="button-89" type="submit" style="margin: auto">
       Add to cart
     </button>
+    {% endif %}
   </div>
   {% endfor %}
 </div>
