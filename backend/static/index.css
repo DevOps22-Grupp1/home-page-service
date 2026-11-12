@@ -95,6 +95,29 @@ img {
   margin-top: 10px;
 }
 
+/* Products page: equal-width cards, however wide the product image is */
+.product-grid {
+  width: 85%;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.product-grid .product-container {
+  margin: 0;
+  padding: 10px;
+  background-color: #e6f9ff;
+  border-radius: 15px;
+  display: block;
+}
+
+.product-grid .product-container img {
+  height: 260px;
+  object-fit: contain;
+  background-color: white;
+}
+
 .slider-wrapper {
   width: 80%;
   margin: auto;
