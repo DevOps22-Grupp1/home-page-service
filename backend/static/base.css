@@ -6,6 +6,10 @@ body {
   font-family: "Lucida Sans", sans-serif;
   margin: 0;
   padding: 0;
+  /* The footer sits at the bottom even on a short page: menu, content (grows), footer */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 /* ____ */
 .pagination {
@@ -60,17 +64,18 @@ nav.navbar hr {
 
 div.content {
   padding: 20px;
-  margin: auto;
+  flex: 1 0 auto;
 }
 
 footer {
   display: flex;
   background-color: #333;
   color: white;
-  padding: 20px;
+  /* Extra room at the bottom for the design picker in the corner */
+  padding: 20px 20px 70px;
   text-align: center;
   justify-content: space-between;
-  margin: auto;
+  flex-shrink: 0;
   /* On a phone the three columns stack instead of overflowing the screen */
   flex-wrap: wrap;
   gap: 0 20px;
