@@ -231,6 +231,18 @@ def log_in_customer(user: dict) -> None:
     }
 
 
+def empty_cart(rows: list) -> bool:
+    """Deletes the given cart rows (from /api/cart-user/<id>) one by one: order-processing has
+    no route that empties a whole cart. True when every row is gone."""
+    ok = True
+    for row in rows:
+        response = requests.delete(
+            f"http://{order_processing}:{order_port}/api/cart/{row['id']}/{row['productid']}"
+        )
+        ok = ok and response.status_code == 204
+    return ok
+
+
 @metrics.counter(
     "invocation_by_method",
     "Number of invocations by HTTP method",
@@ -651,7 +663,8 @@ def account_delete() -> tuple:
     )
     if check.status_code != 200 or len(check.json()) != 1:
         return redirect(url_for("account", message="The password is wrong; the account is kept."))
-    requests.delete(f"http://{order_processing}:{order_port}/api/cart/{customer['id']}")
+    rows = requests.get(f"http://{order_processing}:{order_port}/api/cart-user/{customer['id']}")
+    empty_cart(json.loads(rows.text))
     response = requests.delete(user_url())
     if response.status_code != 200:
         return redirect(url_for("account", message="Could not delete the account. Try again."))
@@ -795,6 +808,8 @@ def buy_products() -> tuple:
     )
 
     respjson = json.loads(request.text)
+    if not respjson:
+        return redirect(url_for("cart"))  # nothing to pay for
     for prod in respjson:
         id = prod["id"]
         prod_id = int(prod["productid"])
@@ -822,10 +837,8 @@ def buy_products() -> tuple:
     d_url = f"http://{order_processing}:{order_port}/api/order"
     headers = {"Content-Type": "application/json"}
     response = requests.post(d_url, data=json_data, headers=headers)
-    delete_url = f"http://{order_processing}:{order_port}/api/cart/{user_id}"
-    responseDelete = requests.delete(delete_url)
 
-    if response.status_code == 201 and responseDelete.status_code == 204:
+    if response.status_code == 201 and empty_cart(respjson):
         return render_template(
             "checkout.html",
             user=check_user_auth(),
