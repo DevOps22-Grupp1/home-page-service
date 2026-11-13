@@ -1,0 +1,35 @@
+{% extends 'modern/base.html' %}
+{% block title %}Log in{% endblock %}
+{% block content %}
+<h1 class="page-title">Log in or join the scam</h1>
+<div class="two-col">
+  <form class="panel" method="POST" action="{{ url_for('post_login') }}">
+    <h2>Log in</h2>
+    {% if demo_username %}
+    <p class="demo">Just looking? Log in as <strong>{{ demo_username }}</strong> with the password <strong>{{ demo_password }}</strong>.</p>
+    {% endif %}
+    <label class="field">Username <input name="user" autocomplete="username" required /></label>
+    <label class="field">Password <input name="password" type="password" autocomplete="current-password" required /></label>
+    <button class="btn" type="submit" name="sign_in" value="Sign In">Log in</button>
+    <p class="muted"><a href="{{ url_for('admin_login') }}">Admin login</a></p>
+  </form>
+
+  <form class="panel" method="POST" action="{{ url_for('post_login') }}">
+    <h2>New here?</h2>
+    <label class="field">Username <input name="username" autocomplete="username" required /></label>
+    <label class="field">Name <input name="name" autocomplete="name" required /></label>
+    <label class="field">Email <input name="email" type="email" autocomplete="email" required /></label>
+    <label class="field">Password <input name="pass" type="password" autocomplete="new-password" required /></label>
+    <fieldset class="avatar-pick">
+      <legend>Pick your robot</legend>
+      {% for avatar in avatars %}
+      <label>
+        <input type="radio" name="avatar" value="{{ avatar }}" {% if loop.first %}checked{% endif %} />
+        <img src="{{ url_for('static', filename='avatars/' + avatar) }}" alt="Robot {{ loop.index }}" width="44" height="44" />
+      </label>
+      {% endfor %}
+    </fieldset>
+    <button class="btn" type="submit" name="sign_up" value="Sign Up">Create my account</button>
+  </form>
+</div>
+{% endblock %}

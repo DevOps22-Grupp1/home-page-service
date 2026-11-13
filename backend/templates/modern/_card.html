@@ -1,0 +1,21 @@
+{# One product card. The sticker and the "was" price are part of the joke: picked by the product's
+   id so a product always gets the same one, and the "was" price is simply three times the price. #}
+{% set stickers = ["-90%!!", "HOT", "TOO GOOD TO BE TRUE", "LAST ONE*"] %}
+{% set n = (product.id | int(0)) % 4 %}
+{% set amount = product.price | float(0) %}
+<article class="card">
+  <span class="sticker sticker-{{ n }}">{{ stickers[n] }}</span>
+  <div class="card-img">
+    <img src="{{ product.image }}" alt="" loading="lazy" />
+  </div>
+  <div class="card-body">
+    <h3 class="card-name">{{ product.order }}</h3>
+    <p class="card-cat">{{ product.category | join(" · ") }}</p>
+    <p class="price">
+      {{ product.price | money }}{% if amount > 0 %}<span class="was">{{ (amount * 3) | money }}</span>{% endif %}
+    </p>
+    {% if user["role"] == "customer" %}
+    <a class="btn btn-small" href="{{ url_for('buy', id=product.id, page=current_page or 1) }}">Grab it</a>
+    {% endif %}
+  </div>
+</article>
