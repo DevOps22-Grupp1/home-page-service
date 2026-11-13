@@ -5,7 +5,7 @@
 <div class="two-col">
   <div class="panel">
     <h2>Why a shop full of tricks?</h2>
-    <p>Scamazon uses a handful of <strong>dark patterns</strong>: design that nudges you into doing
+    <p>Scamazon uses {{ tricks | length }} <strong>dark patterns</strong>: design that nudges you into doing
       what the shop wants rather than what you meant to do. Real shops use the same ones, usually
       less obviously.</p>
     <p>Here they are on purpose, so you can see them work. Press <strong>Reveal the tricks</strong>
@@ -28,7 +28,7 @@
   </div>
 </div>
 
-<h2 class="section-title">The six in this shop</h2>
+<h2 class="section-title">The {{ tricks | length }} in this shop</h2>
 <div class="grid">
   {% for key, (name, why) in tricks.items() %}
   <article class="panel">
