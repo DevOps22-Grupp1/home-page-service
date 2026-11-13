@@ -22,7 +22,7 @@
           <li><a href="{{ url_for('about') }}">About</a></li>
           <li><a href="{{ url_for('server') }}">Status</a></li>
           {% if user["role"] == "admin" %}
-          <li><a href="{{ url_for('handle_products') }}">Admin</a></li>
+          <li><a href="{{ url_for('admin_dashboard') }}">Admin</a></li>
           {% endif %}
         </ul>
         <div class="tools">

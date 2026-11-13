@@ -8,6 +8,8 @@ from prometheus_flask_exporter import PrometheusMetrics
 import os
 import math
 import time
+import threading
+from collections import deque, Counter
 import xml.etree.ElementTree as ET
 from decimal import Decimal, ROUND_HALF_UP
 
@@ -543,7 +545,7 @@ def logout() -> tuple:
 @app.route("/admin-login/", methods=["GET"])
 def admin_login() -> tuple:
     if is_admin():
-        return redirect(url_for("handle_products"))
+        return redirect(url_for("admin_dashboard"))
     return render("admin-login.html", user=check_user_auth())
 
 
@@ -674,7 +676,7 @@ def post_product() -> tuple:
     if price is None:
         return "The price must be a number of euros, like 399.99.", 400
     img = request.form["images"]
-    cat = request.form["category"]
+    cat = request.form.get("category", "").strip() or "other"
     add_url = f"http://{product_catalog}:{product_port}/api/product"
 
     json_data = json.dumps(
@@ -1087,42 +1089,92 @@ def buy_products() -> tuple:
     return redirect(url_for("cart"))
 
 
+# ---------- Service status: response times and history ----------
+# Every probe asks each service's root and times it. The last 120 probes per service are kept in
+# memory (they start over when the app restarts). STATUS_SAMPLE_SECONDS > 0 starts a thread that
+# probes on its own, so the history fills without visitors; pages probe at most every 5 seconds.
+SERVICES = [
+    ("product-catalog-service", lambda: f"http://{product_catalog}:{product_port}"),
+    ("user-management-service", lambda: f"http://{user_management}:{user_port}"),
+    ("order-processing-service", lambda: f"http://{order_processing}:{order_port}"),
+]
+_status_history = {name: deque(maxlen=120) for name, _ in SERVICES}
+_status_lock = threading.Lock()
+_last_probe = [0.0]
+
+
+def probe_services(force: bool = False) -> None:
+    with _status_lock:
+        if not force and time.time() - _last_probe[0] < 5:
+            return
+        _last_probe[0] = time.time()
+    for name, url in SERVICES:
+        started = time.perf_counter()
+        try:
+            response = requests.get(url(), timeout=3)
+            text = response.text.strip().strip('"')
+            up = response.status_code == 200
+        except requests.exceptions.RequestException:
+            text, up = "Failed to fetch data", False
+        ms = round((time.perf_counter() - started) * 1000, 1)
+        with _status_lock:
+            _status_history[name].append({"at": time.time(), "up": up, "ms": ms, "text": text})
+
+
+def status_summary() -> list:
+    with _status_lock:
+        history = {name: list(samples) for name, samples in _status_history.items()}
+    summary = []
+    for name, _ in SERVICES:
+        samples = history[name]
+        last = samples[-1] if samples else {"up": False, "ms": None, "text": "Not checked yet"}
+        up_count = sum(1 for s in samples if s["up"])
+        summary.append({
+            "name": name,
+            # "status" keeps the classic template's check (== "Success") working
+            "status": "Success" if last["up"] else last["text"],
+            "up": last["up"],
+            "ms": last["ms"],
+            "uptime": round(100 * up_count / len(samples), 1) if samples else None,
+            "samples": len(samples),
+            "series": [s["ms"] if s["up"] else None for s in samples[-60:]],
+        })
+    return summary
+
+
+def sparkline(series: list, width: int = 240, height: int = 44) -> str:
+    """SVG points for the response times (None = down, a gap); scaled to the largest value."""
+    values = [v for v in series if v is not None]
+    if len(series) < 2 or not values:
+        return ""
+    top = max(values) or 1
+    step = width / (len(series) - 1)
+    return " ".join(
+        f"{i * step:.1f},{height - 2 - (v / top) * (height - 4):.1f}"
+        for i, v in enumerate(series) if v is not None
+    )
+
+
+def _sampler(every: float) -> None:
+    while True:
+        try:
+            probe_services(force=True)
+        except Exception:
+            pass
+        time.sleep(every)
+
+
+STATUS_SAMPLE_SECONDS = float(os.environ.get("STATUS_SAMPLE_SECONDS", "0") or 0)
+if STATUS_SAMPLE_SECONDS > 0:
+    threading.Thread(target=_sampler, args=(STATUS_SAMPLE_SECONDS,), daemon=True).start()
+
+
 @app.route("/server/")
 def server() -> tuple:
-
-    print(f"http://{product_catalog}:{product_port}", "product handling")
-    print(f"http://{user_management}:{user_port}", "user handling")
-    print(f"http://{order_processing}:{order_port}", "order processing")
-
-    r1 = r2 = r3 = "Failed to fetch data"
-    try:
-        res1 = requests.get(f"http://{product_catalog}:{product_port}")
-        if res1.status_code == 200:
-            r1 = res1.text
-    except requests.exceptions.RequestException as e:
-        r1 = "Failed to fetch data"
-
-    try:
-
-        res2 = requests.get(f"http://{user_management}:{user_port}")
-        if res2.status_code == 200:
-            r2 = res2.text
-    except requests.exceptions.RequestException as e:
-        r2 = "Failed to fetch data"
-
-    try:
-        res3 = requests.get(f"http://{order_processing}:{order_port}")
-        if res3.status_code == 200:
-            r3 = res3.text
-    except requests.exceptions.RequestException as e:
-        r3 = "Failed to fetch data"
-
-    status = [
-        {"name": "product-catalog-service", "status": r1},
-        {"name": "user-managament-service", "status": r2},
-        {"name": "order-processing-service", "status": r3},
-    ]
-
+    probe_services()
+    status = status_summary()
+    for service in status:
+        service["points"] = sparkline(service["series"])
     return render(
         "server.html",
         utc_dt=datetime.datetime.utcnow(),
@@ -1130,6 +1182,155 @@ def server() -> tuple:
         user=check_user_auth(),
         value=get_count_for_current_user(),
     )
+
+
+@app.route("/status.json")
+def status_json() -> tuple:
+    probe_services()
+    status = status_summary()
+    for service in status:
+        service["points"] = sparkline(service["series"])
+        del service["series"]
+    return jsonify({"checked": datetime.datetime.utcnow().strftime("%H:%M:%S"), "services": status})
+
+
+@app.route("/status/checks.json")
+def status_checks() -> tuple:
+    """Deeper checks than "does it answer": each one does what a page would need, timed."""
+    def timed(name, check):
+        started = time.perf_counter()
+        try:
+            ok, detail = check()
+        except Exception as e:
+            ok, detail = False, type(e).__name__
+        return {"name": name, "ok": ok, "detail": detail, "ms": round((time.perf_counter() - started) * 1000, 1)}
+
+    def products():
+        found = requests.get(f"http://{product_catalog}:{product_port}/api/products/1", timeout=5).json()
+        return isinstance(found, list) and len(found) > 0, f"{len(found)} products on page 1"
+
+    def accounts():
+        response = requests.get(f"http://{user_management}:{user_port}", timeout=5)
+        return response.status_code == 200, f"HTTP {response.status_code}"
+
+    def orders():
+        response = requests.get(f"http://{order_processing}:{order_port}", timeout=5)
+        return response.status_code == 200, f"HTTP {response.status_code}"
+
+    def rates():
+        date = exchange_rates()["date"]
+        if not date:
+            return False, "no ECB rates yet (fallback rates in use)"
+        age = (datetime.date.today() - datetime.date.fromisoformat(date)).days
+        return age <= 4, f"ECB rates of {date}"
+
+    checks = [
+        timed("Products load", products),
+        timed("Accounts answer", accounts),
+        timed("Orders answer", orders),
+        timed("Exchange rates are fresh", rates),
+    ]
+    return jsonify({"ok": all(c["ok"] for c in checks), "checks": checks})
+
+
+# ---------- The admin's dashboard ----------
+def sales_summary(orders: list, days: int = 14) -> dict:
+    """What the dashboard shows, from every order: totals, orders and revenue per day for the last
+    `days` days, orders per currency, the best sellers and how many kept the pre-ticked add-on."""
+    orders = [o for o in orders if isinstance(o, dict)]
+    today = datetime.date.today()
+    per_day = {(today - datetime.timedelta(days=n)).isoformat(): {"orders": 0, "revenue": Decimal("0")}
+               for n in range(days - 1, -1, -1)}
+    revenue = Decimal("0")
+    currencies, sellers = Counter(), Counter()
+    with_addon = 0
+    for order in orders:
+        amount = euro_amount(order.get("price")) or Decimal("0")
+        revenue += amount
+        day = str(order.get("time", ""))[:10]
+        if day in per_day:
+            per_day[day]["orders"] += 1
+            per_day[day]["revenue"] += amount
+        currencies[order.get("currency", "EUR")] += 1
+        for item in order.get("history") or []:
+            if isinstance(item, dict) and item.get("order"):
+                sellers[item["order"]] += 1
+        if order.get("extras"):
+            with_addon += 1
+    count = len(orders)
+    return {
+        "orders": count,
+        "revenue": revenue,
+        "average": (revenue / count).quantize(Decimal("0.01")) if count else Decimal("0"),
+        "addon_rate": round(100 * with_addon / count) if count else 0,
+        "with_addon": with_addon,
+        "per_day": [{"day": day, **values} for day, values in per_day.items()],
+        "currencies": currencies.most_common(),
+        "sellers": sellers.most_common(5),
+    }
+
+
+def bar_chart(per_day: list, width: int = 640, height: int = 180) -> dict:
+    """Bars for orders per day, as SVG geometry: one series, one axis, a label every few days."""
+    top = max([d["orders"] for d in per_day] + [1])
+    slot = width / len(per_day)
+    bar = max(slot - 6, 4)
+    bars = []
+    for i, d in enumerate(per_day):
+        # 18 px at the bottom for the day labels, 16 at the top for the tallest bar's number
+        h = (d["orders"] / top) * (height - 18 - 16)
+        bars.append({
+            "x": round(i * slot + (slot - bar) / 2, 1), "y": round(height - 18 - h, 1),
+            "w": round(bar, 1), "h": round(h, 1), "day": d["day"], "orders": d["orders"],
+            "revenue": d["revenue"], "label": d["day"][5:] if i % 3 == 0 or i == len(per_day) - 1 else "",
+        })
+    return {"width": width, "height": height, "top": top, "bars": bars}
+
+
+@app.route("/admin/")
+@admin_route
+def admin_dashboard() -> tuple:
+    try:
+        orders = requests.get(f"http://{order_processing}:{order_port}/api/orders", timeout=5).json()
+    except (requests.exceptions.RequestException, ValueError):
+        orders = []
+    summary = sales_summary(orders if isinstance(orders, list) else [])
+    try:
+        users = requests.get(f"http://{user_management}:{user_port}/api/users", timeout=5).json()
+        user_count = len(users) if isinstance(users, list) else None
+    except (requests.exceptions.RequestException, ValueError):
+        user_count = None
+    return render(
+        "admin.html",
+        summary=summary,
+        chart=bar_chart(summary["per_day"]),
+        user_count=user_count,
+        message=request.args.get("message", ""),
+        user=check_user_auth(),
+        value=get_count_for_current_user(),
+    )
+
+
+@app.route("/admin/users", methods=["POST"])
+@admin_route
+def admin_create_user() -> tuple:
+    """The admin makes a customer account (user-management-service makes every account one)."""
+    fields = {key: request.form.get(key, "").strip() for key in ("username", "name", "email", "password")}
+    if not all(fields.values()):
+        return redirect(url_for("admin_dashboard", message="All four fields are needed."))
+    avatar = request.form.get("avatar")
+    fields["avatar"] = avatar if avatar in AVATARS else AVATARS[0]
+    try:
+        response = requests.post(f"http://{user_management}:{user_port}/api/user", json=fields, timeout=5)
+    except requests.exceptions.RequestException:
+        return redirect(url_for("admin_dashboard", message="The account service did not answer."))
+    if response.status_code == 201:
+        return redirect(url_for("admin_dashboard", message=f"Account {fields['username']} created."))
+    try:
+        reason = response.json().get("message", "")
+    except (ValueError, AttributeError):
+        reason = ""
+    return redirect(url_for("admin_dashboard", message=f"Not created. {reason}".strip()))
 
 
 # Very important to disable debug mode

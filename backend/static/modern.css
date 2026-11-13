@@ -1364,3 +1364,217 @@ main {
     grid-template-columns: 1fr;
   }
 }
+
+/* ---------- Service status ---------- */
+
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+  gap: 22px;
+  margin-bottom: 8px;
+}
+
+.status-card {
+  margin-bottom: 0;
+}
+
+.status-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.status-top h2 {
+  margin: 0;
+  font-size: 17px;
+}
+
+.status-pill {
+  padding: 3px 12px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 14px;
+  background: var(--up-bg);
+  color: var(--status-text);
+  border: var(--border);
+}
+
+.is-down .status-pill {
+  background: var(--down-bg);
+}
+
+.status-ms {
+  margin: 12px 0 4px;
+  font-size: 15px;
+}
+
+.status-ms .ms {
+  font-size: 34px;
+  font-variant-numeric: tabular-nums;
+}
+
+.spark {
+  display: block;
+  width: 100%;
+  height: 48px;
+  color: var(--accent);
+}
+
+[data-style="clean"] .spark {
+  color: #e07800;
+}
+
+.is-down .spark {
+  color: var(--danger);
+}
+
+.status-uptime {
+  margin: 6px 0 0;
+  font-size: 14px;
+}
+
+.check-list {
+  list-style: none;
+  padding: 0;
+  margin: 14px 0 0;
+  font-weight: 700;
+}
+
+.check-list li {
+  padding: 4px 0;
+}
+
+.check-ok {
+  color: #15803d;
+}
+
+.check-fail {
+  color: var(--danger);
+}
+
+[data-style="dark"] .check-ok,
+[data-style="terminal"] .check-ok {
+  color: #4ade80;
+}
+
+/* ---------- Admin dashboard ---------- */
+
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr));
+  gap: 18px;
+  margin-bottom: 26px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+}
+
+.stat-label {
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.stat-value {
+  font-size: 30px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-note {
+  font-size: 13px;
+}
+
+.bars {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 8px 0 12px;
+}
+
+.bars-bar {
+  fill: var(--accent);
+}
+
+[data-style="clean"] .bars-bar {
+  fill: #ff9900;
+}
+
+.bars g:hover .bars-bar {
+  opacity: 0.75;
+}
+
+.bars-axis {
+  stroke: var(--border-color);
+  stroke-width: 1;
+}
+
+.bars-label,
+.bars-value {
+  font: 600 11px var(--font);
+  fill: var(--muted);
+}
+
+.bars-value {
+  fill: var(--card-text);
+}
+
+.data-table {
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.data-table th,
+.data-table td {
+  padding: 4px 14px 4px 0;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* ---------- Admin products ---------- */
+
+.admin-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
+  gap: 0 16px;
+  flex: 1;
+}
+
+.admin-products {
+  display: grid;
+  gap: 18px;
+}
+
+.admin-product {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  margin: 0;
+}
+
+.admin-product img {
+  object-fit: contain;
+  background: var(--img-bg);
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.admin-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+@media (max-width: 760px) {
+  .admin-product {
+    flex-direction: column;
+  }
+}
