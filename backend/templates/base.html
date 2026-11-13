@@ -57,7 +57,7 @@
       <a href="{{ url_for('about') }}" class="logo">About</a>
       <a href="{{ url_for('server') }}" class="logo">Server</a>
       {% if user["role"] == "admin" %}
-      <a href="{{ url_for('handle_products') }}" class="logo">Admin</a>
+      <a href="{{ url_for('admin_dashboard') }}" class="logo">Admin</a>
       <a href="{{ url_for('logout') }}" class="right logo">Logout</a>
       {% elif user["user"] != "false" %}
       <a href="{{ url_for('account') }}" class="logo" title="Your account"

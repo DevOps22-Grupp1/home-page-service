@@ -14,7 +14,7 @@
   const send = document.getElementById("send");
   const requestUrl = "{{ url_for('admin_login_request') }}";
   const statusUrl = "{{ url_for('admin_login_status') }}";
-  const doneUrl = "{{ url_for('handle_products') }}";
+  const doneUrl = "{{ url_for('admin_dashboard') }}";
 
   send.addEventListener("click", async () => {
     send.disabled = true;
