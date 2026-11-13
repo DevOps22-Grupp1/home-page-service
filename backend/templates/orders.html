@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+<div style="width: 85%; margin: auto; color: black">
+  <h1>{% block title %} My orders {% endblock %}</h1>
+  {% if not orders %}
+  <p>No orders yet.</p>
+  {% endif %}
+  {% for order in orders %}
+  <div style="padding: 10px; background-color: #e6f9ff; margin: 10px 0; border-radius: 15px">
+    <h3>Order #{{ order.id }} · {{ order.when }} · {{ order.shown_total }}</h3>
+    <ul>
+      {% for item in order.history or [] %}
+      <li>{{ item.order }}</li>
+      {% endfor %}
+      {% for extra in order.extras or [] %}
+      <li>{{ extra.name }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

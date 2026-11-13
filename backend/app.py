@@ -138,8 +138,22 @@ def money(euros) -> str:
     if amount is None:
         return str(euros)  # shown as stored rather than breaking the page
     code = current_currency()
+    return format_amount(to_currency(amount, code), code)
+
+
+@app.template_filter("euro")
+def euro(amount) -> str:
+    """A stored euro amount as it was paid, whatever currency the visitor has picked now."""
+    return format_amount(amount, "EUR")
+
+
+def format_amount(amount, code: str) -> str:
+    """An amount already in a currency, written the way that currency is: 4 479,89 kr."""
+    value = euro_amount(amount)
+    if value is None or code not in CURRENCIES:
+        return f"{amount} {code}"
     symbol, first, thousands, decimal = CURRENCIES[code]
-    whole, cents = f"{to_currency(amount, code):,.2f}".split(".")
+    whole, cents = f"{value:,.2f}".split(".")
     number = whole.replace(",", thousands) + decimal + cents
     return f"{symbol}{number}" if first else f"{number} {symbol}"
 
@@ -228,9 +242,48 @@ TRICKS = {
         "The way to say no is worded to make you feel silly, so saying yes feels like the "
         "sensible choice.",
     ),
+    "reviews": (
+        "Fake reviews",
+        "Every review is five stars, written by the shop's own robots and posted the same day. "
+        "Reviews you cannot trace to a real buyer tell you nothing.",
+    ),
 }
 PROTECTION_NAME = "Scam Protection Plus"
 PROTECTION_FEE = Decimal("4.99")
+
+# The robots who review everything (a trick: see "reviews" above). Each review is picked by the
+# product's id, so a product always shows the same ones.
+REVIEWERS = [
+    "Totally Real Customer", "Not A Bot 3000", "Human Person", "Verified Buyer*",
+    "Five Star Fan", "Satisfied Shopper", "Definitely Not Staff", "The CEO's Mom",
+]
+REVIEW_TEXTS = [
+    "Best purchase of my life. Would buy again, and again, and again.",
+    "Arrived in perfect condition, as far as I can tell. Five stars.",
+    "I was sceptical at first. Then I read the other reviews.",
+    "My whole family loves it. My whole family is also robots.",
+    "Customer service answered in under a nanosecond.",
+    "Cheaper than anywhere else, according to the struck-through price.",
+    "Exactly as described. I did not read the description.",
+    "I bought three. The countdown was very convincing.",
+]
+
+
+def reviews_for(product_id) -> list:
+    try:
+        seed = int(product_id)
+    except (TypeError, ValueError):
+        seed = 0
+    count = 3 + seed % 3
+    return [
+        {
+            "name": REVIEWERS[(seed + i * 3) % len(REVIEWERS)],
+            "avatar": AVATARS[(seed + i * 5) % len(AVATARS)],
+            "text": REVIEW_TEXTS[(seed * 2 + i) % len(REVIEW_TEXTS)],
+            "stars": 5,
+        }
+        for i in range(count)
+    ]
 
 
 def viewers_now(product_id) -> int:
@@ -793,6 +846,61 @@ def account_delete() -> tuple:
         return redirect(url_for("account", message="Could not delete the account. Try again."))
     clear_login()
     return redirect(url_for("get_login"))
+
+
+@app.route("/product/<int:product_id>/")
+def product_page(product_id: int) -> tuple:
+    try:
+        response = requests.get(f"http://{product_catalog}:{product_port}/api/product/{product_id}")
+        found = response.json() if response.status_code == 200 else []
+    except (requests.exceptions.RequestException, ValueError):
+        found = []
+    if not found:
+        abort(404)
+    product = found[0]
+    # "Customers also bought": others in the same category, at most four
+    related = []
+    try:
+        everything = requests.get(f"http://{product_catalog}:{product_port}/api/products/0").json()
+        categories = {c.strip() for c in product.get("category", [])}
+        related = [
+            p for p in everything
+            if p.get("id") != product.get("id") and categories & {c.strip() for c in p.get("category", [])}
+        ][:4]
+    except (requests.exceptions.RequestException, ValueError, TypeError, AttributeError):
+        related = []
+    return render(
+        "product.html",
+        product=product,
+        reviews=reviews_for(product.get("id")),
+        related=related,
+        today=datetime.date.today().isoformat(),
+        user=check_user_auth(),
+        value=get_count_for_current_user(),
+    )
+
+
+@app.route("/orders/")
+@customer_route
+def orders() -> tuple:
+    """The customer's own orders, newest first, in the currency each was paid in."""
+    user_id = current_customer()["id"]
+    try:
+        response = requests.get(f"http://{order_processing}:{order_port}/api/order-user/{user_id}")
+        found = response.json() if response.status_code == 200 else []
+    except (requests.exceptions.RequestException, ValueError):
+        found = []
+    if not isinstance(found, list):
+        found = []
+    found = sorted((o for o in found if isinstance(o, dict)), key=lambda o: o.get("id", 0), reverse=True)
+    for order in found:
+        # Orders from before the currencies were in euro only
+        order.setdefault("currency", "EUR")
+        if "price_in_currency" not in order:
+            order["price_in_currency"] = f"{euro_amount(order.get('price')) or Decimal('0'):.2f}"
+        order["shown_total"] = format_amount(order["price_in_currency"], order["currency"])
+        order["when"] = str(order.get("time", ""))[:16]
+    return render("orders.html", orders=found, user=check_user_auth(), value=get_count_for_current_user())
 
 
 @app.route("/about/")

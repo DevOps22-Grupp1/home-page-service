@@ -46,6 +46,7 @@
           <a class="me" href="{{ url_for('account') }}" title="Your account">
             <img src="{{ user['image'] }}" alt="" width="34" height="34" /><span>{{ user["user"] }}</span>
           </a>
+          <a class="plain" href="{{ url_for('orders') }}">My orders</a>
           <a class="cart" href="{{ url_for('cart') }}" aria-label="Cart, {{ value }} items">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.4 10.2a1 1 0 0 0 1 .8h8.9a1 1 0 0 0 1-.8L20 8H6.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="19" r="1.6" fill="currentColor"/><circle cx="17" cy="19" r="1.6" fill="currentColor"/></svg>
             <span class="count">{{ value }}</span>

@@ -6,11 +6,11 @@
 {% set amount = product.price | float(0) %}
 <article class="card">
   <span class="sticker sticker-{{ n }}" {% if n == 3 %}data-trick="scarcity"{% endif %}>{{ stickers[n] }}</span>
-  <div class="card-img">
+  <a class="card-img" href="{{ url_for('product_page', product_id=product.id | int(0)) }}" tabindex="-1" aria-hidden="true">
     <img src="{{ product.image }}" alt="" loading="lazy" />
-  </div>
+  </a>
   <div class="card-body">
-    <h3 class="card-name">{{ product.order }}</h3>
+    <h3 class="card-name"><a href="{{ url_for('product_page', product_id=product.id | int(0)) }}">{{ product.order }}</a></h3>
     <p class="card-cat">{{ product.category | join(" · ") }}</p>
     <p class="price">
       {{ product.price | money }}{% if amount > 0 %}<span class="was" data-trick="anchor">{{ (amount * 3) | money }}</span>{% endif %}
