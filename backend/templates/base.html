@@ -60,7 +60,7 @@
       <a href="{{ url_for('logout') }}" class="right logo">Logout</a>
       {% elif user["user"] != "false" %}
       <a href="{{ url_for('logout') }}" class="logo"
-        >Logout: {% if user["image"] %}<img src="{{user["image"]}}" alt="myface"></img>{% endif %} {{ user["user"]}} </a
+        >Logout: <img src="{{ user["image"] }}" alt="" width="30" height="30" style="vertical-align: middle; border-radius: 6px"> {{ user["user"]}} </a
       >
       <a href="{{ url_for('cart') }}" class="right logo"
         ><i style="color: white" class="fa badge" value="{{value}}"

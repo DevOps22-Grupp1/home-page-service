@@ -183,3 +183,49 @@ a {
 .foot-lnk {
     text-align: center;
 }
+/* The public demo account, on the sign-in tab */
+.login-form .demo-hint {
+    color: #ccc;
+    font-size: 13px;
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+
+.login-form .demo-hint strong {
+    color: #ff9900;
+}
+
+/* Sign-up: pick one of the robots; the radio button itself is hidden, the picture is the choice */
+.login-form .avatar-picker {
+    border: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.login-form .avatar-picker legend {
+    width: 100%;
+    margin-bottom: 6px;
+}
+
+.login-form .avatar-picker input {
+    position: absolute;
+    opacity: 0;
+}
+
+.login-form .avatar-picker img {
+    display: block;
+    border-radius: 8px;
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    cursor: pointer;
+}
+
+.login-form .avatar-picker input:checked + img {
+    outline-color: #ff9900;
+}
+
+.login-form .avatar-picker input:focus-visible + img {
+    outline-color: #fff;
+}

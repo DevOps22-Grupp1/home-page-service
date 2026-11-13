@@ -47,6 +47,23 @@ app.config["SESSION_COOKIE_SECURE"] = os.environ.get("COOKIE_SECURE") == "1"
 N8N_WEBHOOK_URL = os.environ.get("N8N_WEBHOOK_URL", "https://jarllindquist.com/n8n/webhook")
 MAGIC_LINK_APP = os.environ.get("MAGIC_LINK_APP", "scamazon-admin")
 
+# The avatars a customer picks from at sign-up, in static/avatars/ (drawn by tools/avatars/).
+# Only these names are stored; an image from another site would load on every page.
+AVATARS = [f"avatar-{n}.svg" for n in range(1, 9)]
+# The public demo account (user-management-service creates it); the login page shows it
+DEMO_USERNAME = os.environ.get("DEMO_USERNAME", "")
+DEMO_PASSWORD = os.environ.get("DEMO_PASSWORD", "")
+
+
+def avatar_url(name: str) -> str:
+    """Older accounts hold a URL from anywhere; they get the first avatar instead."""
+    return url_for("static", filename="avatars/" + (name if name in AVATARS else AVATARS[0]))
+
+
+@app.context_processor
+def login_page_values() -> dict:
+    return {"avatars": AVATARS, "demo_username": DEMO_USERNAME, "demo_password": DEMO_PASSWORD}
+
 metrics = PrometheusMetrics(app)
 metrics.info("app_info", "home-page-service", version="1.0.1")
 
@@ -143,7 +160,7 @@ def check_user_auth() -> dict:
     """What the templates need: user is the name, or "false" when nobody is logged in."""
     customer = current_customer()
     if customer:
-        return {"user": customer["username"], "role": "customer", "image": customer["avatar"]}
+        return {"user": customer["username"], "role": "customer", "image": avatar_url(customer["avatar"])}
     if is_admin():
         return {"user": "admin", "role": "admin", "image": ""}
     return {"user": "false", "role": "", "image": ""}
@@ -416,7 +433,9 @@ def post_login() -> tuple:
         name = request.form["name"]
         passw = request.form["pass"]
         email = request.form["email"]
-        avatar = request.form["avatar"]
+        avatar = request.form.get("avatar")
+        if avatar not in AVATARS:
+            avatar = AVATARS[0]
         # No role: user-management-service makes every new account a customer
         json_data = json.dumps(
             {
