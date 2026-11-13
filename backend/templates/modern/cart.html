@@ -20,9 +20,18 @@
   {% endif %}
 </div>
 {% if products %}
-<div class="panel total">
-  <span>Total: {{ price | money }}</span>
-  <a class="btn" href="{{ url_for('buy_products') }}">Pay {{ price | money }}</a>
-</div>
+<form class="panel total" method="POST" action="{{ url_for('buy_products') }}">
+  <div class="checkout-extras">
+    <label class="addon" data-trick="preselected">
+      <input type="checkbox" name="protection" id="protection" checked
+        onchange="var t = document.getElementById('total'); t.textContent = this.checked ? t.dataset.with : t.dataset.without" />
+      Keep me safe with {{ protection_name }} ({{ protection_fee | money }})
+    </label>
+    <button class="shame" type="button" data-trick="confirmshaming"
+      onclick="var c = document.getElementById('protection'); c.checked = false; c.onchange()">I'm fine with getting scammed</button>
+  </div>
+  <span>Total: <span id="total" data-with="{{ (price + protection_fee) | money }}" data-without="{{ price | money }}">{{ (price + protection_fee) | money }}</span></span>
+  <button class="btn" type="submit">Pay</button>
+</form>
 {% endif %}
 {% endblock %}

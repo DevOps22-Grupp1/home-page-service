@@ -1,0 +1,40 @@
+{% extends 'modern/base.html' %}
+{% block title %}The tricks{% endblock %}
+{% block content %}
+<h1 class="page-title">The tricks, explained</h1>
+<div class="two-col">
+  <div class="panel">
+    <h2>Why a shop full of tricks?</h2>
+    <p>Scamazon uses a handful of <strong>dark patterns</strong>: design that nudges you into doing
+      what the shop wants rather than what you meant to do. Real shops use the same ones, usually
+      less obviously.</p>
+    <p>Here they are on purpose, so you can see them work. Press <strong>Reveal the tricks</strong>
+      in the menu and every trick on a page gets a dashed red outline and a number.</p>
+    <form method="POST" action="{{ url_for('toggle_tricks') }}">
+      <input type="hidden" name="next" value="/products/" />
+      <button class="btn" type="submit">{{ "Hide the tricks" if reveal else "Reveal them in the shop" }}</button>
+    </form>
+  </div>
+  <div class="panel">
+    <h2>How to spot them</h2>
+    <ul>
+      <li>A countdown that never seems to end, or starts over when you reload.</li>
+      <li>Numbers about other shoppers that you cannot check.</li>
+      <li>A "was" price you never saw the product sell for.</li>
+      <li>Ticked boxes you did not tick, and costs that appear at the end.</li>
+      <li>A "no" that is worded to make you feel silly.</li>
+    </ul>
+    <p class="muted">Names from the catalogue at <a href="https://www.deceptive.design/types">deceptive.design</a>.</p>
+  </div>
+</div>
+
+<h2 class="section-title">The six in this shop</h2>
+<div class="grid">
+  {% for key, (name, why) in tricks.items() %}
+  <article class="panel">
+    <h3>{{ loop.index }}. {{ name }}</h3>
+    <p>{{ why }}</p>
+  </article>
+  {% endfor %}
+</div>
+{% endblock %}

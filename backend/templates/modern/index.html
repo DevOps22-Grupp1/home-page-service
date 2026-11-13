@@ -6,6 +6,7 @@
     <h1>Unbelievable prices. <em>Unbeatable scams.</em></h1>
     <p>Discover the ultimate shopping experience: amazing deals, exclusive products and a team of
       robots who would never, ever overcharge you.</p>
+    <p class="deadline" data-trick="countdown">Today's deals end in <span class="countdown" data-seconds="299">04:59</span></p>
     <a class="btn" href="{{ url_for('products') }}">Shop the deals</a>
     {% if user["user"] == "false" %}
     <p class="muted">Just looking? Log in as <strong>{{ demo_username or "a customer" }}</strong>{% if demo_password %} with the password <strong>{{ demo_password }}</strong>{% endif %} to fill a cart.</p>

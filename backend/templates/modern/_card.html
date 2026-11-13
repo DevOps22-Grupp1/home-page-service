@@ -1,10 +1,11 @@
-{# One product card. The sticker and the "was" price are part of the joke: picked by the product's
-   id so a product always gets the same one, and the "was" price is simply three times the price. #}
+{# One product card. The sticker, the "was" price and the viewers line are dark patterns on
+   purpose (data-trick, explained by "Reveal the tricks"): the sticker is picked by the product's
+   id, the "was" price is simply three times the price, the viewers are made up. #}
 {% set stickers = ["-90%!!", "HOT", "TOO GOOD TO BE TRUE", "LAST ONE*"] %}
 {% set n = (product.id | int(0)) % 4 %}
 {% set amount = product.price | float(0) %}
 <article class="card">
-  <span class="sticker sticker-{{ n }}">{{ stickers[n] }}</span>
+  <span class="sticker sticker-{{ n }}" {% if n == 3 %}data-trick="scarcity"{% endif %}>{{ stickers[n] }}</span>
   <div class="card-img">
     <img src="{{ product.image }}" alt="" loading="lazy" />
   </div>
@@ -12,8 +13,9 @@
     <h3 class="card-name">{{ product.order }}</h3>
     <p class="card-cat">{{ product.category | join(" · ") }}</p>
     <p class="price">
-      {{ product.price | money }}{% if amount > 0 %}<span class="was">{{ (amount * 3) | money }}</span>{% endif %}
+      {{ product.price | money }}{% if amount > 0 %}<span class="was" data-trick="anchor">{{ (amount * 3) | money }}</span>{% endif %}
     </p>
+    <p class="viewers" data-trick="viewers">👀 {{ viewers_now(product.id) }} people are viewing this</p>
     {% if user["role"] == "customer" %}
     <a class="btn btn-small" href="{{ url_for('buy', id=product.id, page=current_page or 1) }}">Grab it</a>
     {% endif %}

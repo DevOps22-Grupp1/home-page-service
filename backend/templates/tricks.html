@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<div style="max-width: 760px; margin: auto; color: black">
+  <h1>{% block title %} The tricks {% endblock %}</h1>
+  <p>
+    The newer designs of Scamazon use a handful of dark patterns on purpose: design that nudges
+    you into doing what the shop wants. The 2023 design has none of them; pick Playful, Dark or
+    Clean under Design (bottom right) and press "Reveal the tricks" to see them.
+  </p>
+  <ol>
+    {% for key, (name, why) in tricks.items() %}
+    <li><strong>{{ name }}.</strong> {{ why }}</li>
+    {% endfor %}
+  </ol>
+</div>
+{% endblock %}
