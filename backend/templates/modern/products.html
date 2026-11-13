@@ -2,6 +2,7 @@
 {% block title %}Deals{% endblock %}
 {% block content %}
 <h1 class="page-title">All the deals</h1>
+<p class="deadline" data-trick="countdown">Prices go up in <span class="countdown" data-seconds="299">04:59</span></p>
 {% if products == "Failed to fetch data" %}
 <p class="panel">The deals are hiding right now (the product service did not answer). Try again in a moment.</p>
 {% else %}

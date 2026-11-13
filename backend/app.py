@@ -165,11 +165,11 @@ def set_currency() -> tuple:
     return back_to_page()
 
 
-# Four designs on the same app. Playful, dark and clean share the templates in templates/modern/
+# Five designs on the same app. Playful, dark, clean and terminal share the templates in templates/modern/
 # and differ in modern.css only (data-style on <body>); classic is templates/, the group's 2023
 # design with what was added since. A page the modern templates do not have yet is shown in the
 # classic one.
-THEMES = {"playful": "Playful", "dark": "Dark", "clean": "Clean", "classic": "Classic (2023)"}
+THEMES = {"playful": "Playful", "dark": "Dark", "clean": "Clean", "terminal": "Terminal", "classic": "Classic (2023)"}
 THEME_ALIASES = {"new": "playful"}  # the name the first new design had
 DEFAULT_THEME = THEME_ALIASES.get(os.environ.get("DEFAULT_THEME", ""), os.environ.get("DEFAULT_THEME", ""))
 if DEFAULT_THEME not in THEMES:
@@ -193,6 +193,75 @@ def render(name: str, **context) -> str:
 @app.context_processor
 def theme_values() -> dict:
     return {"theme": current_theme(), "themes": THEMES}
+
+
+# The dark patterns the modern designs use on purpose, and what "Reveal the tricks" says about
+# each. The pages mark them with data-trick="<key>"; /tricks/ explains them all.
+TRICKS = {
+    "countdown": (
+        "False urgency",
+        "The countdown starts over every time the page loads. Nothing ends: the clock is there "
+        "to rush you past comparing prices.",
+    ),
+    "viewers": (
+        "Fake social proof",
+        "The number of people \"viewing this\" is made up; it changes with the minute. Other "
+        "people's interest makes a thing feel worth having.",
+    ),
+    "scarcity": (
+        "False scarcity",
+        "\"LAST ONE*\" on a product that never sells out. Fear of missing out beats a careful "
+        "decision.",
+    ),
+    "anchor": (
+        "Fake reference price",
+        "The struck-through price is simply three times the real one. A big \"was\" price makes "
+        "any price look like a bargain.",
+    ),
+    "preselected": (
+        "Sneak into basket",
+        "The add-on is ticked before you look, and it is added to the order. Opt-out extras rely "
+        "on you not reading every line.",
+    ),
+    "confirmshaming": (
+        "Confirmshaming",
+        "The way to say no is worded to make you feel silly, so saying yes feels like the "
+        "sensible choice.",
+    ),
+}
+PROTECTION_NAME = "Scam Protection Plus"
+PROTECTION_FEE = Decimal("4.99")
+
+
+def viewers_now(product_id) -> int:
+    """The made-up "people viewing this": the same for a product within a minute."""
+    try:
+        seed = int(product_id)
+    except (TypeError, ValueError):
+        seed = 0
+    return 3 + (seed * 7 + int(time.time() // 60)) % 23
+
+
+@app.context_processor
+def trick_values() -> dict:
+    return {
+        "tricks": TRICKS,
+        "reveal": session.get("reveal", False),
+        "viewers_now": viewers_now,
+        "protection_name": PROTECTION_NAME,
+        "protection_fee": PROTECTION_FEE,
+    }
+
+
+@app.route("/tricks", methods=["POST"])
+def toggle_tricks() -> tuple:
+    session["reveal"] = not session.get("reveal", False)
+    return back_to_page()
+
+
+@app.route("/tricks/")
+def tricks_page() -> tuple:
+    return render("tricks.html", user=check_user_auth(), value=get_count_for_current_user())
 
 
 @app.route("/theme", methods=["POST"])
@@ -266,9 +335,9 @@ def admin_route(view):
 
 
 def clear_login() -> None:
-    """Forgets who is logged in (a fresh session), but keeps the visitor's choices: the design
-    and the currency are not part of anyone's login."""
-    kept = {key: session[key] for key in ("theme", "currency") if key in session}
+    """Forgets who is logged in (a fresh session), but keeps the visitor's choices: design,
+    currency and whether the tricks are revealed are not part of anyone's login."""
+    kept = {key: session[key] for key in ("theme", "currency", "reveal") if key in session}
     session.clear()
     session.update(kept)
 
@@ -851,17 +920,20 @@ def handle_category_product() -> tuple:
         return redirect(url_for("products"))
 
 
-@app.route("/payment", methods=["GET"])
+@app.route("/payment", methods=["GET", "POST"])
 @customer_route
 def buy_products() -> tuple:
     data = []
     price = Decimal("0")
     user_id = current_customer()["id"]
-    request = requests.get(
+    # The modern cart posts its form with the pre-ticked add-on (a dark pattern, see TRICKS);
+    # the classic cart's plain link pays without it
+    protection = request.method == "POST" and request.form.get("protection") == "on"
+    cart_response = requests.get(
         f"http://{order_processing}:{order_port}/api/cart-user/{user_id}"
     )
 
-    respjson = json.loads(request.text)
+    respjson = json.loads(cart_response.text)
     if not respjson:
         return redirect(url_for("cart"))  # nothing to pay for
     for prod in respjson:
@@ -874,11 +946,16 @@ def buy_products() -> tuple:
         prodjson[0]["order_id"] = id
         price = price + (euro_amount(prodjson[0]["price"]) or Decimal("0"))
         data.append(prodjson[0])
+    extras = []
+    if protection:
+        price = price + PROTECTION_FEE
+        extras.append({"name": PROTECTION_NAME, "price": float(PROTECTION_FEE)})
 
     json_data = json.dumps(
         {
             "userid": int(user_id),
             "history": data,
+            "extras": extras,
             "time": str(datetime.datetime.now()),
             # The total in euro, as before, and what the customer saw and paid in
             "price": float(price),
