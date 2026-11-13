@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{% block title %}{% endblock %} · Scamazon™</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='modern.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='design-switch.css') }}" />
     <link rel="icon" type="image/ico" href="{{ url_for('static', filename='favicon.ico') }}" />
     {% include '_social.html' %}
   </head>
-  <body>
+  <body data-style="{{ theme }}">
     <a class="skip" href="#main">Skip to the deals</a>
     <header class="top">
       <nav class="nav" aria-label="Main">
@@ -84,13 +85,10 @@
       </div>
       <div>
         <p class="foot-title">Design</p>
-        <p>Miss 2023? The shop's first design is still here.</p>
-        <form method="POST" action="{{ url_for('set_theme') }}">
-          <input type="hidden" name="next" value="{{ request.full_path.rstrip('?') }}" />
-          <input type="hidden" name="theme" value="classic" />
-          <button class="btn btn-small btn-ghost" type="submit">Switch to the classic design</button>
-        </form>
+        <p>Same shop, four looks. Classic is the group's first design from 2023.</p>
+        <p>Pick one with <strong>Design</strong> at the bottom right.</p>
       </div>
     </footer>
+    {% include '_design_switch.html' %}
   </body>
 </html>

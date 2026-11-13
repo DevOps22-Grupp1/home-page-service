@@ -165,34 +165,40 @@ def set_currency() -> tuple:
     return back_to_page()
 
 
-# Two designs on the same app: "new" (templates/modern/, the default) and "classic" (templates/,
-# the group's 2023 design with what was added since). A page the new design does not have yet
-# is shown in the classic one.
-THEMES = ("new", "classic")
-DEFAULT_THEME = os.environ.get("DEFAULT_THEME", "new") if os.environ.get("DEFAULT_THEME") in THEMES else "new"
+# Four designs on the same app. Playful, dark and clean share the templates in templates/modern/
+# and differ in modern.css only (data-style on <body>); classic is templates/, the group's 2023
+# design with what was added since. A page the modern templates do not have yet is shown in the
+# classic one.
+THEMES = {"playful": "Playful", "dark": "Dark", "clean": "Clean", "classic": "Classic (2023)"}
+THEME_ALIASES = {"new": "playful"}  # the name the first new design had
+DEFAULT_THEME = THEME_ALIASES.get(os.environ.get("DEFAULT_THEME", ""), os.environ.get("DEFAULT_THEME", ""))
+if DEFAULT_THEME not in THEMES:
+    DEFAULT_THEME = "playful"
 MODERN_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates", "modern")
 MODERN_PAGES = set(os.listdir(MODERN_DIR)) if os.path.isdir(MODERN_DIR) else set()
 
 
 def current_theme() -> str:
     theme = session.get("theme", DEFAULT_THEME)
+    theme = THEME_ALIASES.get(theme, theme)
     return theme if theme in THEMES else DEFAULT_THEME
 
 
 def render(name: str, **context) -> str:
-    if current_theme() == "new" and name in MODERN_PAGES:
+    if current_theme() != "classic" and name in MODERN_PAGES:
         name = "modern/" + name
     return render_template(name, **context)
 
 
 @app.context_processor
 def theme_values() -> dict:
-    return {"theme": current_theme()}
+    return {"theme": current_theme(), "themes": THEMES}
 
 
 @app.route("/theme", methods=["POST"])
 def set_theme() -> tuple:
     theme = request.form.get("theme", "")
+    theme = THEME_ALIASES.get(theme, theme)
     if theme in THEMES:
         session["theme"] = theme
     return back_to_page()
@@ -322,7 +328,7 @@ def check_user_auth() -> dict:
 @app.route("/")
 def index() -> tuple:
     # The fade-in intro belongs to the classic design; the new one opens on the shop
-    if current_theme() == "new":
+    if current_theme() != "classic":
         return redirect(url_for("hello"))
     return render("landing.html")
 

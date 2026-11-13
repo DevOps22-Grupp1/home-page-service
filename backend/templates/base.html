@@ -29,6 +29,7 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='navbar.css') }}"
     />
+    <link rel="stylesheet" href="{{ url_for('static', filename='design-switch.css') }}" />
     <link
       rel="stylesheet"
       type="text/css"
@@ -75,12 +76,6 @@
         >Login</a
       >
       {% endif %}
-      <!-- Back to the new design (this is the classic one) -->
-      <form class="currency" method="POST" action="{{ url_for('set_theme') }}">
-        <input type="hidden" name="next" value="{{ request.full_path.rstrip('?') }}" />
-        <input type="hidden" name="theme" value="new" />
-        <button type="submit" class="theme-switch">New design</button>
-      </form>
       <!-- The currency prices are shown in (stored in euro, converted at the ECB rate) -->
       <form class="currency" method="POST" action="{{ url_for('set_currency') }}">
         <input type="hidden" name="next" value="{{ request.full_path.rstrip('?') }}" />
@@ -207,5 +202,6 @@
         }
       }
     </script>
+    {% include '_design_switch.html' %}
   </body>
 </html>

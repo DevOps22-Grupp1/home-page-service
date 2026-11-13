@@ -7,6 +7,7 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='landing.css') }}"
     />
+    <link rel="stylesheet" href="{{ url_for('static', filename='design-switch.css') }}" />
     <link
       rel="icon"
       type="image/ico"
@@ -28,5 +29,6 @@
       </h1>
       <a href="{{ url_for('hello') }}"><button class="button">Store</button></a>
     </div>
+    {% include '_design_switch.html' %}
   </body>
 </html>

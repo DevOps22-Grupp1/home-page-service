@@ -1,30 +1,211 @@
-/* Scamazon's new design: loud on purpose. Orange and black, thick borders and offset shadows,
-   stickers that promise too much. The classic design (base.css and friends) is untouched. */
+/* The three modern designs share templates/modern/ and this file. <body data-style="..."> picks
+   one; everything that differs is a variable below:
+   - playful: loud on purpose. Orange and black, thick borders, offset shadows, stickers.
+   - dark:    navy like jarllindquist.com, cyan and teal, soft glow.
+   - clean:   a calm, light shop; orange only as the accent.
+   The classic design (base.css and friends) does not use this file. */
 
-:root {
-  --ink: #111111;
-  --paper: #fff8ec;
-  --card: #ffffff;
-  --orange: #ff9900;
-  --orange-deep: #e07800;
-  --hot: #ff3d57;
-  --sun: #ffd23f;
-  --mint: #2dd4bf;
+/* ---------- Playful (the default values) ---------- */
+:root,
+[data-style="playful"] {
+  --bg: #fff8ec;
+  --text: #111111;
   --muted: #5b5b5b;
-  --line: 3px solid var(--ink);
-  --shadow: 6px 6px 0 var(--ink);
+  --card: #ffffff;
+  --card-text: #111111;
+  --img-bg: #ffffff;
+  --border-color: #111111;
+  --border: 3px solid var(--border-color);
   --radius: 14px;
+  --shadow: 6px 6px 0 #111111;
+  --shadow-small: 4px 4px 0 #111111;
+  --shadow-hover: 6px 6px 0 #111111;
+  --nav-bg: #111111;
+  --nav-text: #ffffff;
+  --nav-muted: #dddddd;
+  --accent: #ff9900;
+  --accent-text: #111111;
+  --btn-bg: #ff9900;
+  --btn-text: #111111;
+  --btn-border: 3px solid #111111;
+  --ghost-bg: #ffffff;
+  --ghost-text: #111111;
+  --danger: #ff3d57;
+  --ticker-bg: #ff9900;
+  --ticker-text: #111111;
+  --ticker-border: 3px solid #111111;
+  --ticker-size: 14px;
+  --highlight-bg: #ffd23f;
+  --highlight-text: #111111;
+  --highlight-border: 3px solid #111111;
+  --highlight-rotate: -2deg;
+  --title-transform: uppercase;
+  --title-weight: 900;
+  --hero-size: clamp(40px, 7vw, 84px);
+  --sticker-rotate: 6deg;
+  --sticker-border: 3px solid #111111;
+  --sticker-shadow: 3px 3px 0 #111111;
+  --sticker-0: #ff3d57;
+  --sticker-0-text: #ffffff;
+  --sticker-1: #ffd23f;
+  --sticker-2: #2dd4bf;
+  --sticker-3: #ffffff;
+  --sticker-text: #111111;
+  --card-tilt: -0.4deg;
+  --bot-tilt: 1;
+  --field-bg: #ffffff;
+  --field-text: #111111;
+  --focus: #ff3d57;
+  --message-bg: #ffd23f;
+  --message-text: #111111;
+  --up-bg: #c9f7e5;
+  --down-bg: #ffd1d8;
+  --status-text: #111111;
+  --foot-bg: #111111;
+  --foot-text: #dddddd;
+  --foot-strong: #ffffff;
+  --foot-accent: #ff9900;
   --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ---------- Dark: like the portfolio ---------- */
+[data-style="dark"] {
+  --bg: #0f172a;
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --card: #1e293b;
+  --card-text: #f1f5f9;
+  --img-bg: #ffffff;
+  --border-color: rgba(148, 163, 184, 0.25);
+  --border: 1px solid var(--border-color);
+  --radius: 16px;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --shadow-small: 0 4px 14px rgba(56, 189, 248, 0.25);
+  --shadow-hover: 0 14px 34px rgba(56, 189, 248, 0.2);
+  --nav-bg: #0b1222;
+  --nav-text: #f1f5f9;
+  --nav-muted: #94a3b8;
+  --accent: #38bdf8;
+  --accent-text: #0f172a;
+  --btn-bg: linear-gradient(90deg, #38bdf8, #2dd4bf);
+  --btn-text: #0f172a;
+  --btn-border: 0 solid transparent;
+  --ghost-bg: #0f172a;
+  --ghost-text: #e2e8f0;
+  --danger: #f43f5e;
+  --ticker-bg: #111c33;
+  --ticker-text: #7dd3fc;
+  --ticker-border: 1px solid rgba(148, 163, 184, 0.2);
+  --ticker-size: 12px;
+  --highlight-bg: transparent;
+  --highlight-text: #2dd4bf;
+  --highlight-border: 0 solid transparent;
+  --highlight-rotate: 0deg;
+  --title-transform: none;
+  --title-weight: 800;
+  --hero-size: clamp(38px, 6vw, 72px);
+  --sticker-rotate: 0deg;
+  --sticker-border: 1px solid rgba(255, 255, 255, 0.15);
+  --sticker-shadow: none;
+  --sticker-0: #f43f5e;
+  --sticker-0-text: #ffffff;
+  --sticker-1: #fbbf24;
+  --sticker-2: #2dd4bf;
+  --sticker-3: #e2e8f0;
+  --sticker-text: #0f172a;
+  --card-tilt: 0deg;
+  --bot-tilt: 0;
+  --field-bg: #0f172a;
+  --field-text: #f1f5f9;
+  --focus: #fbbf24;
+  --message-bg: #12324a;
+  --message-text: #e0f2fe;
+  --up-bg: #0f3d33;
+  --down-bg: #4c1d2a;
+  --status-text: #f1f5f9;
+  --foot-bg: #0b1222;
+  --foot-text: #94a3b8;
+  --foot-strong: #f1f5f9;
+  --foot-accent: #38bdf8;
+}
+
+/* ---------- Clean: a calm, light shop ---------- */
+[data-style="clean"] {
+  --bg: #f6f7f9;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --card: #ffffff;
+  --card-text: #111827;
+  --img-bg: #ffffff;
+  --border-color: #e5e7eb;
+  --border: 1px solid var(--border-color);
+  --radius: 12px;
+  --shadow: 0 1px 3px rgba(17, 24, 39, 0.08);
+  --shadow-small: 0 1px 2px rgba(17, 24, 39, 0.1);
+  --shadow-hover: 0 10px 24px rgba(17, 24, 39, 0.12);
+  --nav-bg: #ffffff;
+  --nav-text: #111827;
+  --nav-muted: #4b5563;
+  --accent: #e07800;
+  --accent-text: #ffffff;
+  --btn-bg: #ff9900;
+  --btn-text: #111827;
+  --btn-border: 0 solid transparent;
+  --ghost-bg: #ffffff;
+  --ghost-text: #1f2937;
+  --danger: #dc2626;
+  --ticker-bg: #fff7ed;
+  --ticker-text: #9a4b00;
+  --ticker-border: 1px solid #fde4c4;
+  --ticker-size: 12px;
+  --highlight-bg: transparent;
+  --highlight-text: #e07800;
+  --highlight-border: 0 solid transparent;
+  --highlight-rotate: 0deg;
+  --title-transform: none;
+  --title-weight: 800;
+  --hero-size: clamp(36px, 5.5vw, 64px);
+  --sticker-rotate: 0deg;
+  --sticker-border: 0 solid transparent;
+  --sticker-shadow: none;
+  --sticker-0: #dc2626;
+  --sticker-0-text: #ffffff;
+  --sticker-1: #fef3c7;
+  --sticker-2: #d1fae5;
+  --sticker-3: #f3f4f6;
+  --sticker-text: #111827;
+  --card-tilt: 0deg;
+  --bot-tilt: 0;
+  --field-bg: #ffffff;
+  --field-text: #111827;
+  --focus: #e07800;
+  --message-bg: #fff7ed;
+  --message-text: #7c2d12;
+  --up-bg: #ecfdf5;
+  --down-bg: #fef2f2;
+  --status-text: #111827;
+  --foot-bg: #111827;
+  --foot-text: #9ca3af;
+  --foot-strong: #f9fafb;
+  --foot-accent: #ff9900;
 }
 
 * {
   box-sizing: border-box;
 }
 
+html {
+  height: 100%;
+}
+
+/* The footer sits at the bottom even on a short page: header, main (grows), footer */
 body {
   margin: 0;
-  background: var(--paper);
-  color: var(--ink);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text);
   font-family: var(--font);
   font-size: 17px;
   line-height: 1.5;
@@ -57,18 +238,20 @@ h3 {
   position: absolute;
   left: -999px;
   top: 8px;
-  background: var(--sun);
+  background: var(--highlight-bg);
+  color: var(--text);
   padding: 8px 12px;
-  border: var(--line);
+  border: var(--border);
   z-index: 10;
 }
 
 .skip:focus {
   left: 8px;
+  background: var(--card);
 }
 
 :focus-visible {
-  outline: 3px solid var(--hot);
+  outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
 
@@ -79,15 +262,15 @@ h3 {
   align-items: center;
   gap: 8px;
   padding: 12px 22px;
-  background: var(--orange);
-  color: var(--ink);
-  border: var(--line);
+  background: var(--btn-bg);
+  color: var(--btn-text);
+  border: var(--btn-border);
   border-radius: 999px;
-  box-shadow: 4px 4px 0 var(--ink);
+  box-shadow: var(--shadow-small);
   font: inherit;
-  font-weight: 900;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: var(--title-transform);
   text-decoration: none;
   cursor: pointer;
   transition: transform 0.08s, box-shadow 0.08s;
@@ -95,12 +278,11 @@ h3 {
 
 .btn:hover {
   transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0 var(--ink);
+  box-shadow: var(--shadow-hover);
 }
 
 .btn:active {
-  transform: translate(3px, 3px);
-  box-shadow: 1px 1px 0 var(--ink);
+  transform: translate(2px, 2px);
 }
 
 .btn-small {
@@ -109,11 +291,13 @@ h3 {
 }
 
 .btn-ghost {
-  background: var(--card);
+  background: var(--ghost-bg);
+  color: var(--ghost-text);
+  border: var(--border);
 }
 
 .btn-danger {
-  background: var(--hot);
+  background: var(--danger);
   color: #fff;
 }
 
@@ -131,8 +315,9 @@ h3 {
   gap: 24px;
   flex-wrap: wrap;
   padding: 10px 24px;
-  background: var(--ink);
-  color: #fff;
+  background: var(--nav-bg);
+  color: var(--nav-text);
+  border-bottom: var(--border);
 }
 
 .brand {
@@ -147,12 +332,16 @@ h3 {
 
 .brand svg {
   width: 40px;
-  color: var(--orange);
+  color: var(--accent);
+}
+
+[data-style="clean"] .brand svg {
+  color: #ff9900;
 }
 
 .brand sup {
   font-size: 11px;
-  color: var(--orange);
+  color: var(--accent);
 }
 
 .links {
@@ -169,7 +358,7 @@ h3 {
 }
 
 .links a:hover {
-  color: var(--orange);
+  color: var(--accent);
 }
 
 .tools {
@@ -187,10 +376,10 @@ h3 {
   font: inherit;
   font-weight: 700;
   padding: 4px 8px;
-  border: 2px solid var(--orange);
+  border: 2px solid var(--accent);
   border-radius: 8px;
-  background: var(--ink);
-  color: #fff;
+  background: var(--nav-bg);
+  color: var(--nav-text);
   cursor: pointer;
 }
 
@@ -204,13 +393,13 @@ h3 {
 
 .me img {
   border-radius: 8px;
-  border: 2px solid var(--orange);
+  border: 2px solid var(--accent);
 }
 
 .cart {
   position: relative;
   display: flex;
-  color: #fff;
+  color: var(--nav-text);
 }
 
 .cart svg {
@@ -224,26 +413,27 @@ h3 {
   min-width: 22px;
   padding: 0 5px;
   border-radius: 999px;
-  background: var(--hot);
+  background: var(--danger);
   color: #fff;
   font-size: 13px;
   font-weight: 900;
   text-align: center;
   line-height: 22px;
-  border: 2px solid var(--ink);
+  border: 2px solid var(--nav-bg);
 }
 
 .plain {
   font-weight: 700;
-  color: #ddd;
+  color: var(--nav-muted);
 }
 
 .ticker {
   overflow: hidden;
-  background: var(--orange);
-  border-bottom: var(--line);
+  background: var(--ticker-bg);
+  color: var(--ticker-text);
+  border-bottom: var(--ticker-border);
   font-weight: 900;
-  font-size: 14px;
+  font-size: var(--ticker-size);
   letter-spacing: 0.08em;
 }
 
@@ -273,6 +463,8 @@ h3 {
 /* ---------- Page ---------- */
 
 main {
+  flex: 1 0 auto;
+  width: 100%;
   max-width: 1180px;
   margin: 0 auto;
   padding: 28px 20px 60px;
@@ -287,14 +479,15 @@ main {
 
 .page-title {
   font-size: clamp(32px, 5vw, 52px);
-  font-weight: 900;
-  text-transform: uppercase;
+  font-weight: var(--title-weight);
+  text-transform: var(--title-transform);
   margin: 8px 0 20px;
 }
 
 .panel {
   background: var(--card);
-  border: var(--line);
+  color: var(--card-text);
+  border: var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   padding: 22px 24px;
@@ -316,20 +509,29 @@ main {
 }
 
 .hero h1 {
-  font-size: clamp(40px, 7vw, 84px);
-  font-weight: 900;
-  text-transform: uppercase;
+  font-size: var(--hero-size);
+  font-weight: var(--title-weight);
+  text-transform: var(--title-transform);
   margin: 0 0 14px;
-  line-height: 0.95;
+  line-height: 0.98;
 }
 
 .hero h1 em {
   font-style: normal;
-  background: var(--sun);
+  background: var(--highlight-bg);
+  color: var(--highlight-text);
   padding: 0 8px;
-  border: var(--line);
+  border: var(--highlight-border);
   display: inline-block;
-  transform: rotate(-2deg);
+  transform: rotate(var(--highlight-rotate));
+}
+
+[data-style="dark"] .hero h1 em {
+  padding: 0;
+  background: linear-gradient(90deg, #38bdf8, #2dd4bf);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .hero p {
@@ -345,23 +547,23 @@ main {
 
 .hero-bots img {
   width: 100%;
-  border: var(--line);
+  border: var(--border);
   border-radius: 16px;
-  box-shadow: 4px 4px 0 var(--ink);
+  box-shadow: var(--shadow-small);
 }
 
 .hero-bots img:nth-child(odd) {
-  transform: rotate(-4deg);
+  transform: rotate(calc(-4deg * var(--bot-tilt)));
 }
 
 .hero-bots img:nth-child(even) {
-  transform: rotate(3deg) translateY(10px);
+  transform: rotate(calc(3deg * var(--bot-tilt))) translateY(calc(10px * var(--bot-tilt)));
 }
 
 .section-title {
   font-size: 28px;
-  font-weight: 900;
-  text-transform: uppercase;
+  font-weight: var(--title-weight);
+  text-transform: var(--title-transform);
   margin: 0 0 16px;
 }
 
@@ -378,21 +580,23 @@ main {
   display: flex;
   flex-direction: column;
   background: var(--card);
-  border: var(--line);
+  color: var(--card-text);
+  border: var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   overflow: hidden;
-  transition: transform 0.12s;
+  transition: transform 0.12s, box-shadow 0.12s;
 }
 
 .card:hover {
-  transform: translate(-2px, -2px) rotate(-0.4deg);
+  transform: translate(-2px, -2px) rotate(var(--card-tilt));
+  box-shadow: var(--shadow-hover);
 }
 
 .card-img {
   height: 210px;
-  background: #fff;
-  border-bottom: var(--line);
+  background: var(--img-bg);
+  border-bottom: var(--border);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -451,30 +655,38 @@ main {
   top: 12px;
   right: -6px;
   padding: 4px 12px;
-  border: var(--line);
+  border: var(--sticker-border);
   border-radius: 6px;
   font-size: 13px;
   font-weight: 900;
   letter-spacing: 0.05em;
-  transform: rotate(6deg);
-  box-shadow: 3px 3px 0 var(--ink);
+  color: var(--sticker-text);
+  transform: rotate(var(--sticker-rotate));
+  box-shadow: var(--sticker-shadow);
+}
+
+[data-style="dark"] .sticker,
+[data-style="clean"] .sticker {
+  right: 12px;
+  border-radius: 999px;
+  font-size: 12px;
 }
 
 .sticker-0 {
-  background: var(--hot);
-  color: #fff;
+  background: var(--sticker-0);
+  color: var(--sticker-0-text);
 }
 
 .sticker-1 {
-  background: var(--sun);
+  background: var(--sticker-1);
 }
 
 .sticker-2 {
-  background: var(--mint);
+  background: var(--sticker-2);
 }
 
 .sticker-3 {
-  background: #fff;
+  background: var(--sticker-3);
 }
 
 /* ---------- Products page tools ---------- */
@@ -495,9 +707,10 @@ main {
 .field input {
   font: inherit;
   padding: 9px 12px;
-  border: var(--line);
+  border: var(--border);
   border-radius: 10px;
-  background: var(--card);
+  background: var(--field-bg);
+  color: var(--field-text);
 }
 
 .pages {
@@ -517,12 +730,14 @@ main {
   font-weight: 800;
   text-decoration: none;
   background: var(--card);
-  border: var(--line);
+  color: var(--card-text);
+  border: var(--border);
   border-radius: 10px;
 }
 
 .pages a[aria-current="page"] {
-  background: var(--orange);
+  background: var(--accent);
+  color: var(--accent-text);
 }
 
 /* ---------- Forms ---------- */
@@ -562,25 +777,30 @@ main {
 .avatar-pick img {
   display: block;
   border-radius: 12px;
-  border: var(--line);
+  border: var(--border);
   cursor: pointer;
 }
 
 .avatar-pick input:checked + img {
-  box-shadow: 0 0 0 4px var(--orange);
-  transform: rotate(-4deg);
+  box-shadow: 0 0 0 4px var(--accent);
+  transform: rotate(calc(-4deg * var(--bot-tilt)));
 }
 
 .avatar-pick input:focus-visible + img {
-  outline: 3px solid var(--hot);
+  outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
 
-.message {
-  background: var(--sun);
-  border: var(--line);
+.message,
+.demo {
+  background: var(--message-bg);
+  color: var(--message-text);
+  border: var(--border);
   border-radius: 10px;
   padding: 10px 14px;
+}
+
+.message {
   font-weight: 700;
 }
 
@@ -591,13 +811,6 @@ main {
   align-items: start;
 }
 
-.demo {
-  background: var(--sun);
-  border: var(--line);
-  border-radius: 10px;
-  padding: 10px 14px;
-}
-
 /* ---------- Cart ---------- */
 
 .cart-row {
@@ -606,14 +819,15 @@ main {
   gap: 16px;
   align-items: center;
   padding: 12px 0;
-  border-bottom: 2px dashed #ccc;
+  border-bottom: 1px dashed var(--border-color);
 }
 
 .cart-row img {
   width: 90px;
   height: 70px;
   object-fit: contain;
-  background: #fff;
+  background: var(--img-bg);
+  border-radius: 8px;
 }
 
 .cart-row:last-child {
@@ -646,28 +860,31 @@ main {
   align-items: center;
   gap: 12px;
   padding: 14px 18px;
-  border: var(--line);
+  border: var(--border);
   border-radius: 12px;
   font-weight: 800;
+  color: var(--status-text);
 }
 
 .status-up {
-  background: #c9f7e5;
+  background: var(--up-bg);
 }
 
 .status-down {
-  background: #ffd1d8;
+  background: var(--down-bg);
 }
 
 /* ---------- Footer ---------- */
 
 .foot {
+  flex-shrink: 0;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
   gap: 30px;
-  padding: 36px 24px;
-  background: var(--ink);
-  color: #ddd;
+  /* Extra room at the bottom for the design picker in the corner */
+  padding: 36px 24px 80px;
+  background: var(--foot-bg);
+  color: var(--foot-text);
 }
 
 .foot ul {
@@ -683,18 +900,18 @@ main {
 .foot-brand {
   font-weight: 900;
   font-size: 22px;
-  color: #fff;
+  color: var(--foot-strong);
   margin-top: 0;
 }
 
 .foot-brand sup {
-  color: var(--orange);
+  color: var(--foot-accent);
   font-size: 11px;
 }
 
 .foot-title {
   font-weight: 900;
-  color: var(--orange);
+  color: var(--foot-accent);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   margin-top: 0;
