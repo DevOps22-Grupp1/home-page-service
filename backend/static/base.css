@@ -71,10 +71,15 @@ footer {
   text-align: center;
   justify-content: space-between;
   margin: auto;
+  /* On a phone the three columns stack instead of overflowing the screen */
+  flex-wrap: wrap;
+  gap: 0 20px;
 }
 
 footer .footer-column {
   margin-bottom: 20px;
+  flex: 1 1 250px;
+  min-width: 0;
 }
 
 footer h3 {
@@ -106,6 +111,7 @@ footer form {
 footer input {
   padding: 5px;
   width: 200px;
+  max-width: 100%;
   font-size: 1em;
 }
 
