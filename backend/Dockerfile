@@ -1,7 +1,7 @@
 FROM python:3.12-slim
 WORKDIR /app
 # Flask 2.3 to match the Werkzeug pin
-RUN pip install --no-cache-dir flask==2.3.3 prometheus-flask-exporter requests flask_login Werkzeug==2.3.7
+RUN pip install --no-cache-dir flask==2.3.3 prometheus-flask-exporter requests Werkzeug==2.3.7
 COPY ./app.py /app/app.py
 COPY ./templates /app/templates
 # The CSS, images and favicons

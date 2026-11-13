@@ -1,20 +1,13 @@
-from flask import Flask, render_template, redirect, url_for, request, jsonify, abort
+from flask import Flask, render_template, redirect, url_for, request, jsonify, abort, session
 from functools import wraps
 from werkzeug.middleware.proxy_fix import ProxyFix
 import datetime
 import json
 import requests
 from prometheus_flask_exporter import PrometheusMetrics
-from flask_login import (
-    LoginManager,
-    UserMixin,
-    login_user,
-    login_required,
-    logout_user,
-    current_user,
-)
 import os
 import math
+import time
 
 server_port = os.environ.get("SERVER_PORT")
 user_management = os.environ.get("USER_URL")
@@ -39,56 +32,90 @@ except ValueError:
     # Om konverteringen till int misslyckas
     order_port = order_port
 
-# Initialize Flask-Login
-login_manager = LoginManager()
-
 app = Flask(__name__)
 # Behind a proxy on a sub-path (e.g. Traefik on /scamazon): X-Forwarded-Prefix makes url_for()
 # build links with the prefix. Without a proxy it changes nothing.
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 app.secret_key = os.environ.get("SECRET_KEY", "your_secret_key")  # Set SECRET_KEY in production
+# Strict: the browser never sends the session cookie on a request from another site, so a link or
+# form elsewhere cannot buy, delete or change products in a logged-in visitor's name.
+app.config["SESSION_COOKIE_SAMESITE"] = "Strict"
+app.config["SESSION_COOKIE_SECURE"] = os.environ.get("COOKIE_SECURE") == "1"
 
-# READ_ONLY=1: a public demo where nobody can log in, register, buy or change the products
-READ_ONLY = os.environ.get("READ_ONLY") == "1"
+# Admin logs in with the magic link (Telegram) in the shared n8n login flow; customers with a
+# username and password from user-management-service. No admin password exists anywhere.
+N8N_WEBHOOK_URL = os.environ.get("N8N_WEBHOOK_URL", "https://jarllindquist.com/n8n/webhook")
+MAGIC_LINK_APP = os.environ.get("MAGIC_LINK_APP", "scamazon-admin")
 
 metrics = PrometheusMetrics(app)
 metrics.info("app_info", "home-page-service", version="1.0.1")
 
-# Initialize Flask-Login
-login_manager = LoginManager()
-login_manager.init_app(app)
+
+# Who is logged in lives in each visitor's own (signed) session cookie: session["customer"] for a
+# customer, session["admin_session"] for the admin's magic-link session.
+def current_customer() -> dict | None:
+    return session.get("customer")
 
 
-# Create a dummy User class for demonstration
-class User(UserMixin):
-    def __init__(self, id):
-        self.id = id
+# Answers from n8n's session-check, per magic-link session: {session_id: (valid, checked_at)}
+_admin_checks = {}
 
 
-# Simulate a user database (replace with your user authentication logic)
-users = {"username": "", "role": "", "avatar": "", "id": ""}
+def is_admin() -> bool:
+    session_id = session.get("admin_session")
+    if not session_id:
+        return False
+    valid, checked_at = _admin_checks.get(session_id, (False, 0))
+    # A yes is trusted for a minute, a no for ten seconds; n8n renews the session on each check
+    if time.time() - checked_at < (60 if valid else 10):
+        return valid
+    try:
+        response = requests.post(
+            f"{N8N_WEBHOOK_URL}/session-check",
+            json={"app": MAGIC_LINK_APP},
+            headers={"X-Admin-Session": session_id},
+            timeout=5,
+        )
+        valid = response.status_code == 200 and response.json().get("valid") is True
+    except (requests.exceptions.RequestException, ValueError):
+        valid = False  # n8n unreachable: no admin
+    _admin_checks[session_id] = (valid, time.time())
+    if not valid:
+        session.pop("admin_session", None)
+    return valid
 
 
-def write_route(view):
-    """Pages that change data: require login, and do not exist at all in read-only mode."""
+def customer_route(view):
+    """Cart, buying and checkout: a logged-in customer."""
 
     @wraps(view)
     def wrapper(*args, **kwargs):
-        if READ_ONLY:
-            abort(403)
-        return login_required(view)(*args, **kwargs)
+        if not current_customer():
+            return redirect(url_for("get_login"))
+        return view(*args, **kwargs)
 
     return wrapper
 
 
-@app.context_processor
-def inject_read_only() -> dict:
-    return {"read_only": READ_ONLY}
+def admin_route(view):
+    """Adding, changing and deleting products: the admin, logged in with the magic link."""
+
+    @wraps(view)
+    def wrapper(*args, **kwargs):
+        if not is_admin():
+            return redirect(url_for("admin_login"))
+        return view(*args, **kwargs)
+
+    return wrapper
 
 
-@login_manager.user_loader
-def load_user(user_id: str) -> User:
-    return User(user_id)
+def log_in_customer(user: dict) -> None:
+    session.clear()
+    session["customer"] = {
+        "id": user["id"],
+        "username": user["username"],
+        "avatar": user.get("avatar", ""),
+    }
 
 
 @metrics.counter(
@@ -96,8 +123,9 @@ def load_user(user_id: str) -> User:
     "Number of invocations by HTTP method",
 )
 def get_count_for_current_user() -> int:
-    if current_user.is_authenticated:
-        user_id = users["id"]
+    customer = current_customer()
+    if customer:
+        user_id = customer["id"]
         request = requests.get(
             f"http://{order_processing}:{order_port}/api/count-products/{user_id}"
         )
@@ -112,18 +140,13 @@ def get_count_for_current_user() -> int:
 
 
 def check_user_auth() -> dict:
-    user = {"user": "", "role": "image"}
-    if current_user.is_authenticated:
-        if users["username"] == "":
-            logout()
-            user["user"] = "false"
-        else:
-            user["user"] = users["username"]
-            user["role"] = users["role"]
-            user["image"] = users["avatar"]
-    else:
-        user["user"] = "false"
-    return user
+    """What the templates need: user is the name, or "false" when nobody is logged in."""
+    customer = current_customer()
+    if customer:
+        return {"user": customer["username"], "role": "customer", "image": customer["avatar"]}
+    if is_admin():
+        return {"user": "admin", "role": "admin", "image": ""}
+    return {"user": "false", "role": "", "image": ""}
 
 
 @app.route("/")
@@ -175,13 +198,12 @@ def handling_sub() -> tuple:
 
 
 @app.route("/admin-product/")
-@write_route
+@admin_route
 def handle_products() -> tuple:
     if request.args.get("page") is None:
         page = 1
     else:
         page = int(request.args.get("page"))
-    user = users["username"]
     products = "Failed to fetch data"
     count = 0
     try:
@@ -208,20 +230,57 @@ def handle_products() -> tuple:
 
 @app.route("/login/", methods=["GET"])
 def get_login() -> tuple:
-    if READ_ONLY:
-        abort(403)
-    if users["username"] == "":
-        logout()
-    # if current_user.is_authenticated:
-    #     return redirect(url_for("products"))
     return render_template("login.html", user=check_user_auth())
 
 
 @app.route("/logout", methods=["GET"])
 def logout() -> tuple:
-    logout_user()
-    users["username"] = ""
+    session.clear()
     return render_template("login.html", user=check_user_auth())
+
+
+@app.route("/admin-login/", methods=["GET"])
+def admin_login() -> tuple:
+    if is_admin():
+        return redirect(url_for("handle_products"))
+    return render_template("admin-login.html", user=check_user_auth())
+
+
+# Sends the magic link to Telegram; the page then polls admin_login_status
+@app.route("/admin-login/", methods=["POST"])
+def admin_login_request() -> tuple:
+    try:
+        response = requests.post(
+            f"{N8N_WEBHOOK_URL}/request-magic-link", json={"app": MAGIC_LINK_APP}, timeout=10
+        )
+        if response.status_code == 429:
+            return jsonify({"error": "too_many"}), 429
+        session_id = response.json().get("sessionId")
+    except (requests.exceptions.RequestException, ValueError):
+        session_id = None
+    if not session_id:
+        return jsonify({"error": "failed"}), 502
+    session["pending_admin_session"] = session_id
+    return jsonify({"sent": True})
+
+
+@app.route("/admin-login/status", methods=["GET"])
+def admin_login_status() -> tuple:
+    session_id = session.get("pending_admin_session")
+    if not session_id:
+        return jsonify({"authenticated": False, "error": "no_request"}), 400
+    try:
+        response = requests.post(
+            f"{N8N_WEBHOOK_URL}/check-login-status", json={"sessionId": session_id}, timeout=10
+        )
+        authenticated = response.json().get("authenticated") is True
+    except (requests.exceptions.RequestException, ValueError):
+        authenticated = False
+    if authenticated:
+        # The admin is not also a customer: a fresh session holding only the admin login
+        session.clear()
+        session["admin_session"] = session_id
+    return jsonify({"authenticated": authenticated})
 
 
 @app.route("/pagination/", methods=["GET"])
@@ -230,15 +289,10 @@ def pagination() -> str:
 
 
 @app.route("/buy/", methods=["GET"])
-@write_route
+@customer_route
 def buy() -> tuple:
-
-    if "page" in users:
-        user_page = users["page"]
-    else:
-        user_page = 0
-
-    user_id = users["id"]
+    user_page = request.args.get("page", 1)
+    user_id = current_customer()["id"]
     product_id = request.args.get("id")
     json_data = json.dumps({"userid": int(user_id), "productid": int(product_id)})
     d_url = f"http://{order_processing}:{order_port}/api/cart"
@@ -249,7 +303,7 @@ def buy() -> tuple:
 
 
 @app.route("/delete/", methods=["GET"])
-@write_route
+@admin_route
 def delete_p() -> tuple:
     id = request.args.get("id")
     delete_url = f"http://{product_catalog}:{product_port}/api/product/{id}"
@@ -264,7 +318,7 @@ def delete_p() -> tuple:
 
 
 @app.route("/update/", methods=["POST"])
-@write_route
+@admin_route
 def update_p() -> tuple:
     newCat = []
     id = request.form["id"]
@@ -289,10 +343,15 @@ def update_p() -> tuple:
 
 
 @app.route("/delete_cart/", methods=["GET"])
-@write_route
+@customer_route
 def del_cart() -> tuple:
     p_id = request.args.get("p_id")
     cart_id = request.args.get("c_id")
+    # Only a row in this customer's own cart, whatever ids the link carries
+    user_id = current_customer()["id"]
+    own = requests.get(f"http://{order_processing}:{order_port}/api/cart-user/{user_id}")
+    if not any(str(row["id"]) == str(cart_id) for row in json.loads(own.text)):
+        abort(404)
     delete_url = f"http://{order_processing}:{order_port}/api/cart/{cart_id}/{p_id}"
     response = requests.delete(delete_url)
     if response.status_code == 204:
@@ -305,7 +364,7 @@ def del_cart() -> tuple:
 
 
 @app.route("/add_products/", methods=["POST"])
-@write_route
+@admin_route
 def post_product() -> tuple:
     order = request.form["name"]
     price = request.form["price"]
@@ -334,8 +393,6 @@ def post_product() -> tuple:
 
 @app.route("/login/", methods=["POST"])
 def post_login() -> tuple:
-    if READ_ONLY:
-        abort(403)
     login_url = f"http://{user_management}:{user_port}/api/login"
     add_url = f"http://{user_management}:{user_port}/api/user"
     headers = {"Content-Type": "application/json"}
@@ -348,12 +405,7 @@ def post_login() -> tuple:
             response = requests.post(login_url, data=json_data, headers=headers)
             dataresponse = json.loads(response.text)
             if len(dataresponse) == 1 and response.status_code == 200:
-                user = User(dataresponse[0]["username"])
-                login_user(user)
-                users["username"] = dataresponse[0]["username"]
-                users["id"] = dataresponse[0]["id"]
-                users["role"] = dataresponse[0]["role"]
-                users["avatar"] = dataresponse[0]["avatar"]
+                log_in_customer(dataresponse[0])
                 return redirect(url_for("products"))
             else:
                 return redirect(url_for("get_login"))
@@ -365,14 +417,13 @@ def post_login() -> tuple:
         passw = request.form["pass"]
         email = request.form["email"]
         avatar = request.form["avatar"]
-        role = request.form["select"]
+        # No role: user-management-service makes every new account a customer
         json_data = json.dumps(
             {
                 "name": name,
                 "username": user,
                 "password": passw,
                 "avatar": avatar,
-                "role": role,
                 "email": email,
             }
         )
@@ -385,12 +436,7 @@ def post_login() -> tuple:
                 response = requests.post(login_url, data=json_data, headers=headers)
                 dataresponse = json.loads(response.text)
                 if len(dataresponse) == 1 and response.status_code == 200:
-                    user = User(dataresponse[0]["username"])
-                    login_user(user)
-                    users["username"] = dataresponse[0]["username"]
-                    users["id"] = dataresponse[0]["id"]
-                    users["role"] = dataresponse[0]["role"]
-                    users["avatar"] = dataresponse[0]["avatar"]
+                    log_in_customer(dataresponse[0])
                     return redirect(url_for("products"))
                 else:
                     return redirect(url_for("get_login"))
@@ -410,11 +456,11 @@ def about() -> tuple:
 
 
 @app.route("/cart/", methods=["GET"])
-@write_route
+@customer_route
 def cart() -> tuple:
     data = []
     price = 0
-    user_id = users["id"]
+    user_id = current_customer()["id"]
     request = requests.get(
         f"http://{order_processing}:{order_port}/api/cart-user/{user_id}"
     )
@@ -526,11 +572,11 @@ def handle_category_product() -> tuple:
 
 
 @app.route("/payment", methods=["GET"])
-@write_route
+@customer_route
 def buy_products() -> tuple:
     data = []
     price = 0
-    user_id = users["id"]
+    user_id = current_customer()["id"]
     request = requests.get(
         f"http://{order_processing}:{order_port}/api/cart-user/{user_id}"
     )
