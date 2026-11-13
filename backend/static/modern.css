@@ -3,6 +3,8 @@
    - playful: loud on purpose. Orange and black, thick borders, offset shadows, stickers.
    - dark:    navy like jarllindquist.com, cyan and teal, soft glow.
    - clean:   a calm, light shop; orange only as the accent.
+   - terminal: green on black in a monospace font; soft green for text, bright green for what
+              matters, so it stays readable.
    The classic design (base.css and friends) does not use this file. */
 
 /* ---------- Playful (the default values) ---------- */
@@ -188,6 +190,68 @@
   --foot-text: #9ca3af;
   --foot-strong: #f9fafb;
   --foot-accent: #ff9900;
+}
+
+/* ---------- Terminal: green on black, monospace ---------- */
+[data-style="terminal"] {
+  --bg: #0a0e0a;
+  --text: #b8f2bf;
+  --muted: #7cc488;
+  --card: #0e150f;
+  --card-text: #b8f2bf;
+  --img-bg: #ffffff;
+  --border-color: #2a7a3b;
+  --border: 1px solid var(--border-color);
+  --radius: 2px;
+  --shadow: none;
+  --shadow-small: none;
+  --shadow-hover: 0 0 0 1px #3dff6e, 0 0 18px rgba(61, 255, 110, 0.25);
+  --nav-bg: #050805;
+  --nav-text: #b8f2bf;
+  --nav-muted: #7cc488;
+  --accent: #3dff6e;
+  --accent-text: #050805;
+  --btn-bg: transparent;
+  --btn-text: #3dff6e;
+  --btn-border: 1px solid #3dff6e;
+  --ghost-bg: transparent;
+  --ghost-text: #b8f2bf;
+  --danger: #ff6b6b;
+  --ticker-bg: #050805;
+  --ticker-text: #3dff6e;
+  --ticker-border: 1px solid #1d4d27;
+  --ticker-size: 13px;
+  --highlight-bg: #3dff6e;
+  --highlight-text: #050805;
+  --highlight-border: 0 solid transparent;
+  --highlight-rotate: 0deg;
+  --title-transform: none;
+  --title-weight: 700;
+  --hero-size: clamp(30px, 5vw, 60px);
+  --sticker-rotate: 0deg;
+  --sticker-border: 0 solid transparent;
+  --sticker-shadow: none;
+  --sticker-0: #ff6b6b;
+  --sticker-0-text: #050805;
+  --sticker-1: #3dff6e;
+  --sticker-2: #3dff6e;
+  --sticker-3: #b8f2bf;
+  --sticker-text: #050805;
+  --card-tilt: 0deg;
+  --bot-tilt: 0;
+  --field-bg: #050805;
+  --field-text: #3dff6e;
+  --focus: #fffb7a;
+  --message-bg: #0e2a14;
+  --message-text: #b8f2bf;
+  --up-bg: #0e2a14;
+  --down-bg: #3a1010;
+  --status-text: #b8f2bf;
+  --foot-bg: #050805;
+  --foot-text: #7cc488;
+  --foot-strong: #3dff6e;
+  --foot-accent: #3dff6e;
+  --font: "Cascadia Mono", "Cascadia Code", Consolas, "SF Mono", Menlo, "DejaVu Sans Mono", monospace;
 }
 
 * {
@@ -1093,4 +1157,93 @@ main {
 .trick-list li::marker {
   color: #e11d48;
   font-weight: 900;
+}
+
+/* ---------- Terminal details ---------- */
+
+/* Faint scan lines over the page; text stays sharp on top */
+[data-style="terminal"] {
+  background-image: repeating-linear-gradient(0deg, rgba(61, 255, 110, 0.035) 0 1px, transparent 1px 3px);
+}
+
+[data-style="terminal"] h1,
+[data-style="terminal"] h2,
+[data-style="terminal"] h3,
+[data-style="terminal"] .price,
+[data-style="terminal"] .brand {
+  color: #3dff6e;
+  text-shadow: 0 0 8px rgba(61, 255, 110, 0.35);
+}
+
+/* Titles read like a prompt, with a blinking cursor */
+[data-style="terminal"] .page-title::before,
+[data-style="terminal"] .hero h1::before {
+  content: "$ ";
+  color: #7cc488;
+}
+
+[data-style="terminal"] .page-title::after {
+  content: "_";
+  animation: blink 1.1s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-style="terminal"] .page-title::after {
+    animation: none;
+  }
+}
+
+[data-style="terminal"] .btn::before {
+  content: "[ ";
+}
+
+[data-style="terminal"] .btn::after {
+  content: " ]";
+}
+
+[data-style="terminal"] .btn:hover {
+  background: #3dff6e;
+  color: #050805;
+}
+
+[data-style="terminal"] .btn-danger {
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+}
+
+[data-style="terminal"] .btn-danger:hover {
+  background: #ff6b6b;
+  color: #050805;
+}
+
+[data-style="terminal"] .sticker {
+  right: 12px;
+  border-radius: 0;
+  font-size: 12px;
+}
+
+[data-style="terminal"] .hero-bots img {
+  filter: saturate(0.6);
+}
+
+[data-style="terminal"] .countdown {
+  background: transparent;
+  color: #ff6b6b;
+  border: 1px solid #ff6b6b;
+  border-radius: 0;
+}
+
+[data-style="terminal"] .btn,
+[data-style="terminal"] .reveal-btn,
+[data-style="terminal"] .tools select,
+[data-style="terminal"] .filters select,
+[data-style="terminal"] .field input,
+[data-style="terminal"] .pages a {
+  border-radius: 2px;
 }

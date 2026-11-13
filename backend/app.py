@@ -165,11 +165,11 @@ def set_currency() -> tuple:
     return back_to_page()
 
 
-# Four designs on the same app. Playful, dark and clean share the templates in templates/modern/
+# Five designs on the same app. Playful, dark, clean and terminal share the templates in templates/modern/
 # and differ in modern.css only (data-style on <body>); classic is templates/, the group's 2023
 # design with what was added since. A page the modern templates do not have yet is shown in the
 # classic one.
-THEMES = {"playful": "Playful", "dark": "Dark", "clean": "Clean", "classic": "Classic (2023)"}
+THEMES = {"playful": "Playful", "dark": "Dark", "clean": "Clean", "terminal": "Terminal", "classic": "Classic (2023)"}
 THEME_ALIASES = {"new": "playful"}  # the name the first new design had
 DEFAULT_THEME = THEME_ALIASES.get(os.environ.get("DEFAULT_THEME", ""), os.environ.get("DEFAULT_THEME", ""))
 if DEFAULT_THEME not in THEMES:
