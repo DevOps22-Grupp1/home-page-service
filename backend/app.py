@@ -465,6 +465,100 @@ def post_login() -> tuple:
         return redirect(url_for("get_login"))
 
 
+# The customer's own account: avatar, name and email, password, deleting the account. The id is
+# always the logged-in customer's, from the session; the forms carry none.
+def user_url(path: str = "") -> str:
+    return f"http://{user_management}:{user_port}/api/user/{current_customer()['id']}{path}"
+
+
+def is_demo_customer() -> bool:
+    return bool(DEMO_USERNAME) and current_customer()["username"] == DEMO_USERNAME
+
+
+@app.route("/account/", methods=["GET"])
+@customer_route
+def account() -> tuple:
+    try:
+        response = requests.get(user_url("/profile"))
+        profile = response.json() if response.status_code == 200 else None
+    except (requests.exceptions.RequestException, ValueError):
+        profile = None
+    if profile is None:
+        # The account is gone (deleted elsewhere): log out
+        session.clear()
+        return redirect(url_for("get_login"))
+    return render_template(
+        "account.html",
+        profile=profile,
+        current_avatar=profile.get("avatar") if profile.get("avatar") in AVATARS else AVATARS[0],
+        is_demo=is_demo_customer(),
+        message=request.args.get("message", ""),
+        user=check_user_auth(),
+        value=get_count_for_current_user(),
+    )
+
+
+@app.route("/account/profile", methods=["POST"])
+@customer_route
+def account_profile() -> tuple:
+    avatar = request.form.get("avatar")
+    if avatar not in AVATARS:
+        avatar = AVATARS[0]
+    fields = {"avatar": avatar}
+    # The demo account is shared: everyone may pick its robot, but its name stays
+    if not is_demo_customer():
+        fields["name"] = request.form.get("name", "").strip()
+        fields["email"] = request.form.get("email", "").strip()
+        if not fields["name"] or not fields["email"]:
+            return redirect(url_for("account", message="Name and email are required."))
+    response = requests.put(user_url(), json=fields)
+    if response.status_code != 200:
+        return redirect(url_for("account", message="Could not save. Try again."))
+    session["customer"] = {**current_customer(), "avatar": avatar}
+    return redirect(url_for("account", message="Saved."))
+
+
+@app.route("/account/password", methods=["POST"])
+@customer_route
+def account_password() -> tuple:
+    if is_demo_customer():
+        return redirect(url_for("account", message="The demo account's password stays the same."))
+    new = request.form.get("new", "")
+    if not new:
+        return redirect(url_for("account", message="Type a new password."))
+    if new != request.form.get("repeat", ""):
+        return redirect(url_for("account", message="The new passwords are not the same."))
+    response = requests.post(
+        user_url("/password"), json={"current": request.form.get("current", ""), "new": new}
+    )
+    if response.status_code == 403:
+        return redirect(url_for("account", message="The current password is wrong."))
+    if response.status_code != 200:
+        return redirect(url_for("account", message="Could not change the password. Try again."))
+    return redirect(url_for("account", message="Password changed."))
+
+
+@app.route("/account/delete", methods=["POST"])
+@customer_route
+def account_delete() -> tuple:
+    if is_demo_customer():
+        return redirect(url_for("account", message="The demo account cannot be deleted."))
+    customer = current_customer()
+    # The password again, so a forgotten open session cannot delete the account
+    check = requests.post(
+        f"http://{user_management}:{user_port}/api/login",
+        json={"username": customer["username"], "password": request.form.get("password", "")},
+    )
+    if check.status_code != 200 or len(check.json()) != 1:
+        return redirect(url_for("account", message="The password is wrong; the account is kept."))
+    requests.delete(f"http://{order_processing}:{order_port}/api/cart/{customer['id']}")
+    response = requests.delete(user_url())
+    if response.status_code != 200:
+        return redirect(url_for("account", message="Could not delete the account. Try again."))
+    session.clear()
+    return redirect(url_for("get_login"))
+
+
 @app.route("/about/")
 def about() -> tuple:
     return render_template(
