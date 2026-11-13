@@ -64,9 +64,14 @@ def avatar_url(name: str) -> str:
     return url_for("static", filename="avatars/" + (name if name in AVATARS else AVATARS[0]))
 
 
+# How long customer accounts are kept; the janitor in the deploy deletes older ones (0 = kept)
+RETENTION_DAYS = int(os.environ.get("RETENTION_DAYS", "0") or 0)
+
+
 @app.context_processor
 def login_page_values() -> dict:
-    return {"avatars": AVATARS, "demo_username": DEMO_USERNAME, "demo_password": DEMO_PASSWORD}
+    return {"avatars": AVATARS, "demo_username": DEMO_USERNAME, "demo_password": DEMO_PASSWORD,
+            "retention_days": RETENTION_DAYS}
 
 
 # Prices are stored in euro. A visitor picks the currency they are shown in; the amounts are
@@ -533,7 +538,7 @@ def handle_products() -> tuple:
 
 @app.route("/login/", methods=["GET"])
 def get_login() -> tuple:
-    return render("login.html", user=check_user_auth())
+    return render("login.html", message=request.args.get("message", ""), user=check_user_auth())
 
 
 @app.route("/logout", methods=["GET"])
@@ -698,13 +703,49 @@ def post_product() -> tuple:
 # }
 
 
+# ---------- Limits: the shop is public and anyone may sign up ----------
+# In memory, per client address (ProxyFix gives the visitor's address behind Traefik) and for
+# everyone together: when a window is full, the request is refused until the oldest one in it
+# is older than the window.
+LIMITS = {
+    "signup_ip": (int(os.environ.get("SIGNUP_PER_IP_PER_HOUR", "3")), 3600),
+    "signup_all": (int(os.environ.get("SIGNUPS_PER_HOUR", "30")), 3600),
+    "login_fail_ip": (int(os.environ.get("FAILED_LOGINS_PER_IP", "10")), 900),
+}
+_hits = {}
+_hits_lock = threading.Lock()
+
+
+def limited(kind: str, key: str = "") -> bool:
+    """True if the window for this kind (and key) is full; does not count anything."""
+    limit, window = LIMITS[kind]
+    now = time.time()
+    with _hits_lock:
+        times = _hits.setdefault((kind, key), deque())
+        while times and now - times[0] > window:
+            times.popleft()
+        return len(times) >= limit
+
+
+def count_hit(kind: str, key: str = "") -> None:
+    with _hits_lock:
+        _hits.setdefault((kind, key), deque()).append(time.time())
+
+
+def login_page(message: str) -> tuple:
+    return redirect(url_for("get_login", message=message))
+
+
 @app.route("/login/", methods=["POST"])
 def post_login() -> tuple:
     login_url = f"http://{user_management}:{user_port}/api/login"
     add_url = f"http://{user_management}:{user_port}/api/user"
     headers = {"Content-Type": "application/json"}
+    client = request.remote_addr or "unknown"
 
     if "sign_in" in request.form:
+        if limited("login_fail_ip", client):
+            return login_page("Too many wrong passwords. Wait a quarter of an hour and try again.")
         user = request.form["user"]
         passw = request.form["password"]
         json_data = json.dumps({"username": user, "password": passw})
@@ -714,45 +755,50 @@ def post_login() -> tuple:
             if len(dataresponse) == 1 and response.status_code == 200:
                 log_in_customer(dataresponse[0])
                 return redirect(url_for("products"))
-            else:
-                return redirect(url_for("get_login"))
-        except requests.exceptions.RequestException as e:
-            return redirect(url_for("get_login"))
-    else:
-        user = request.form["username"]
-        name = request.form["name"]
-        passw = request.form["pass"]
-        email = request.form["email"]
-        avatar = request.form.get("avatar")
-        if avatar not in AVATARS:
-            avatar = AVATARS[0]
-        # No role: user-management-service makes every new account a customer
-        json_data = json.dumps(
-            {
-                "name": name,
-                "username": user,
-                "password": passw,
-                "avatar": avatar,
-                "email": email,
-            }
-        )
+            count_hit("login_fail_ip", client)
+            return login_page("Wrong username or password.")
+        except (requests.exceptions.RequestException, ValueError):
+            return login_page("The account service did not answer. Try again in a moment.")
 
-        try:
-            response = requests.post(add_url, data=json_data, headers=headers)
-            dataresponse = json.loads(response.text)
-            if response.status_code == 201:
-                json_data = json.dumps({"username": user, "password": passw})
-                response = requests.post(login_url, data=json_data, headers=headers)
-                dataresponse = json.loads(response.text)
-                if len(dataresponse) == 1 and response.status_code == 200:
-                    log_in_customer(dataresponse[0])
-                    return redirect(url_for("products"))
-                else:
-                    return redirect(url_for("get_login"))
-        except requests.exceptions.RequestException as e:
-            return redirect(url_for("get_login"))
+    if limited("signup_ip", client):
+        return login_page("You have made a few accounts already. Try again in an hour, or use the demo account.")
+    if limited("signup_all"):
+        return login_page("Lots of new accounts right now. Try again later, or use the demo account.")
+    user = request.form["username"]
+    name = request.form["name"]
+    passw = request.form["pass"]
+    email = request.form["email"]
+    avatar = request.form.get("avatar")
+    if avatar not in AVATARS:
+        avatar = AVATARS[0]
+    # No role: user-management-service makes every new account a customer
+    json_data = json.dumps(
+        {
+            "name": name,
+            "username": user,
+            "password": passw,
+            "avatar": avatar,
+            "email": email,
+        }
+    )
 
-        return redirect(url_for("get_login"))
+    try:
+        response = requests.post(add_url, data=json_data, headers=headers)
+        dataresponse = json.loads(response.text)
+        if response.status_code != 201:
+            reason = dataresponse.get("message", "") if isinstance(dataresponse, dict) else ""
+            return login_page(f"The account was not created. {reason}".strip())
+        count_hit("signup_ip", client)
+        count_hit("signup_all")
+        json_data = json.dumps({"username": user, "password": passw})
+        response = requests.post(login_url, data=json_data, headers=headers)
+        dataresponse = json.loads(response.text)
+        if len(dataresponse) == 1 and response.status_code == 200:
+            log_in_customer(dataresponse[0])
+            return redirect(url_for("products"))
+        return login_page("The account was created; log in with it.")
+    except (requests.exceptions.RequestException, ValueError):
+        return login_page("The account service did not answer. Try again in a moment.")
 
 
 # The customer's own account: avatar, name and email, password, deleting the account. The id is

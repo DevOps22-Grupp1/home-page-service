@@ -2,6 +2,9 @@
 {% block title %}Log in{% endblock %}
 {% block content %}
 <h1 class="page-title">Log in or join the scam</h1>
+{% if message %}
+<p class="message" role="alert">{{ message }}</p>
+{% endif %}
 <div class="two-col">
   <form class="panel" method="POST" action="{{ url_for('post_login') }}">
     <h2>Log in</h2>
@@ -30,6 +33,9 @@
       {% endfor %}
     </fieldset>
     <button class="btn" type="submit" name="sign_up" value="Sign Up">Create my account</button>
+    {% if retention_days %}
+    <p class="muted">This is a demo: accounts and their orders are deleted after {{ retention_days }} days.</p>
+    {% endif %}
   </form>
 </div>
 {% endblock %}

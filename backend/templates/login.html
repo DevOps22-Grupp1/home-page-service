@@ -1,5 +1,8 @@
 {% extends 'base.html' %} {% block content %}
 <div style="width: 100%; max-width: 525px; margin: auto; margin-top: 4%; margin-bottom: 3%">
+  {% if message %}
+  <p role="alert" style="background: #fff3d6; color: black; padding: 10px 14px; border-left: 4px solid #ff9900">{{ message }}</p>
+  {% endif %}
   <form method="POST" action="{{ url_for('post_login') }}">
 <div class="login-wrap">
   <div class="login-html">
