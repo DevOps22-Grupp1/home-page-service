@@ -1,0 +1,70 @@
+{% extends 'modern/base.html' %}
+{% block title %}Service status{% endblock %}
+{% block content %}
+<h1 class="page-title">Service status</h1>
+<p class="muted">
+  Three services behind the shop, each in its own container. Response times are measured from the
+  home page; the history covers the last {{ status[0].samples if status else 0 }} checks.
+  <span id="checked">Checked {{ utc_dt.strftime("%H:%M:%S") }} UTC.</span>
+</p>
+
+<div class="status-grid">
+  {% for s in status %}
+  <article class="panel status-card {{ 'is-up' if s.up else 'is-down' }}" data-service="{{ s.name }}">
+    <div class="status-top">
+      <h2>{{ s.name }}</h2>
+      <span class="status-pill">{{ "Up" if s.up else "Down" }}</span>
+    </div>
+    <p class="status-ms"><strong class="ms">{{ s.ms if s.ms is not none else "–" }}</strong> ms</p>
+    <svg class="spark" viewBox="0 0 240 44" preserveAspectRatio="none" role="img"
+      aria-label="Response times of {{ s.name }}, newest on the right">
+      <polyline points="{{ s.points }}" fill="none" stroke="currentColor" stroke-width="2" vector-effect="non-scaling-stroke" />
+    </svg>
+    <p class="muted status-uptime">Up <span class="uptime">{{ s.uptime if s.uptime is not none else "–" }}</span>% of the last <span class="samples">{{ s.samples }}</span> checks</p>
+  </article>
+  {% endfor %}
+</div>
+
+<section class="panel">
+  <h2>Run the checks</h2>
+  <p class="muted">Deeper than "does it answer": each check does what a page needs, and is timed.</p>
+  <button class="btn" type="button" id="run-checks">Run the checks</button>
+  <ul class="check-list" id="check-list" aria-live="polite"></ul>
+</section>
+
+<script>
+  // Live: new numbers every 10 seconds without reloading the page
+  async function refresh() {
+    const data = await fetch("{{ url_for('status_json') }}").then((r) => r.json()).catch(() => null);
+    if (!data) return;
+    document.getElementById("checked").textContent = "Checked " + data.checked + " UTC.";
+    for (const s of data.services) {
+      const card = document.querySelector('[data-service="' + s.name + '"]');
+      if (!card) continue;
+      card.classList.toggle("is-up", s.up);
+      card.classList.toggle("is-down", !s.up);
+      card.querySelector(".status-pill").textContent = s.up ? "Up" : "Down";
+      card.querySelector(".ms").textContent = s.ms ?? "–";
+      card.querySelector(".uptime").textContent = s.uptime ?? "–";
+      card.querySelector(".samples").textContent = s.samples;
+      card.querySelector("polyline").setAttribute("points", s.points);
+    }
+  }
+  setInterval(refresh, 10000);
+
+  document.getElementById("run-checks").addEventListener("click", async (event) => {
+    const button = event.currentTarget, list = document.getElementById("check-list");
+    button.disabled = true;
+    list.innerHTML = "<li>Running…</li>";
+    const data = await fetch("{{ url_for('status_checks') }}").then((r) => r.json()).catch(() => null);
+    list.innerHTML = "";
+    for (const c of (data ? data.checks : [{ name: "The checks", ok: false, detail: "no answer", ms: 0 }])) {
+      const li = document.createElement("li");
+      li.className = c.ok ? "check-ok" : "check-fail";
+      li.textContent = (c.ok ? "✓ " : "✗ ") + c.name + " — " + c.detail + " (" + c.ms + " ms)";
+      list.appendChild(li);
+    }
+    button.disabled = false;
+  });
+</script>
+{% endblock %}

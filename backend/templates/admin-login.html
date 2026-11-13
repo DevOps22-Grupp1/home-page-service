@@ -1,0 +1,53 @@
+{% extends 'base.html' %} {% block content %}
+<div style="max-width: 420px; margin: 4% auto 3%; text-align: center">
+  <h1 style="font-size: 28px">{% block title %} Admin {% endblock %}</h1>
+  <p>
+    The admin logs in with a magic link: it goes to the owner's Telegram, and this page continues
+    once the link is approved. There is no admin password.
+  </p>
+  <button id="send" class="button-89" type="button">Send login link</button>
+  <p id="status" role="status" style="margin-top: 20px"></p>
+</div>
+
+<script>
+  // Asks for the link, then asks the server every two seconds whether it has been approved
+  const statusEl = document.getElementById("status");
+  const send = document.getElementById("send");
+  const requestUrl = "{{ url_for('admin_login_request') }}";
+  const statusUrl = "{{ url_for('admin_login_status') }}";
+  const doneUrl = "{{ url_for('admin_dashboard') }}";
+
+  send.addEventListener("click", async () => {
+    send.disabled = true;
+    statusEl.textContent = "Sending...";
+    const res = await fetch(requestUrl, { method: "POST" });
+    if (res.status === 429) {
+      statusEl.textContent = "A link was sent less than a minute ago. Wait a little and try again.";
+      send.disabled = false;
+      return;
+    }
+    if (!res.ok) {
+      statusEl.textContent = "Could not send the link. Try again later.";
+      send.disabled = false;
+      return;
+    }
+    statusEl.textContent = "Link sent. Approve it in Telegram...";
+    const started = Date.now();
+    const timer = setInterval(async () => {
+      // The link is valid for a few minutes; stop asking after five
+      if (Date.now() - started > 5 * 60 * 1000) {
+        clearInterval(timer);
+        statusEl.textContent = "The link was not approved in time. Send a new one.";
+        send.disabled = false;
+        return;
+      }
+      const check = await fetch(statusUrl);
+      const data = await check.json().catch(() => ({}));
+      if (data.authenticated) {
+        clearInterval(timer);
+        window.location.href = doneUrl;
+      }
+    }, 2000);
+  });
+</script>
+{% endblock %}

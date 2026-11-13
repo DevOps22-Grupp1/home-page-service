@@ -1,0 +1,19 @@
+{
+    "folders": [
+        {
+            "path": ".."
+        },
+        {
+            "path": "../../order-processing-service"
+        },
+        {
+            "path": "../../produkt-catalog-service"
+        },
+        {
+            "path": "../../user-management-service"
+        }
+    ],
+    "settings": {
+        "liveServer.settings.multiRootWorkspaceName": "home-page-service"
+    }
+}

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+<div style="width: 85%; margin: auto; color: black">
+  <h1>{% block title %} Admin {% endblock %}</h1>
+  {% if message %}<p><strong>{{ message }}</strong></p>{% endif %}
+  <p><a href="{{ url_for('handle_products') }}">Manage the products</a></p>
+  <p>
+    Orders: {{ summary.orders }} · Revenue: {{ summary.revenue | euro }} · Average order:
+    {{ summary.average | euro }} · Kept the pre-ticked add-on: {{ summary.addon_rate }}%
+  </p>
+  <h2>Orders per day</h2>
+  <table>
+    <tr><th>Day</th><th>Orders</th><th>Revenue</th></tr>
+    {% for d in summary.per_day %}
+    <tr><td>{{ d.day }}</td><td>{{ d.orders }}</td><td>{{ d.revenue | euro }}</td></tr>
+    {% endfor %}
+  </table>
+  <h2>Create a customer account</h2>
+  <form method="POST" action="{{ url_for('admin_create_user') }}">
+    <input name="username" placeholder="username" required />
+    <input name="name" placeholder="name" required />
+    <input name="email" type="email" placeholder="email" required />
+    <input name="password" type="password" placeholder="password" required />
+    <button class="button-89" type="submit">Create</button>
+  </form>
+</div>
+{% endblock %}

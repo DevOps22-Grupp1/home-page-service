@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Scamazon card</title>
+  <link rel="stylesheet" href="card.css" />
+</head>
+
+<body>
+  <div class="card">
+    <!-- The shop's services: the Flask front end calls three services, which share one MongoDB -->
+    <div class="picture">
+      <svg viewBox="0 0 410 340" aria-hidden="true" font-family="Segoe UI, Arial, sans-serif"
+        font-weight="600" text-anchor="middle">
+        <g stroke="#475569" stroke-width="3" fill="none">
+          <path d="M205 70 V96 M70 96 H340 M70 96 V128 M205 96 V128 M340 96 V128" />
+          <path d="M70 182 V214 M205 182 V214 M340 182 V214 M70 214 H340 M205 214 V246" />
+        </g>
+        <rect x="105" y="12" width="200" height="58" rx="12" fill="#1e293b" stroke="#ff9900" stroke-width="3" />
+        <text x="205" y="40" font-size="22" fill="#f1f5f9">home page</text>
+        <text x="205" y="60" font-size="15" fill="#94a3b8">Flask</text>
+        <g fill="#1e293b" stroke="#38bdf8" stroke-width="3">
+          <rect x="10" y="128" width="120" height="54" rx="12" />
+          <rect x="145" y="128" width="120" height="54" rx="12" />
+          <rect x="280" y="128" width="120" height="54" rx="12" />
+        </g>
+        <g font-size="20" fill="#f1f5f9">
+          <text x="70" y="162">products</text>
+          <text x="205" y="162">users</text>
+          <text x="340" y="162">orders</text>
+        </g>
+        <!-- MongoDB as a database cylinder -->
+        <path d="M140 262 V310 A65 16 0 0 0 270 310 V262" fill="#1e293b" stroke="#2dd4bf" stroke-width="3" />
+        <ellipse cx="205" cy="262" rx="65" ry="16" fill="#1e293b" stroke="#2dd4bf" stroke-width="3" />
+        <text x="205" y="302" font-size="20" fill="#f1f5f9">MongoDB</text>
+      </svg>
+    </div>
+    <div class="words">
+      <h1>SCAMAZON</h1>
+      <h2>A web shop in microservices</h2>
+      <p>A DevOps group project: a Flask front end and three services in Docker, sharing one MongoDB.</p>
+      <div class="chips">
+        <span>Microservices</span>
+        <span>Docker Compose</span>
+        <span>MongoDB</span>
+        <span>GitHub Actions</span>
+      </div>
+      <div class="site">
+        <!-- The shop's smile, as in the favicon -->
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+          <rect width="64" height="64" rx="14" fill="#1e293b" />
+          <path d="M11 30 Q32 48 51 31" fill="none" stroke="#ff9900" stroke-width="5" stroke-linecap="round" />
+          <path d="M44 27 L52 30 L50 38" fill="none" stroke="#ff9900" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        jarllindquist.com/scamazon
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

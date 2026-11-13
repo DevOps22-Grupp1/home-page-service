@@ -1,0 +1,219 @@
+/* index.css */
+
+body {
+  background-color: lightgray;
+  color: black;
+  font-family: "Lucida Sans", sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: black;
+}
+
+h1 {
+  font-size: 2.5em;
+}
+
+h2 {
+  font-size: 1.8em;
+}
+
+h3 {
+  font-size: 1.5em;
+}
+
+h4 {
+  font-size: 1.2em;
+}
+
+h5 {
+  font-size: 1em;
+}
+
+h6 {
+  font-size: 0.8em;
+}
+
+p {
+  font-size: 1.2em;
+}
+
+img {
+  border-radius: 10px;
+}
+
+.product-container {
+  padding: 20px;
+  background-color: lightgray;
+  color: black;
+  margin: 20px;
+  border-radius: 10px;
+  display: inline-block;
+}
+
+.product-container:hover {
+  box-shadow: 0 4px 8px #ff9900;
+  transition: ease-in-out 0.2s;
+  cursor: pointer;
+}
+
+.product-container p {
+  font-size: 1.5em;
+  margin-bottom: 10px;
+}
+
+.product-container img {
+  object-fit: cover;
+  height: 300px;
+  width: 100%;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.product-container p.price {
+  font-size: 2em;
+  margin-bottom: 10px;
+}
+
+.product-container p.description {
+  font-size: 1.5em;
+  margin-bottom: 10px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.product-container p.category {
+  font-size: 0.7em;
+  margin-top: 10px;
+}
+
+/* Products page: equal-width cards, however wide the product image is */
+.product-grid {
+  width: 85%;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+  gap: 20px;
+}
+
+.product-grid .product-container {
+  margin: 0;
+  padding: 10px;
+  background-color: #e6f9ff;
+  border-radius: 15px;
+  display: block;
+}
+
+.product-grid .product-container img {
+  height: 260px;
+  object-fit: contain;
+  background-color: white;
+}
+
+.slider-wrapper {
+  width: 80%;
+  margin: auto;
+}
+
+/* The customer's account page */
+.account {
+  max-width: 560px;
+  margin: 30px auto;
+}
+
+.account h1 {
+  font-size: 28px;
+}
+
+.account section {
+  background-color: #e6f9ff;
+  border-radius: 15px;
+  padding: 16px 20px 20px;
+  margin-bottom: 20px;
+}
+
+.account section h2 {
+  font-size: 20px;
+  margin-top: 0;
+}
+
+.account label {
+  display: block;
+  margin-bottom: 12px;
+}
+
+.account input[type="password"],
+.account input[name="name"],
+.account input[name="email"] {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  margin-top: 4px;
+  font-size: 1em;
+}
+
+.account-note,
+.account-message {
+  font-size: 1em;
+}
+
+.account-message {
+  background-color: #fff3d6;
+  border-left: 4px solid #ff9900;
+  padding: 8px 12px;
+}
+
+.account-avatars {
+  border: none;
+  padding: 0;
+  margin: 0 0 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.account-avatars legend {
+  margin-bottom: 6px;
+}
+
+.account-avatars label {
+  margin: 0;
+}
+
+.account-avatars input {
+  position: absolute;
+  opacity: 0;
+}
+
+.account-avatars img {
+  display: block;
+  border-radius: 10px;
+  outline: 3px solid transparent;
+  outline-offset: 2px;
+  cursor: pointer;
+}
+
+.account-avatars input:checked + img {
+  outline-color: #ff9900;
+}
+
+.account-avatars input:focus-visible + img {
+  outline-color: #000;
+}
+
+.account-danger {
+  border: 2px solid #c0392b;
+}
+
+.account-danger .button-89 {
+  background: #c0392b;
+}

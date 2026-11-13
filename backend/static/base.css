@@ -1,0 +1,164 @@
+/* base.css */
+
+body {
+  background-color: lightgray;
+  color: darkgray;
+  font-family: "Lucida Sans", sans-serif;
+  margin: 0;
+  padding: 0;
+  /* The footer sits at the bottom even on a short page: menu, content (grows), footer */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+/* ____ */
+.pagination {
+  display: inline-block;
+}
+
+.pagination a {
+  color: black;
+  float: left;
+  padding: 8px 16px;
+  text-decoration: none;
+}
+
+.badge:after {
+  content: attr(value);
+  font-size: 30px;
+  color: white !important;
+  border-radius: 50%;
+  padding: 15px;
+  position: relative;
+  left: -1px;
+  top: -10px;
+  opacity: 0.7;
+}
+
+.pager {
+  text-decoration: underline;
+  background-color: green;
+}
+/* ____________________ */
+/* nav.navbar {
+  background-color: orange;
+  padding: 10px;
+  text-align: center;
+}
+
+nav.navbar a {
+  color: black;
+  text-decoration: none;
+  margin: 0 10px;
+  font-size: 1.2em;
+}
+
+nav.navbar a.logo {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+nav.navbar hr {
+  border-color: gold;
+} */
+
+div.content {
+  padding: 20px;
+  flex: 1 0 auto;
+}
+
+footer {
+  display: flex;
+  background-color: #333;
+  color: white;
+  /* Extra room at the bottom for the design picker in the corner */
+  padding: 20px 20px 70px;
+  text-align: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  /* On a phone the three columns stack instead of overflowing the screen */
+  flex-wrap: wrap;
+  gap: 0 20px;
+}
+
+footer .footer-column {
+  margin-bottom: 20px;
+  flex: 1 1 250px;
+  min-width: 0;
+}
+
+footer h3 {
+  font-size: 1.5em;
+  margin-bottom: 10px;
+  color: white;
+}
+
+footer ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+footer ul a {
+  color: white;
+  text-decoration: none;
+  font-size: 1.2em;
+}
+
+footer ul a:hover {
+  color: gold;
+  transition: ease-in-out 0.2s;
+}
+
+footer form {
+  margin-top: 10px;
+}
+
+footer input {
+  padding: 5px;
+  width: 200px;
+  max-width: 100%;
+  font-size: 1em;
+}
+
+footer button {
+  background-color: black;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  cursor: pointer;
+  font-size: 1em;
+}
+
+footer .social-media-icons {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+footer .social-media-icons li {
+  margin-top: 10px;
+}
+
+footer .social-media-icons a {
+  font-size: 1.5em;
+}
+
+footer .social-media-icons a.facebook-icon {
+  color: #3b5998;
+}
+
+footer .social-media-icons a.twitter-icon {
+  color: #00aced;
+}
+
+footer .social-media-icons a.instagram-icon {
+  color: #8a51a4;
+}
+
+/* Under the menu when prices are converted from euro */
+.rate-note {
+  margin: 0 0 10px;
+  font-size: 0.9em;
+  color: #555;
+  text-align: center;
+}

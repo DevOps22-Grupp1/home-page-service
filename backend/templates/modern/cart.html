@@ -1,0 +1,37 @@
+{% extends 'modern/base.html' %}
+{% block title %}Cart{% endblock %}
+{% block content %}
+<h1 class="page-title">Your cart</h1>
+<div class="panel">
+  {% if products %}
+  {% for product in products %}
+  <div class="cart-row">
+    <img src="{{ product.image }}" alt="" />
+    <div>
+      <strong>{{ product.order }}</strong>
+      <div class="muted">{{ product.price | money }}</div>
+    </div>
+    <a class="btn btn-small btn-ghost" href="{{ url_for('del_cart', c_id=product.order_id, p_id=product.id) }}">Remove</a>
+  </div>
+  {% endfor %}
+  {% else %}
+  <p>Nothing here yet. The robots are disappointed.</p>
+  <a class="btn" href="{{ url_for('products') }}">Find a deal</a>
+  {% endif %}
+</div>
+{% if products %}
+<form class="panel total" method="POST" action="{{ url_for('buy_products') }}">
+  <div class="checkout-extras">
+    <label class="addon" data-trick="preselected">
+      <input type="checkbox" name="protection" id="protection" checked
+        onchange="var t = document.getElementById('total'); t.textContent = this.checked ? t.dataset.with : t.dataset.without" />
+      Keep me safe with {{ protection_name }} ({{ protection_fee | money }})
+    </label>
+    <button class="shame" type="button" data-trick="confirmshaming"
+      onclick="var c = document.getElementById('protection'); c.checked = false; c.onchange()">I'm fine with getting scammed</button>
+  </div>
+  <span>Total: <span id="total" data-with="{{ (price + protection_fee) | money }}" data-without="{{ price | money }}">{{ (price + protection_fee) | money }}</span></span>
+  <button class="btn" type="submit">Pay</button>
+</form>
+{% endif %}
+{% endblock %}

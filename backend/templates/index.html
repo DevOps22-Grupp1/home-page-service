@@ -1,15 +1,38 @@
-{% extends 'base.html' %}
-
-{% block content %}
-    <h1>{% block title %} Welcome to Scamazon! {% endblock %}</h1>
-    <h1>A shopping paradise for all people on this earth!</h1>
-    <h2>If you have any questions we are just a few hours on the phone away, please dont hesitate to contact us!</h2>
-    <p>Don't be alarmed if you have payed 3 times the price and never recieved your product. This happends all the time, and in 86% of the cases the problem seems to go away by itself.</p>
-    <h3>{{ utc_dt }}</h3>
-    <hr>
-    <h1>LOOK!</h1>
-    <h1>Here is a picture of our amazing scammer team!</h1>
-    <div style="margin: auto;">
-        <img src="https://gadgetguy-assets.s3.ap-southeast-2.amazonaws.com/wordpress/wp-content/uploads/2020/01/02182039/Scamazon.jpg" alt="picture">
-    </div>
+{% extends 'base.html' %} {% block content %}
+<div style="width: 80%; margin: auto; text-align: center">
+  <h1>{% block title %} Welcome to Scamazon! {% endblock %}</h1>
+  <p>
+    Discover the ultimate shopping experience at Scamazon! Your one-stop
+    destination for amazing deals and exclusive products.
+  </p>
+  <p>
+    Shop with confidence! Our dedicated team is here to assist you at every
+    step. Unbelievable prices, unbeatable scams!
+  </p>
+  <h3>{{ utc_dt }}</h3>
+</div>
+<div class="slider-wrapper">
+  <h2>Our best selling products</h2>
+<div class="slider">
+  <!-- Your existing product rendering code -->
+  {% for product in products %}
+  <div class="product-container">
+    <p class="description">{{ product.order }}</p>
+    <img
+      class="prod-pic"
+      src="{{ product.image }}"
+      alt="pic of {{ product.order }}"
+    />
+    <p class="price">{{ product.price | money }}</p>
+    {% if user["role"] == "customer" %}
+    <a href="{{ url_for('buy', id=product.id) }}">
+      <button class="button-89" type="button" style="margin: auto">
+        Add to cart
+      </button>
+    </a>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+</div>
 {% endblock %}
