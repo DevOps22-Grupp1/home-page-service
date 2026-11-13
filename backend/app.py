@@ -259,8 +259,16 @@ def admin_route(view):
     return wrapper
 
 
-def log_in_customer(user: dict) -> None:
+def clear_login() -> None:
+    """Forgets who is logged in (a fresh session), but keeps the visitor's choices: the design
+    and the currency are not part of anyone's login."""
+    kept = {key: session[key] for key in ("theme", "currency") if key in session}
     session.clear()
+    session.update(kept)
+
+
+def log_in_customer(user: dict) -> None:
+    clear_login()
     session["customer"] = {
         "id": user["id"],
         "username": user["username"],
@@ -400,7 +408,7 @@ def get_login() -> tuple:
 
 @app.route("/logout", methods=["GET"])
 def logout() -> tuple:
-    session.clear()
+    clear_login()
     return render("login.html", user=check_user_auth())
 
 
@@ -443,7 +451,7 @@ def admin_login_status() -> tuple:
         authenticated = False
     if authenticated:
         # The admin is not also a customer: a fresh session holding only the admin login
-        session.clear()
+        clear_login()
         session["admin_session"] = session_id
     return jsonify({"authenticated": authenticated})
 
@@ -637,7 +645,7 @@ def account() -> tuple:
         profile = None
     if profile is None:
         # The account is gone (deleted elsewhere): log out
-        session.clear()
+        clear_login()
         return redirect(url_for("get_login"))
     return render(
         "account.html",
@@ -708,7 +716,7 @@ def account_delete() -> tuple:
     response = requests.delete(user_url())
     if response.status_code != 200:
         return redirect(url_for("account", message="Could not delete the account. Try again."))
-    session.clear()
+    clear_login()
     return redirect(url_for("get_login"))
 
 
