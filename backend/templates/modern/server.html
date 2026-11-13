@@ -1,0 +1,14 @@
+{% extends 'modern/base.html' %}
+{% block title %}Service status{% endblock %}
+{% block content %}
+<h1 class="page-title">Service status</h1>
+<p class="muted">Checked just now ({{ utc_dt.strftime("%Y-%m-%d %H:%M") }} UTC).</p>
+<ul class="status-list">
+  {% for obj in status %}
+  <li class="{{ 'status-up' if obj.status == 'Success' else 'status-down' }}">
+    <span>{{ obj.name }}</span>
+    <span>{{ "Up" if obj.status == "Success" else "Down" }}</span>
+  </li>
+  {% endfor %}
+</ul>
+{% endblock %}

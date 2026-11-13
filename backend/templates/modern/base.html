@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}{% endblock %} · Scamazon™</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='modern.css') }}" />
+    <link rel="icon" type="image/ico" href="{{ url_for('static', filename='favicon.ico') }}" />
+    {% include '_social.html' %}
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to the deals</a>
+    <header class="top">
+      <nav class="nav" aria-label="Main">
+        <a class="brand" href="{{ url_for('hello') }}">
+          <svg viewBox="0 0 64 32" aria-hidden="true"><path d="M6 10 Q32 34 56 12" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><path d="M46 9l10 3-3 10" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>SCAMAZON<sup>™</sup></span>
+        </a>
+        <ul class="links">
+          <li><a href="{{ url_for('products') }}">Deals</a></li>
+          <li><a href="{{ url_for('about') }}">About</a></li>
+          <li><a href="{{ url_for('server') }}">Status</a></li>
+          {% if user["role"] == "admin" %}
+          <li><a href="{{ url_for('handle_products') }}">Admin</a></li>
+          {% endif %}
+        </ul>
+        <div class="tools">
+          <form method="POST" action="{{ url_for('set_currency') }}">
+            <input type="hidden" name="next" value="{{ request.full_path.rstrip('?') }}" />
+            <label class="sr" for="currency">Currency</label>
+            <select id="currency" name="currency" onchange="this.form.submit()">
+              {% for code in currencies %}
+              <option value="{{ code }}" {% if code == currency %}selected{% endif %}>{{ code }}</option>
+              {% endfor %}
+            </select>
+            <noscript><button type="submit">OK</button></noscript>
+          </form>
+          {% if user["role"] == "customer" %}
+          <a class="me" href="{{ url_for('account') }}" title="Your account">
+            <img src="{{ user['image'] }}" alt="" width="34" height="34" /><span>{{ user["user"] }}</span>
+          </a>
+          <a class="cart" href="{{ url_for('cart') }}" aria-label="Cart, {{ value }} items">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.4 10.2a1 1 0 0 0 1 .8h8.9a1 1 0 0 0 1-.8L20 8H6.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="19" r="1.6" fill="currentColor"/><circle cx="17" cy="19" r="1.6" fill="currentColor"/></svg>
+            <span class="count">{{ value }}</span>
+          </a>
+          <a class="plain" href="{{ url_for('logout') }}">Log out</a>
+          {% elif user["role"] == "admin" %}
+          <a class="plain" href="{{ url_for('logout') }}">Log out</a>
+          {% else %}
+          <a class="btn btn-small" href="{{ url_for('get_login') }}">Log in</a>
+          {% endif %}
+        </div>
+      </nav>
+      <div class="ticker" aria-hidden="true">
+        <div class="ticker-track">
+          {% for _ in range(2) %}
+          <span>★ UNBELIEVABLE PRICES</span><span>★ UNBEATABLE SCAMS</span><span>★ 100% NOT LEGIT</span><span>★ FREE SHIPPING TO NOWHERE</span><span>★ CUSTOMER SERVICE: GOOD LUCK</span>
+          {% endfor %}
+        </div>
+      </div>
+    </header>
+
+    <main id="main">
+      {% if currency != "EUR" %}
+      <p class="rate-note">
+        Prices in {{ currency }}, converted from euro at the European Central Bank's rate{% if rates_date %} of {{ rates_date }}{% endif %}.
+      </p>
+      {% endif %}
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="foot">
+      <div>
+        <p class="foot-brand">SCAMAZON<sup>™</sup></p>
+        <p>A DevOps group project: a Flask front end and three services in Docker, sharing one MongoDB. Nothing here is for sale.</p>
+      </div>
+      <div>
+        <p class="foot-title">Shop</p>
+        <ul>
+          <li><a href="{{ url_for('products') }}">All deals</a></li>
+          <li><a href="{{ url_for('about') }}">About</a></li>
+          <li><a href="{{ url_for('server') }}">Service status</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="foot-title">Design</p>
+        <p>Miss 2023? The shop's first design is still here.</p>
+        <form method="POST" action="{{ url_for('set_theme') }}">
+          <input type="hidden" name="next" value="{{ request.full_path.rstrip('?') }}" />
+          <input type="hidden" name="theme" value="classic" />
+          <button class="btn btn-small btn-ghost" type="submit">Switch to the classic design</button>
+        </form>
+      </div>
+    </footer>
+  </body>
+</html>

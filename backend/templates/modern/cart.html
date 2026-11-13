@@ -1,0 +1,28 @@
+{% extends 'modern/base.html' %}
+{% block title %}Cart{% endblock %}
+{% block content %}
+<h1 class="page-title">Your cart</h1>
+<div class="panel">
+  {% if products %}
+  {% for product in products %}
+  <div class="cart-row">
+    <img src="{{ product.image }}" alt="" />
+    <div>
+      <strong>{{ product.order }}</strong>
+      <div class="muted">{{ product.price | money }}</div>
+    </div>
+    <a class="btn btn-small btn-ghost" href="{{ url_for('del_cart', c_id=product.order_id, p_id=product.id) }}">Remove</a>
+  </div>
+  {% endfor %}
+  {% else %}
+  <p>Nothing here yet. The robots are disappointed.</p>
+  <a class="btn" href="{{ url_for('products') }}">Find a deal</a>
+  {% endif %}
+</div>
+{% if products %}
+<div class="panel total">
+  <span>Total: {{ price | money }}</span>
+  <a class="btn" href="{{ url_for('buy_products') }}">Pay {{ price | money }}</a>
+</div>
+{% endif %}
+{% endblock %}

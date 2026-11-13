@@ -149,16 +149,53 @@ def currency_values() -> dict:
     return {"currencies": CURRENCIES, "currency": current_currency(), "rates_date": exchange_rates()["date"]}
 
 
+def back_to_page() -> tuple:
+    """Back to the page the visitor was on (a path below the prefix), but only a page on this site."""
+    back = request.form.get("next", "")
+    if not back.startswith("/") or back.startswith("//"):
+        back = "/products/"
+    return redirect(request.script_root + back)
+
+
 @app.route("/currency", methods=["POST"])
 def set_currency() -> tuple:
     code = request.form.get("currency", "EUR")
     if code in CURRENCIES:
         session["currency"] = code
-    # Back to the page the visitor was on (a path below the prefix), but only a page on this site
-    back = request.form.get("next", "")
-    if not back.startswith("/") or back.startswith("//"):
-        back = "/products/"
-    return redirect(request.script_root + back)
+    return back_to_page()
+
+
+# Two designs on the same app: "new" (templates/modern/, the default) and "classic" (templates/,
+# the group's 2023 design with what was added since). A page the new design does not have yet
+# is shown in the classic one.
+THEMES = ("new", "classic")
+DEFAULT_THEME = os.environ.get("DEFAULT_THEME", "new") if os.environ.get("DEFAULT_THEME") in THEMES else "new"
+MODERN_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates", "modern")
+MODERN_PAGES = set(os.listdir(MODERN_DIR)) if os.path.isdir(MODERN_DIR) else set()
+
+
+def current_theme() -> str:
+    theme = session.get("theme", DEFAULT_THEME)
+    return theme if theme in THEMES else DEFAULT_THEME
+
+
+def render(name: str, **context) -> str:
+    if current_theme() == "new" and name in MODERN_PAGES:
+        name = "modern/" + name
+    return render_template(name, **context)
+
+
+@app.context_processor
+def theme_values() -> dict:
+    return {"theme": current_theme()}
+
+
+@app.route("/theme", methods=["POST"])
+def set_theme() -> tuple:
+    theme = request.form.get("theme", "")
+    if theme in THEMES:
+        session["theme"] = theme
+    return back_to_page()
 
 metrics = PrometheusMetrics(app)
 metrics.info("app_info", "home-page-service", version="1.0.1")
@@ -276,7 +313,10 @@ def check_user_auth() -> dict:
 
 @app.route("/")
 def index() -> tuple:
-    return render_template("landing.html")
+    # The fade-in intro belongs to the classic design; the new one opens on the shop
+    if current_theme() == "new":
+        return redirect(url_for("hello"))
+    return render("landing.html")
 
 
 @app.route("/home")
@@ -304,7 +344,7 @@ def hello() -> tuple:
     except requests.exceptions.RequestException as e:
         products = "Failed to fetch data"
 
-    return render_template(
+    return render(
         "index.html",
         products=cat_prod,
         utc_dt=datetime.datetime.utcnow(),
@@ -315,7 +355,7 @@ def hello() -> tuple:
 
 @app.route("/subscribe", methods=["POST"])
 def handling_sub() -> tuple:
-    return render_template(
+    return render(
         "index.html",
         utc_dt=datetime.datetime.utcnow,
         user=check_user_auth(),
@@ -343,7 +383,7 @@ def handle_products() -> tuple:
             products = json.loads(response.text)
     except requests.exceptions.RequestException as e:
         products = "Failed to fetch data"
-    return render_template(
+    return render(
         "admin-product.html",
         products=products,
         user=check_user_auth(),
@@ -355,20 +395,20 @@ def handle_products() -> tuple:
 
 @app.route("/login/", methods=["GET"])
 def get_login() -> tuple:
-    return render_template("login.html", user=check_user_auth())
+    return render("login.html", user=check_user_auth())
 
 
 @app.route("/logout", methods=["GET"])
 def logout() -> tuple:
     session.clear()
-    return render_template("login.html", user=check_user_auth())
+    return render("login.html", user=check_user_auth())
 
 
 @app.route("/admin-login/", methods=["GET"])
 def admin_login() -> tuple:
     if is_admin():
         return redirect(url_for("handle_products"))
-    return render_template("admin-login.html", user=check_user_auth())
+    return render("admin-login.html", user=check_user_auth())
 
 
 # Sends the magic link to Telegram; the page then polls admin_login_status
@@ -599,7 +639,7 @@ def account() -> tuple:
         # The account is gone (deleted elsewhere): log out
         session.clear()
         return redirect(url_for("get_login"))
-    return render_template(
+    return render(
         "account.html",
         profile=profile,
         current_avatar=profile.get("avatar") if profile.get("avatar") in AVATARS else AVATARS[0],
@@ -674,7 +714,7 @@ def account_delete() -> tuple:
 
 @app.route("/about/")
 def about() -> tuple:
-    return render_template(
+    return render(
         "about.html",
         user=check_user_auth(),
         value=get_count_for_current_user(),
@@ -702,7 +742,7 @@ def cart() -> tuple:
         prodjson[0]["order_id"] = id
         price = price + (euro_amount(prodjson[0]["price"]) or Decimal("0"))
         data.append(prodjson[0])
-    return render_template(
+    return render(
         "cart.html",
         products=data,
         user=check_user_auth(),
@@ -744,7 +784,7 @@ def products() -> tuple:
         for x in products_all:
             for a in x["category"]:
                 category.append(a.strip())
-    return render_template(
+    return render(
         "products.html",
         products=products,
         category=list(dict.fromkeys(category)),
@@ -783,7 +823,7 @@ def handle_category_product() -> tuple:
             for x in products_all:
                 for a in x["category"]:
                     category.append(a)
-            return render_template(
+            return render(
                 "products.html",
                 products=products_category,
                 category=list(dict.fromkeys(category)),
@@ -839,7 +879,7 @@ def buy_products() -> tuple:
     response = requests.post(d_url, data=json_data, headers=headers)
 
     if response.status_code == 201 and empty_cart(respjson):
-        return render_template(
+        return render(
             "checkout.html",
             user=check_user_auth(),
             value=get_count_for_current_user(),
@@ -884,7 +924,7 @@ def server() -> tuple:
         {"name": "order-processing-service", "status": r3},
     ]
 
-    return render_template(
+    return render(
         "server.html",
         utc_dt=datetime.datetime.utcnow(),
         status=status,

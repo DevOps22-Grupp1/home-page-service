@@ -1,0 +1,27 @@
+{% extends 'modern/base.html' %}
+{% block title %}Unbelievable prices{% endblock %}
+{% block content %}
+<section class="hero">
+  <div>
+    <h1>Unbelievable prices. <em>Unbeatable scams.</em></h1>
+    <p>Discover the ultimate shopping experience: amazing deals, exclusive products and a team of
+      robots who would never, ever overcharge you.</p>
+    <a class="btn" href="{{ url_for('products') }}">Shop the deals</a>
+    {% if user["user"] == "false" %}
+    <p class="muted">Just looking? Log in as <strong>{{ demo_username or "a customer" }}</strong>{% if demo_password %} with the password <strong>{{ demo_password }}</strong>{% endif %} to fill a cart.</p>
+    {% endif %}
+  </div>
+  <div class="hero-bots" aria-hidden="true">
+    {% for avatar in avatars %}
+    <img src="{{ url_for('static', filename='avatars/' + avatar) }}" alt="" width="96" height="96" />
+    {% endfor %}
+  </div>
+</section>
+
+<h2 class="section-title">Best sellers (allegedly)</h2>
+<div class="grid">
+  {% for product in products %}
+  {% include 'modern/_card.html' %}
+  {% endfor %}
+</div>
+{% endblock %}

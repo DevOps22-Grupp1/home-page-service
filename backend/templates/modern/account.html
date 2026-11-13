@@ -1,0 +1,48 @@
+{% extends 'modern/base.html' %}
+{% block title %}Your account{% endblock %}
+{% block content %}
+<h1 class="page-title">Your account</h1>
+{% if message %}
+<p class="message" role="status">{{ message }}</p>
+{% endif %}
+<div class="two-col">
+  <form class="panel" method="POST" action="{{ url_for('account_profile') }}">
+    <h2>Profile</h2>
+    <p>Username: <strong>{{ profile.username }}</strong></p>
+    <fieldset class="avatar-pick">
+      <legend>Your robot</legend>
+      {% for avatar in avatars %}
+      <label>
+        <input type="radio" name="avatar" value="{{ avatar }}" {% if avatar == current_avatar %}checked{% endif %} />
+        <img src="{{ url_for('static', filename='avatars/' + avatar) }}" alt="Robot {{ loop.index }}" width="48" height="48" />
+      </label>
+      {% endfor %}
+    </fieldset>
+    {% if is_demo %}
+    <p class="demo">This is the shared demo account: you can pick its robot, but its name and email stay.</p>
+    {% else %}
+    <label class="field">Name <input name="name" value="{{ profile.name }}" required /></label>
+    <label class="field">Email <input name="email" type="email" value="{{ profile.email }}" required /></label>
+    {% endif %}
+    <button class="btn" type="submit">Save</button>
+  </form>
+
+  {% if not is_demo %}
+  <div>
+    <form class="panel" method="POST" action="{{ url_for('account_password') }}">
+      <h2>Password</h2>
+      <label class="field">Current password <input name="current" type="password" autocomplete="current-password" required /></label>
+      <label class="field">New password <input name="new" type="password" autocomplete="new-password" required /></label>
+      <label class="field">New password again <input name="repeat" type="password" autocomplete="new-password" required /></label>
+      <button class="btn" type="submit">Change password</button>
+    </form>
+    <form class="panel" method="POST" action="{{ url_for('account_delete') }}">
+      <h2>Delete the account</h2>
+      <p class="muted">The account and its cart are deleted for good. Type your password to confirm.</p>
+      <label class="field">Password <input name="password" type="password" autocomplete="current-password" required /></label>
+      <button class="btn btn-danger" type="submit">Delete my account</button>
+    </form>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

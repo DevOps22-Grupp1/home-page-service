@@ -1,0 +1,27 @@
+{% extends 'modern/base.html' %}
+{% block title %}About{% endblock %}
+{% block content %}
+<h1 class="page-title">About the scam</h1>
+<div class="two-col">
+  <div class="panel">
+    <h2>What this is</h2>
+    <p>Scamazon is a DevOps group project from 2023: a web shop split into small services that each
+      run in their own Docker container. Nothing here is for sale; the deals are as real as the
+      robots.</p>
+    <p>The home page is Python Flask. It talks to three services over HTTP, and they share one
+      MongoDB.</p>
+  </div>
+  <div class="panel">
+    <h2>The parts</h2>
+    <ul>
+      <li><strong>home page</strong>: Flask, the pages you see, sessions</li>
+      <li><strong>products</strong>: the catalogue and its categories</li>
+      <li><strong>users</strong>: accounts, hashed passwords</li>
+      <li><strong>orders</strong>: carts and orders</li>
+      <li><strong>MongoDB</strong>: one database for all three</li>
+    </ul>
+    <p class="muted">Built and deployed with Docker Compose and GitHub Actions; a smoke test signs up,
+      shops and pays before every deploy.</p>
+  </div>
+</div>
+{% endblock %}

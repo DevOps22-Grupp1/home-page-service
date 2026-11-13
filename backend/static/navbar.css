@@ -84,3 +84,14 @@ body {
   color: #333;
   cursor: pointer;
 }
+
+.navbar .theme-switch {
+  font-size: 15px;
+  font-weight: bold;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 2px solid #ff9900;
+  background: #333;
+  color: #ff9900;
+  cursor: pointer;
+}
