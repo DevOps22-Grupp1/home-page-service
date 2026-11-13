@@ -75,12 +75,29 @@
         >Login</a
       >
       {% endif %}
+      <!-- The currency prices are shown in (stored in euro, converted at the ECB rate) -->
+      <form class="currency" method="POST" action="{{ url_for('set_currency') }}">
+        <input type="hidden" name="next" value="{{ request.full_path.rstrip('?') }}" />
+        <select name="currency" aria-label="Currency" onchange="this.form.submit()">
+          {% for code in currencies %}
+          <option value="{{ code }}" {% if code == currency %}selected{% endif %}>{{ code }}</option>
+          {% endfor %}
+        </select>
+        <noscript><button type="submit">OK</button></noscript>
+      </form>
       <a href="javascript:void(0);" class="icon" onclick="myFunction()">
         <i class="fa fa-bars"></i>
       </a>
     </nav>
 
-    <div class="content">{% block content %} {% endblock %}</div>
+    <div class="content">
+      {% if currency != "EUR" %}
+      <p class="rate-note">
+        Prices in {{ currency }}, converted from euro at the European Central Bank's rate{% if rates_date %} of {{ rates_date }}{% endif %}.
+      </p>
+      {% endif %}
+      {% block content %} {% endblock %}
+    </div>
     <footer>
       <div class="footer-column">
         <h3>Useful Links</h3>
