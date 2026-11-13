@@ -8,6 +8,8 @@ from prometheus_flask_exporter import PrometheusMetrics
 import os
 import math
 import time
+import xml.etree.ElementTree as ET
+from decimal import Decimal, ROUND_HALF_UP
 
 server_port = os.environ.get("SERVER_PORT")
 user_management = os.environ.get("USER_URL")
@@ -63,6 +65,100 @@ def avatar_url(name: str) -> str:
 @app.context_processor
 def login_page_values() -> dict:
     return {"avatars": AVATARS, "demo_username": DEMO_USERNAME, "demo_password": DEMO_PASSWORD}
+
+
+# Prices are stored in euro. A visitor picks the currency they are shown in; the amounts are
+# converted with the European Central Bank's daily reference rates (no key needed), fetched at
+# most twice a day. If the ECB cannot be reached, the last rates or these fallbacks are used.
+CURRENCIES = {
+    # code: (symbol, symbol first, thousands separator, decimal separator)
+    "EUR": ("€", True, ",", "."),
+    "SEK": ("kr", False, " ", ","),
+    "USD": ("$", True, ",", "."),
+    "GBP": ("£", True, ",", "."),
+}
+FALLBACK_RATES = {"EUR": Decimal("1"), "SEK": Decimal("11.2"), "USD": Decimal("1.08"), "GBP": Decimal("0.85")}
+ECB_RATES_URL = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml"
+_rates = {"rates": dict(FALLBACK_RATES), "date": "", "fetched_at": 0.0}
+
+
+def exchange_rates() -> dict:
+    if time.time() - _rates["fetched_at"] > 12 * 3600:
+        _rates["fetched_at"] = time.time()  # also after a failure: try again in 12 hours
+        # Any failure keeps the rates there are: prices must never break a page
+        try:
+            response = requests.get(ECB_RATES_URL, timeout=5)
+            response.raise_for_status()
+            root = ET.fromstring(response.content)
+            rates = {"EUR": Decimal("1")}
+            for cube in root.iter():
+                if cube.get("currency") in CURRENCIES:
+                    rates[cube.get("currency")] = Decimal(cube.get("rate"))
+                if cube.get("time"):
+                    _rates["date"] = cube.get("time")
+            if set(rates) == set(CURRENCIES):
+                _rates["rates"] = rates
+        except Exception:
+            pass
+    return _rates
+
+
+def current_currency() -> str:
+    code = session.get("currency", "EUR")
+    return code if code in CURRENCIES else "EUR"
+
+
+def euro_amount(value) -> Decimal | None:
+    """A stored price as a number; None for one that is not (older products may hold text)."""
+    try:
+        amount = Decimal(str(value).strip())
+    except ArithmeticError:
+        return None
+    return amount if amount.is_finite() else None
+
+
+def to_currency(euros, code: str) -> Decimal:
+    amount = Decimal(str(euros)) * exchange_rates()["rates"][code]
+    return amount.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+
+
+def admin_price(text: str) -> float | None:
+    """A price from the admin form, in euro: "399.99" or "399,99". Stored as a number, so the
+    shop can convert and add it up; None when it is not a price."""
+    amount = euro_amount(text.replace(",", "."))
+    if amount is None or amount < 0:
+        return None
+    return float(amount.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
+
+
+@app.template_filter("money")
+def money(euros) -> str:
+    """A price in euro, shown in the visitor's currency: €399.99, 4 479,89 kr, $431.99."""
+    amount = euro_amount(euros)
+    if amount is None:
+        return str(euros)  # shown as stored rather than breaking the page
+    code = current_currency()
+    symbol, first, thousands, decimal = CURRENCIES[code]
+    whole, cents = f"{to_currency(amount, code):,.2f}".split(".")
+    number = whole.replace(",", thousands) + decimal + cents
+    return f"{symbol}{number}" if first else f"{number} {symbol}"
+
+
+@app.context_processor
+def currency_values() -> dict:
+    return {"currencies": CURRENCIES, "currency": current_currency(), "rates_date": exchange_rates()["date"]}
+
+
+@app.route("/currency", methods=["POST"])
+def set_currency() -> tuple:
+    code = request.form.get("currency", "EUR")
+    if code in CURRENCIES:
+        session["currency"] = code
+    # Back to the page the visitor was on (a path below the prefix), but only a page on this site
+    back = request.form.get("next", "")
+    if not back.startswith("/") or back.startswith("//"):
+        back = "/products/"
+    return redirect(request.script_root + back)
 
 metrics = PrometheusMetrics(app)
 metrics.info("app_info", "home-page-service", version="1.0.1")
@@ -340,7 +436,9 @@ def update_p() -> tuple:
     newCat = []
     id = request.form["id"]
     order = request.form["updateOrder"]
-    price = request.form["updatePrice"]
+    price = admin_price(request.form["updatePrice"])
+    if price is None:
+        return "The price must be a number of euros, like 399.99.", 400
     img = request.form["updateImg"]
     catArray = request.form["updateCat"].split(",")
     for x in catArray:
@@ -384,7 +482,9 @@ def del_cart() -> tuple:
 @admin_route
 def post_product() -> tuple:
     order = request.form["name"]
-    price = request.form["price"]
+    price = admin_price(request.form["price"])
+    if price is None:
+        return "The price must be a number of euros, like 399.99.", 400
     img = request.form["images"]
     cat = request.form["category"]
     add_url = f"http://{product_catalog}:{product_port}/api/product"
@@ -572,7 +672,7 @@ def about() -> tuple:
 @customer_route
 def cart() -> tuple:
     data = []
-    price = 0
+    price = Decimal("0")
     user_id = current_customer()["id"]
     request = requests.get(
         f"http://{order_processing}:{order_port}/api/cart-user/{user_id}"
@@ -587,14 +687,14 @@ def cart() -> tuple:
         )
         prodjson = json.loads(prodreq.text)
         prodjson[0]["order_id"] = id
-        price = price + prodjson[0]["price"]
+        price = price + (euro_amount(prodjson[0]["price"]) or Decimal("0"))
         data.append(prodjson[0])
     return render_template(
         "cart.html",
         products=data,
         user=check_user_auth(),
         value=get_count_for_current_user(),
-        price=round(price, 2),
+        price=price,
     )
 
 
@@ -688,7 +788,7 @@ def handle_category_product() -> tuple:
 @customer_route
 def buy_products() -> tuple:
     data = []
-    price = 0
+    price = Decimal("0")
     user_id = current_customer()["id"]
     request = requests.get(
         f"http://{order_processing}:{order_port}/api/cart-user/{user_id}"
@@ -703,7 +803,7 @@ def buy_products() -> tuple:
         )
         prodjson = json.loads(prodreq.text)
         prodjson[0]["order_id"] = id
-        price = price + prodjson[0]["price"]
+        price = price + (euro_amount(prodjson[0]["price"]) or Decimal("0"))
         data.append(prodjson[0])
 
     json_data = json.dumps(
@@ -711,7 +811,11 @@ def buy_products() -> tuple:
             "userid": int(user_id),
             "history": data,
             "time": str(datetime.datetime.now()),
-            "price": price,
+            # The total in euro, as before, and what the customer saw and paid in
+            "price": float(price),
+            "currency": current_currency(),
+            "rate": str(exchange_rates()["rates"][current_currency()]),
+            "price_in_currency": str(to_currency(price, current_currency())),
         }
     )
 
@@ -727,6 +831,8 @@ def buy_products() -> tuple:
             user=check_user_auth(),
             value=get_count_for_current_user(),
         )
+    # The order did not go through: back to the cart instead of an error page
+    return redirect(url_for("cart"))
 
 
 @app.route("/server/")

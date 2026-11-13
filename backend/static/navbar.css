@@ -69,3 +69,18 @@ body {
     text-align: left;
   }
 }
+/* The currency picker, at the right of the menu */
+.navbar .currency {
+  float: right;
+  margin: 12px 14px;
+}
+
+.navbar .currency select {
+  font-size: 16px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  border: none;
+  background: #f2f2f2;
+  color: #333;
+  cursor: pointer;
+}

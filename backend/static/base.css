@@ -149,3 +149,11 @@ footer .social-media-icons a.twitter-icon {
 footer .social-media-icons a.instagram-icon {
   color: #8a51a4;
 }
+
+/* Under the menu when prices are converted from euro */
+.rate-note {
+  margin: 0 0 10px;
+  font-size: 0.9em;
+  color: #555;
+  text-align: center;
+}
