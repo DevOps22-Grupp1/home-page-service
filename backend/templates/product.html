@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<div style="width: 85%; margin: auto; color: black">
+  <h1>{% block title %} {{ product.order }} {% endblock %}</h1>
+  <img src="{{ product.image }}" alt="pic of {{ product.order }}" style="max-height: 400px; max-width: 100%" />
+  <p style="font-size: 24px">{{ product.price | money }}</p>
+  <p style="font-size: 20px">category:{% for cat in product.category %} {{ cat }} {% endfor %}</p>
+  {% if user["role"] == "customer" %}
+  <a href="{{ url_for('buy', id=product.id) }}"><button class="button-89">Add to cart</button></a>
+  {% endif %}
+  <h2>Reviews</h2>
+  {% for review in reviews %}
+  <p><strong>{{ review.name }}</strong> ★★★★★<br />{{ review.text }}</p>
+  {% endfor %}
+</div>
+{% endblock %}

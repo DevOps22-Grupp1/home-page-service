@@ -1,0 +1,39 @@
+{% extends 'modern/base.html' %}
+{% block title %}My orders{% endblock %}
+{% block content %}
+<h1 class="page-title">My orders</h1>
+{% if not orders %}
+<div class="panel">
+  <p>No orders yet. The robots are patient.</p>
+  <a class="btn" href="{{ url_for('products') }}">Find a deal</a>
+</div>
+{% endif %}
+{% for order in orders %}
+<article class="panel order">
+  <div class="order-head">
+    <h2>Order #{{ order.id }}</h2>
+    <span class="muted">{{ order.when }}</span>
+    <strong class="order-total">{{ order.shown_total }}</strong>
+  </div>
+  <ul class="order-lines">
+    {% for item in order.history or [] %}
+    <li>
+      <img src="{{ item.image }}" alt="" width="56" height="44" />
+      <a href="{{ url_for('product_page', product_id=item.id | int(0)) }}">{{ item.order }}</a>
+      <span class="muted">{{ item.price | euro }}</span>
+    </li>
+    {% endfor %}
+    {% for extra in order.extras or [] %}
+    <li class="order-extra">
+      <span aria-hidden="true">🛡️</span>
+      <span>{{ extra.name }} <span class="muted">(the pre-ticked add-on)</span></span>
+      <span class="muted">{{ extra.price | euro }}</span>
+    </li>
+    {% endfor %}
+  </ul>
+  {% if order.currency != "EUR" %}
+  <p class="muted">Paid in {{ order.currency }} at {{ order.rate }} per euro ({{ order.price | euro }}).</p>
+  {% endif %}
+</article>
+{% endfor %}
+{% endblock %}

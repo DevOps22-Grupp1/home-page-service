@@ -1,0 +1,51 @@
+{% extends 'modern/base.html' %}
+{% block title %}Products{% endblock %}
+{% block content %}
+<h1 class="page-title">Manage the products</h1>
+<p><a class="btn btn-small btn-ghost" href="{{ url_for('admin_dashboard') }}">Back to the dashboard</a></p>
+
+<form class="panel admin-add" action="{{ url_for('post_product') }}" method="post">
+  <h2>Add a product</h2>
+  <div class="admin-fields">
+    <label class="field">Name <input name="name" required /></label>
+    <label class="field">Price (EUR) <input name="price" inputmode="decimal" placeholder="399.99" required /></label>
+    <label class="field">Category <input name="category" placeholder="kitchen" required /></label>
+    <label class="field">Image URL <input name="images" type="url" placeholder="https://…" /></label>
+  </div>
+  <button class="btn" type="submit">Add the product</button>
+</form>
+
+{% if products == "Failed to fetch data" %}
+<p class="panel">The product service did not answer.</p>
+{% else %}
+<div class="admin-products">
+  {% for product in products %}
+  <article class="panel admin-product">
+    <img src="{{ product.image }}" alt="" width="96" height="96" />
+    <form action="{{ url_for('update_p') }}" method="post" class="admin-fields">
+      <input type="hidden" name="id" value="{{ product.id }}" />
+      <label class="field">Name <input name="updateOrder" value="{{ product.order }}" required /></label>
+      <label class="field">Price (EUR) <input name="updatePrice" value="{{ product.price }}" inputmode="decimal" required /></label>
+      <label class="field">Categories <input name="updateCat" value="{{ product.category | join(', ') }}" /></label>
+      <label class="field">Image URL <input name="updateImg" value="{{ product.image }}" /></label>
+      <div class="admin-actions">
+        <button class="btn btn-small" type="submit">Save</button>
+        <a class="btn btn-small btn-danger" href="{{ url_for('delete_p', id=product.id) }}"
+          onclick="return confirm('Delete {{ product.order | e }}?')">Delete</a>
+        <span class="muted">#{{ product.id }}</span>
+      </div>
+    </form>
+  </article>
+  {% endfor %}
+</div>
+
+<nav aria-label="Pages">
+  <ul class="pages">
+    {% for n in range(1, total_page + 1) %}
+    <li><a href="{{ url_for('handle_products', page=n) }}" {% if n == current_page %}aria-current="page"{% endif %}>{{ n }}</a></li>
+    {% endfor %}
+    <li><a href="{{ url_for('handle_products', page=0) }}" {% if current_page == 0 %}aria-current="page"{% endif %}>All</a></li>
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

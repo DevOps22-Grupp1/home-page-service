@@ -1,0 +1,16 @@
+{% extends 'modern/base.html' %}
+{% block title %}Thank you{% endblock %}
+{% block content %}
+<section class="hero">
+  <div>
+    <h1>Thank you for your purchase. <em>Please don't come again!</em></h1>
+    <p>Your order is stored. Delivery estimate: somewhere between tomorrow and never.</p>
+    <a class="btn" href="{{ url_for('products') }}">Keep shopping anyway</a>
+  </div>
+  <div class="hero-bots" aria-hidden="true">
+    {% for avatar in avatars[:4] %}
+    <img src="{{ url_for('static', filename='avatars/' + avatar) }}" alt="" width="96" height="96" />
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

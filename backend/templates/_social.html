@@ -1,0 +1,22 @@
+{# The favicon sizes, and what a shared link shows (Open Graph and Twitter cards). The card is
+   drawn in tools/social-cards/. Link previews need absolute addresses: _external=True, which
+   ProxyFix turns into https://jarllindquist.com/scamazon/... behind Traefik. #}
+{% set og_title = "Scamazon — a web shop in microservices" %}
+{% set og_description = "A DevOps group project in Flask microservices, now a working shop: accounts, four currencies, five designs, and seven dark patterns on purpose that one button reveals and explains. Log in as demo / demo." %}
+{% set og_image = url_for('static', filename='og-scamazon.png', _external=True) %}
+<meta name="description" content="{{ og_description }}" />
+<link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon_io/favicon-32x32.png') }}" />
+<link rel="apple-touch-icon" href="{{ url_for('static', filename='favicon_io/apple-touch-icon.png') }}" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Scamazon" />
+<meta property="og:url" content="{{ request.base_url }}" />
+<meta property="og:title" content="{{ og_title }}" />
+<meta property="og:description" content="{{ og_description }}" />
+<meta property="og:image" content="{{ og_image }}" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="{{ og_title }}" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="{{ og_title }}" />
+<meta name="twitter:description" content="{{ og_description }}" />
+<meta name="twitter:image" content="{{ og_image }}" />

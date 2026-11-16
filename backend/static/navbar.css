@@ -1,0 +1,97 @@
+/* navbar.css */
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Lucida Sans',
+    sans-serif;
+  background-color: lightgray;
+}
+
+.navbar {
+  background-color: #333;
+  overflow: hidden;
+  font-size: 16px;
+}
+
+.navbar a {
+  float: left;
+  display: block;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+.navbar a:hover {
+  background: #ff9900;
+  color: white;
+}
+
+.navbar a.logo {
+  font-size: 25px;
+  font-weight: bold;
+}
+
+.navbar a.right {
+  float: right;
+}
+
+.navbar a.icon {
+  display: none;
+}
+
+@media screen and (max-width: 600px) {
+  .navbar a:not(:first-child) {
+    display: none;
+  }
+
+  .navbar a.icon {
+    float: right;
+    display: block;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .navbar.responsive {
+    position: relative;
+  }
+
+  .navbar.responsive a.icon {
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+
+  .navbar.responsive a {
+    float: none;
+    display: block;
+    text-align: left;
+  }
+}
+/* The currency picker, at the right of the menu */
+.navbar .currency {
+  float: right;
+  margin: 12px 14px;
+}
+
+.navbar .currency select {
+  font-size: 16px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  border: none;
+  background: #f2f2f2;
+  color: #333;
+  cursor: pointer;
+}
+
+.navbar .theme-switch {
+  font-size: 15px;
+  font-weight: bold;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 2px solid #ff9900;
+  background: #333;
+  color: #ff9900;
+  cursor: pointer;
+}

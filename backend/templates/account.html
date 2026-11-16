@@ -1,0 +1,52 @@
+{% extends 'base.html' %} {% block content %}
+<div class="account">
+  <h1>{% block title %} Your account {% endblock %}</h1>
+  {% if message %}
+  <p class="account-message" role="status">{{ message }}</p>
+  {% endif %}
+
+  <section>
+    <h2>Profile</h2>
+    <form method="POST" action="{{ url_for('account_profile') }}">
+      <p class="account-note">Username: <strong>{{ profile.username }}</strong></p>
+      <fieldset class="account-avatars">
+        <legend>Avatar</legend>
+        {% for avatar in avatars %}
+        <label>
+          <input type="radio" name="avatar" value="{{ avatar }}" {% if avatar == current_avatar %}checked{% endif %}>
+          <img src="{{ url_for('static', filename='avatars/' + avatar) }}" alt="Robot {{ loop.index }}" width="48" height="48">
+        </label>
+        {% endfor %}
+      </fieldset>
+      {% if is_demo %}
+      <p class="account-note">This is the shared demo account: you can pick its robot, but its name and email stay.</p>
+      {% else %}
+      <label>Name <input name="name" value="{{ profile.name }}" required></label>
+      <label>Email <input name="email" type="email" value="{{ profile.email }}" required></label>
+      {% endif %}
+      <button class="button-89" type="submit">Save</button>
+    </form>
+  </section>
+
+  {% if not is_demo %}
+  <section>
+    <h2>Password</h2>
+    <form method="POST" action="{{ url_for('account_password') }}">
+      <label>Current password <input name="current" type="password" autocomplete="current-password" required></label>
+      <label>New password <input name="new" type="password" autocomplete="new-password" required></label>
+      <label>New password again <input name="repeat" type="password" autocomplete="new-password" required></label>
+      <button class="button-89" type="submit">Change password</button>
+    </form>
+  </section>
+
+  <section class="account-danger">
+    <h2>Delete the account</h2>
+    <p class="account-note">The account and its cart are deleted for good. Type your password to confirm.</p>
+    <form method="POST" action="{{ url_for('account_delete') }}">
+      <label>Password <input name="password" type="password" autocomplete="current-password" required></label>
+      <button class="button-89" type="submit">Delete my account</button>
+    </form>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends 'base.html' %} {% block content %}
+<div>
+<h1 style="text-align: center">{% block title %} Products {% endblock %}</h1>
+
+</div>
+<div style="width: 20%; margin: auto">
+<div
+  style="
+    padding: 10px;
+    background-color: #e6f9ff;
+    margin: 20px;
+    border-radius: 10px;
+    display: inline-block;
+  "
+>
+<h2>{% block subtitle %} New Products {% endblock %}</h2>
+  <form action="{{ url_for('post_product') }}" method="post" enctype="multipart/form-data">
+    <label for="name">Name of the product:</label><br />
+    <input type="text" name="name" required /><br /><br />
+    <label for="price">Price (EUR):</label><br />
+    <input type="text" name="price" required /><br /><br />
+    <label for="images">Images(only working on with urls):</label><br />
+    <input type="text" name="images" /><br /><br />
+
+    <input type="submit" value="add product" />
+  </form>
+</div>
+</div>
+
+</div>
+
+<div style="width: 60%; margin: auto">
+  <div class="pagination">
+    {% if current_page != 1 %}
+    <a href="{{ url_for('handle_products', page="1" )}}">&laquo;</a>
+    {% endif %}
+  {% for n in range(1,total_page+1) %}
+    <a class="{% if current_page == n %} pager {% endif %}" href="{{ url_for('handle_products', page=n ) }}">{{n}}</a>
+  {% endfor %}
+  {% if current_page != total_page %}
+    <a href="{{ url_for('handle_products', page=total_page )}}">&raquo;</a>
+  {% endif %}
+    <a href="{{ url_for('handle_products', page="0")}}"><i class="fa-solid fa-list"></i></a>
+  </div>
+  <h2 style="text-align: center">{% block undertitle %} All Products {% endblock %}</h2>
+  {% for product in products %}
+  <div
+    style="
+      padding: 10px;
+      background-color: #e6f9ff;
+      margin: 10px;
+      border-radius: 10px;
+      display: inline-block;
+    "
+  >
+    <p>id:{{ product.id }}</p>
+    <div>
+      <form action="{{ url_for('update_p') }}" method="post" enctype="multipart/form-data">
+        <input hidden name="id" value="{{ product.id }}" />
+        <p>
+          <input type="text" name="updateOrder" value="{{ product.order }}" />
+        </p>
+        <p>
+          <input type="text" name="updatePrice" value="{{ product.price }}" />
+        </p>
+        <p>
+          <input type="text" name="updateCat" value="{% for cat in product.category %} {{ cat}} {% endfor %}" />
+        </p>
+        <p>
+          <input type="text" name="updateImg" value="{{ product.image }}" />
+        </p>
+        <p>
+          <img style="height: 100px; margin-left: 10px;" src="{{ product.image }}" alt="image of {{product.order}}" />
+        </p>
+          <br />
+          <br />
+          <input type="submit" value="Update Order" />
+        </p>
+      </form>
+    </div>
+
+    <a href="{{ url_for('delete_p', id=product.id ) }}"
+      ><button class="button-89">Delete Order</button></a
+    >
+  </div>
+  {% endfor %}
+  <div class="pagination">
+    {% if current_page != 1 %}
+    <a href="{{ url_for('handle_products', page="1" )}}">&laquo;</a>
+    {% endif %}
+  {% for n in range(1,total_page+1) %}
+    <a class="{% if current_page == n %} pager {% endif %}" href="{{ url_for('handle_products', page=n ) }}">{{n}}</a>
+  {% endfor %}
+  {% if current_page != total_page %}
+    <a href="{{ url_for('handle_products', page=total_page )}}">&raquo;</a>
+  {% endif %}
+    <a href="{{ url_for('handle_products', page="0")}}"><i class="fa-solid fa-list"></i></a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends 'modern/base.html' %}
+{% block title %}Admin{% endblock %}
+{% block content %}
+<h1 class="page-title">Admin</h1>
+{% if message %}
+<p class="message" role="status">{{ message }}</p>
+{% endif %}
+<p><a class="btn btn-small btn-ghost" href="{{ url_for('handle_products') }}">Manage the products</a></p>
+
+<div class="stat-row">
+  <div class="panel stat"><span class="stat-label">Orders</span><span class="stat-value">{{ summary.orders }}</span></div>
+  <div class="panel stat"><span class="stat-label">Revenue</span><span class="stat-value">{{ summary.revenue | euro }}</span></div>
+  <div class="panel stat"><span class="stat-label">Average order</span><span class="stat-value">{{ summary.average | euro }}</span></div>
+  <div class="panel stat" data-trick="preselected">
+    <span class="stat-label">Kept the pre-ticked add-on</span>
+    <span class="stat-value">{{ summary.addon_rate }}%</span>
+    <span class="muted stat-note">{{ summary.with_addon }} of {{ summary.orders }} orders</span>
+  </div>
+  <div class="panel stat"><span class="stat-label">Customer accounts</span><span class="stat-value">{{ user_count if user_count is not none else "–" }}</span></div>
+</div>
+
+<section class="panel">
+  <h2>Orders per day</h2>
+  <p class="muted">The last {{ summary.per_day | length }} days. Hover a bar for the day's orders and revenue.</p>
+  <svg class="bars" viewBox="0 0 {{ chart.width }} {{ chart.height }}" role="img"
+    aria-label="Orders per day for the last {{ summary.per_day | length }} days; the table below has the numbers">
+    <line x1="0" y1="{{ chart.height - 18 }}" x2="{{ chart.width }}" y2="{{ chart.height - 18 }}" class="bars-axis" />
+    {% for b in chart.bars %}
+    <g>
+      <title>{{ b.day }}: {{ b.orders }} order{{ "" if b.orders == 1 else "s" }}, {{ b.revenue | euro }}</title>
+      <rect x="{{ b.x }}" y="{{ b.y }}" width="{{ b.w }}" height="{{ [b.h, 0.01] | max }}" rx="3" class="bars-bar" />
+      <rect x="{{ b.x - 2 }}" y="0" width="{{ b.w + 4 }}" height="{{ chart.height - 18 }}" fill="transparent" />
+      {% if b.label %}<text x="{{ b.x + b.w / 2 }}" y="{{ chart.height - 4 }}" text-anchor="middle" class="bars-label">{{ b.label }}</text>{% endif %}
+      {% if b.orders %}<text x="{{ b.x + b.w / 2 }}" y="{{ b.y - 4 }}" text-anchor="middle" class="bars-value">{{ b.orders }}</text>{% endif %}
+    </g>
+    {% endfor %}
+  </svg>
+  <details>
+    <summary>The numbers as a table</summary>
+    <table class="data-table">
+      <thead><tr><th>Day</th><th>Orders</th><th>Revenue</th></tr></thead>
+      <tbody>
+        {% for d in summary.per_day %}
+        <tr><td>{{ d.day }}</td><td>{{ d.orders }}</td><td>{{ d.revenue | euro }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </details>
+</section>
+
+<div class="two-col">
+  <section class="panel">
+    <h2>Best sellers</h2>
+    {% if summary.sellers %}
+    <ol>
+      {% for name, count in summary.sellers %}
+      <li>{{ name }} <span class="muted">({{ count }})</span></li>
+      {% endfor %}
+    </ol>
+    {% else %}<p class="muted">No orders yet.</p>{% endif %}
+    <h2>Paid in</h2>
+    {% if summary.currencies %}
+    <ul>
+      {% for code, count in summary.currencies %}
+      <li>{{ code }} <span class="muted">({{ count }} order{{ "" if count == 1 else "s" }})</span></li>
+      {% endfor %}
+    </ul>
+    {% else %}<p class="muted">No orders yet.</p>{% endif %}
+  </section>
+
+  <form class="panel" method="POST" action="{{ url_for('admin_create_user') }}">
+    <h2>Create a customer account</h2>
+    <p class="muted">Always a customer; nobody gets admin this way.</p>
+    <label class="field">Username <input name="username" autocomplete="off" required /></label>
+    <label class="field">Name <input name="name" required /></label>
+    <label class="field">Email <input name="email" type="email" required /></label>
+    <label class="field">Password <input name="password" type="password" autocomplete="new-password" required /></label>
+    <fieldset class="avatar-pick">
+      <legend>Robot</legend>
+      {% for avatar in avatars %}
+      <label>
+        <input type="radio" name="avatar" value="{{ avatar }}" {% if loop.first %}checked{% endif %} />
+        <img src="{{ url_for('static', filename='avatars/' + avatar) }}" alt="Robot {{ loop.index }}" width="40" height="40" />
+      </label>
+      {% endfor %}
+    </fieldset>
+    <button class="btn" type="submit">Create the account</button>
+  </form>
+</div>
+{% endblock %}

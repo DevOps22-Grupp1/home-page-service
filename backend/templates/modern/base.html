@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}{% endblock %} · Scamazon™</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='modern.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='design-switch.css') }}" />
+    <link rel="icon" type="image/ico" href="{{ url_for('static', filename='favicon.ico') }}" />
+    {% include '_social.html' %}
+  </head>
+  <body data-style="{{ theme }}"{% if reveal %} class="reveal"{% endif %}>
+    <a class="skip" href="#main">Skip to the deals</a>
+    <header class="top">
+      <nav class="nav" aria-label="Main">
+        <a class="brand" href="{{ url_for('hello') }}">
+          <svg viewBox="0 0 64 32" aria-hidden="true"><path d="M6 10 Q32 34 56 12" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><path d="M46 9l10 3-3 10" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>SCAMAZON<sup>™</sup></span>
+        </a>
+        <ul class="links">
+          <li><a href="{{ url_for('products') }}">Deals</a></li>
+          <li><a href="{{ url_for('about') }}">About</a></li>
+          <li><a href="{{ url_for('server') }}">Status</a></li>
+          {% if user["role"] == "admin" %}
+          <li><a href="{{ url_for('admin_dashboard') }}">Admin</a></li>
+          {% endif %}
+        </ul>
+        <div class="tools">
+          <form method="POST" action="{{ url_for('toggle_tricks') }}">
+            <input type="hidden" name="next" value="{{ request.full_path.rstrip('?') }}" />
+            <button class="reveal-btn" type="submit" aria-pressed="{{ 'true' if reveal else 'false' }}">
+              {{ "Hide the tricks" if reveal else "Reveal the tricks" }}
+            </button>
+          </form>
+          <form method="POST" action="{{ url_for('set_currency') }}">
+            <input type="hidden" name="next" value="{{ request.full_path.rstrip('?') }}" />
+            <label class="sr" for="currency">Currency</label>
+            <select id="currency" name="currency" onchange="this.form.submit()">
+              {% for code in currencies %}
+              <option value="{{ code }}" {% if code == currency %}selected{% endif %}>{{ code }}</option>
+              {% endfor %}
+            </select>
+            <noscript><button type="submit">OK</button></noscript>
+          </form>
+          {% if user["role"] == "customer" %}
+          <a class="me" href="{{ url_for('account') }}" title="Your account">
+            <img src="{{ user['image'] }}" alt="" width="34" height="34" /><span>{{ user["user"] }}</span>
+          </a>
+          <a class="plain" href="{{ url_for('orders') }}">My orders</a>
+          <a class="cart" href="{{ url_for('cart') }}" aria-label="Cart, {{ value }} items">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.4 10.2a1 1 0 0 0 1 .8h8.9a1 1 0 0 0 1-.8L20 8H6.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="19" r="1.6" fill="currentColor"/><circle cx="17" cy="19" r="1.6" fill="currentColor"/></svg>
+            <span class="count">{{ value }}</span>
+          </a>
+          <a class="plain" href="{{ url_for('logout') }}">Log out</a>
+          {% elif user["role"] == "admin" %}
+          <a class="plain" href="{{ url_for('logout') }}">Log out</a>
+          {% else %}
+          <a class="btn btn-small" href="{{ url_for('get_login') }}">Log in</a>
+          {% endif %}
+        </div>
+      </nav>
+      <div class="ticker" aria-hidden="true">
+        <div class="ticker-track">
+          {% for _ in range(2) %}
+          <span>★ UNBELIEVABLE PRICES</span><span>★ UNBEATABLE SCAMS</span><span>★ 100% NOT LEGIT</span><span>★ FREE SHIPPING TO NOWHERE</span><span>★ CUSTOMER SERVICE: GOOD LUCK</span>
+          {% endfor %}
+        </div>
+      </div>
+    </header>
+
+    <main id="main">
+      {% if currency != "EUR" %}
+      <p class="rate-note">
+        Prices in {{ currency }}, converted from euro at the European Central Bank's rate{% if rates_date %} of {{ rates_date }}{% endif %}.
+      </p>
+      {% endif %}
+      {% if reveal %}
+      <aside class="trick-panel" aria-label="The tricks on this page">
+        <p class="trick-panel-title">🔍 The tricks on this page</p>
+        <p class="trick-none" hidden>None here. Try the deals or your cart.</p>
+        <ol class="trick-list">
+          {% for key, (name, why) in tricks.items() %}
+          <li data-key="{{ key }}"><strong>{{ name }}.</strong> {{ why }}</li>
+          {% endfor %}
+        </ol>
+        <p><a href="{{ url_for('tricks_page') }}">All the tricks, and how to spot them</a></p>
+      </aside>
+      {% endif %}
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="foot">
+      <div>
+        <p class="foot-brand">SCAMAZON<sup>™</sup></p>
+        <p>A DevOps group project: a Flask front end and three services in Docker, sharing one MongoDB. Nothing here is for sale.</p>
+      </div>
+      <div>
+        <p class="foot-title">Shop</p>
+        <ul>
+          <li><a href="{{ url_for('products') }}">All deals</a></li>
+          <li><a href="{{ url_for('about') }}">About</a></li>
+          <li><a href="{{ url_for('server') }}">Service status</a></li>
+          <li><a href="{{ url_for('tricks_page') }}">The tricks, explained</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="foot-title">Design</p>
+        <p>Same shop, {{ themes | length }} looks. Classic is the group's first design from 2023.</p>
+        <p>Pick one with <strong>Design</strong> at the bottom right.</p>
+      </div>
+    </footer>
+    {% include '_design_switch.html' %}
+    <script>
+      // False urgency (a trick on purpose): every countdown starts over when it reaches zero
+      document.querySelectorAll(".countdown").forEach((el) => {
+        const start = Number(el.dataset.seconds) || 299;
+        let left = start;
+        setInterval(() => {
+          left = left > 0 ? left - 1 : start;
+          el.textContent = String(Math.floor(left / 60)).padStart(2, "0") + ":" + String(left % 60).padStart(2, "0");
+        }, 1000);
+      });
+      // Reveal the tricks: number each trick on the page and list only those in the panel
+      if (document.body.classList.contains("reveal")) {
+        const order = [];
+        document.querySelectorAll("main [data-trick]").forEach((el) => {
+          const key = el.dataset.trick;
+          if (!order.includes(key)) order.push(key);
+          const tag = document.createElement("span");
+          tag.className = "trick-tag";
+          tag.textContent = order.indexOf(key) + 1;
+          tag.setAttribute("aria-hidden", "true");
+          el.appendChild(tag);
+        });
+        const list = document.querySelector(".trick-list");
+        list.querySelectorAll("li").forEach((li) => { li.hidden = !order.includes(li.dataset.key); });
+        order.forEach((key) => list.appendChild(list.querySelector('li[data-key="' + key + '"]')));
+        document.querySelector(".trick-none").hidden = order.length > 0;
+      }
+    </script>
+  </body>
+</html>

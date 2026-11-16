@@ -1,0 +1,12 @@
+{# The design picker: the same place and look in every design (bottom right, its own neutral
+   style in design-switch.css), so it is never somewhere else after switching. #}
+<form class="ds" method="POST" action="{{ url_for('set_theme') }}">
+  <input type="hidden" name="next" value="{{ request.full_path.rstrip('?') }}" />
+  <label class="ds-label" for="ds-select">Design</label>
+  <select class="ds-select" id="ds-select" name="theme" onchange="this.form.submit()">
+    {% for key, label in themes.items() %}
+    <option value="{{ key }}" {% if key == theme %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+  <noscript><button class="ds-ok" type="submit">OK</button></noscript>
+</form>

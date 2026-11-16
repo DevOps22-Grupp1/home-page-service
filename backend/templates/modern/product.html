@@ -1,0 +1,54 @@
+{% extends 'modern/base.html' %}
+{% block title %}{{ product.order }}{% endblock %}
+{% block content %}
+{% set amount = product.price | float(0) %}
+<p class="muted"><a href="{{ url_for('products') }}">All the deals</a> / {{ product.category | join(" · ") }}</p>
+<section class="product-hero">
+  <div class="product-photo panel">
+    <img src="{{ product.image }}" alt="{{ product.order }}" />
+  </div>
+  <div>
+    <h1 class="page-title">{{ product.order }}</h1>
+    <p class="stars" aria-label="5 out of 5 stars">★★★★★ <span class="muted">({{ reviews | length }} reviews, all of them glowing)</span></p>
+    <p class="price big-price">
+      {{ product.price | money }}{% if amount > 0 %}<span class="was" data-trick="anchor">{{ (amount * 3) | money }}</span>{% endif %}
+    </p>
+    <p class="viewers" data-trick="viewers">👀 {{ viewers_now(product.id) }} people are viewing this</p>
+    <p class="deadline" data-trick="countdown">This price ends in <span class="countdown" data-seconds="299">04:59</span></p>
+    {% if user["role"] == "customer" %}
+    <a class="btn" href="{{ url_for('buy', id=product.id) }}">Grab it</a>
+    {% elif user["role"] == "admin" %}
+    <a class="btn btn-ghost" href="{{ url_for('handle_products') }}">Manage the products</a>
+    {% else %}
+    <a class="btn" href="{{ url_for('get_login') }}">Log in to grab it</a>
+    {% endif %}
+  </div>
+</section>
+
+<section>
+  <h2 class="section-title">What our customers say</h2>
+  <div class="reviews" data-trick="reviews">
+    {% for review in reviews %}
+    <article class="panel review">
+      <img src="{{ url_for('static', filename='avatars/' + review.avatar) }}" alt="" width="48" height="48" />
+      <div>
+        <p class="review-head"><strong>{{ review.name }}</strong> <span class="stars" aria-label="5 out of 5 stars">★★★★★</span></p>
+        <p>{{ review.text }}</p>
+        <p class="muted review-date">Posted {{ today }}</p>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+{% if related %}
+<section>
+  <h2 class="section-title">Customers also bought</h2>
+  <div class="grid">
+    {% for product in related %}
+    {% include 'modern/_card.html' %}
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+{% endblock %}
